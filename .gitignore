@@ -7,5 +7,5 @@ venv
 # development
 notes
 old
-*.mp3
+#*.mp3
 *.psd
