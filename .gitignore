@@ -1,0 +1,10 @@
+# cache
+__pycache__
+.git
+.idea
+
+# development
+notes
+old
+*.wav
+*.psd
