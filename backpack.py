@@ -7,8 +7,10 @@ from text import Text
 
 class Backpack(Text):
     """ Рюкзак """
-    def __init__(self, screen_rect):
+    def __init__(self, game):
         super().__init__()
+        self.game = game
+        screen_rect = game.screen_rect()
         # фон картинка
         self.rect = pygame.Rect((screen_rect.x + 90, screen_rect.y + 90), (screen_rect.w - 580, screen_rect.h - 200))
         self.image = pygame.image.load(os.path.join(c.IMAGES_DIR, 'backpack_background.png'))
@@ -50,14 +52,13 @@ class Backpack(Text):
             lines.append(line)
         list_rect = self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
 
-    def select_item(self, event, hero):
-        """вибираем предмет в рюкзаке"""
-        if event.key == pygame.K_UP:
-            if self.active_items_id <= 0:
-                pass
-            else:
+    def select_item(self, pressed_key):
+        """ кнопками UP/DOWN вибираем предмет в рюкзаке """
+        if pressed_key == pygame.K_UP:
+            if self.active_items_id > 0:
                 self.active_items_id -= 1
-        if event.key == pygame.K_DOWN:
+        if pressed_key == pygame.K_DOWN:
+            hero = self.game.get_active_character()
             if self.active_items_id >= len(hero.items) - 1:
                 pass
             else:
@@ -66,5 +67,10 @@ class Backpack(Text):
     def clear_item_id(self):
         self.active_items_id = 0
 
-
-
+    def item_to_hands(self):
+        """ берём вещь в руки из рюкзака """
+        hero = self.game.get_active_character()
+        item_in_hands = hero.item_in_hands
+        item_in_backpack = hero.items[self.active_items_id]
+        hero.item_in_hands = item_in_backpack
+        hero.items[self.active_items_id] = item_in_hands
