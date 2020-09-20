@@ -2,9 +2,10 @@
 __pycache__
 .git
 .idea
+venv
 
 # development
 notes
 old
-*.wav
+*.mp3
 *.psd
