@@ -6,7 +6,7 @@ import random
 import time
 
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, Knife
+from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, Knife, Armor_level_1
 
 
 class Character(pygame.sprite.Sprite):
@@ -121,7 +121,11 @@ class Hero(Character):
         self.type = 'hero'
         self.items = []  # колличество вещей
         self.items_max = 3
-        self.lives = 1
+        self.armor = None
+        self.armor_points = 0
+        if self.armor:
+            self.armor_points = self.armor.strength
+        self.lives = 10 + self.armor_points
 
     def pick_up_item(self):
         """ герой поднемает вещь на карте """
@@ -175,7 +179,17 @@ class Hero(Character):
             cell = map_.get_cell_by_xy(tuple(self.xy))
             cell.items.append(self.item_in_hands)
             self.item_in_hands = None
-
+    def wear(self):
+        if self.item_in_hands:
+            if self.item_in_hands.kind_0 == 'armor':
+                if not self.armor:
+                    self.armor = self.item_in_hands
+                    self.item_in_hands = None
+                else:
+                    armor = self.armor
+                    self.armor = self.item_in_hands
+                    self.items.append(armor)
+                    self.item_in_hands = None
     def attack(self, pressed_key) -> int:
         """ атакуем персонажа на соседней клетке """
         map_ = self.game.map
@@ -203,7 +217,7 @@ class Hero(Character):
                 ch_attacked.lives -= 1
                 self.actions -= 1
                 if ch_attacked.lives == 0:
-                    ch_attacked.death(charecters, cell_attacked)
+                    ch_attacked.death()
 
         # gun
         elif self.item_in_hands:
@@ -304,7 +318,7 @@ class Hero(Character):
                     ch_attacked = cell_attacked.characters[-1]
                     ch_attacked.lives -= self.item_in_hands.damage
                     if ch_attacked.lives <= 0:
-                        ch_attacked.death(charecters, cell_attacked)
+                        ch_attacked.death()
                     if random.randrange(100) < 50:
                         self.item_in_hands.strength -= 1
                     else:
@@ -313,7 +327,7 @@ class Hero(Character):
                         self.item_in_hands = None
                     self.actions -= 1
                     if ch_attacked.lives == 0:
-                        ch_attacked.death(charecters, cell_attacked)
+                        ch_attacked.death()
 
 
 class Monster(Character):
@@ -328,7 +342,7 @@ class Monster(Character):
 class Cheater(Hero):
     def __init__(self, name, image, xy, game):
         super().__init__(name, image, xy, game)
-        self.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(), LittleCartridge(), Awp(), Mastif(), Knife()]
+        self.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(), LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1()]
         self.item_in_hands = Digle()
         self.items_max = 1000
         self.actions = 10000

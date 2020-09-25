@@ -28,6 +28,11 @@ class DashboardLeft:
         in_hands = hero.item_in_hands
         if in_hands:
             in_hands = hero.item_in_hands.kind
+        armor = hero.armor
+        strength = 0
+        if armor:
+            armor = hero.armor.kind
+            strength = hero.armor.strength
 
         # ищем патроны для оружия в рюкзаке героя
         cart_count = 0
@@ -48,10 +53,11 @@ class DashboardLeft:
 
         # текст
         rows = ["{:<9} {}".format("Name:", hero.name),
-                "{:<9} {}".format("Health:", hero.lives),
+                "{:<9} {}".format("Health:", hero.lives + strength),
                 "{:<9} {}".format("Actions:", hero.actions),
                 "{:<9} {}, {}".format("In hands:", in_hands, cart_count),
-                "{:<9} {}".format("Items in backpack:", len(hero.items))]
+                "{:<9} {}".format("Items in backpack:", len(hero.items)),
+                "{:<9} {}, {}".format("Armor:", armor, strength)]
         #         "{}".format("Items:")]
         # if hero.items:  # если в рюкзаке есть вещи
         #     for item in hero.items:

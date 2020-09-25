@@ -9,7 +9,7 @@ class Items:
     def __init__(self):
         self.kind = None
         self.pic = None
-        self.pic_on_map = ':)'
+        self.pic_on_map = '?'
         self.kind_0 = None
 
     def draw(self, screen, cell):
@@ -165,3 +165,46 @@ class Bat(SteelWeapon):
         self.kind = 'Bat'
         self.damage = 2
         self.strength = 10
+
+
+class Armor(Items):
+    def __init__(self):
+        super().__init__()
+        self.kind_0 = 'armor'
+        self.strength = None
+
+
+class Armor_level_1(Armor):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'Armor level 1'
+        self.strength = 2
+
+
+class Armor_level_2(Armor):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'armor_level_2'
+        self.strength = 3
+
+
+class Armor_level_3(Armor):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'armor_level_3'
+        self.strength = 4
+
+# todo чделать рюкзак
+# class Backpack(Items):
+#     def __init__(self):
+#         super().__init__()
+#         self.kind_0 = 'backpack'
+#         self.apacity = None
+
+# todo чделать медикоменты
+# class Medicines(Items):
+#     def __init__(self):
+#         super().__init__()
+#         self.heal = None
+#         self.heal_target = None
+#         self.kind_0 = 'medicines'

@@ -45,12 +45,14 @@ class Backpack(Text):
                 line = f"{line}. {hero.items[i].kind}"
             elif hero.items[i].kind_0 == 'steelweapon':
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
+            elif hero.items[i].kind_0 == 'armor':
+                line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
             else:
                 raise NotImplementedError(f"neizvestnij predmet: {hero.items[i]}")  # todo udalit' kogda budut vse vidi oruzhja
             if self.active_items_id == i:
                 line = f'{line} {"    <"}'
             lines.append(line)
-        list_rect = self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
+        self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
 
     def select_item(self, pressed_key):
         """ кнопками UP/DOWN вибираем предмет в рюкзаке """

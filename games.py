@@ -15,20 +15,21 @@ from Items import Digle, Uzi, Kalashnikov
 from backpack import Backpack
 from pygame import Rect, Surface
 from pygame.sprite import Group
+from controls import Controls
 
 
 class Game:
-    screen: Optional[Surface] = None
-    heroes: Optional[Group] = None
-    monsters: Optional[Group] = None
-    characters: Optional[Group] = None
-    map: Optional[Map] = None
-    dashboard_left: Optional[DashboardLeft] = None
-    backpack: Optional[Backpack] = None
+    # screen: Optional[Surface] = None
+    # heroes: Optional[Group] = None
+    # monsters: Optional[Group] = None
+    # characters: Optional[Group] = None
+    # map: Optional[Map] = None
+    # dashboard_left: Optional[DashboardLeft] = None
+    # backpack: Optional[Backpack] = None
     kb_mode: str = "map"  # keyboard mode, карта по умолчанию
     key_pressed = False  # нажата люмая кнопка
 
-    def __init__(self, heroes: int = 0, monsters: int = 10):
+    def __init__(self, heroes=0, monsters=10):
         """  Создадим игру
         :param heroes: колличество героев в игре. Если players_count=0, то будет читер.
         :param monsters: колличество мончтров в игре.
@@ -40,6 +41,7 @@ class Game:
         self.map = self._init_map()
         self.dashboard_left = DashboardLeft(self.screen_rect(), self.map)
         self.backpack = Backpack(self)
+        self.controls = Controls(self)
 
     def _init_screen(self) -> Surface:
         """ Создадим экран игры """
@@ -149,6 +151,10 @@ class Game:
                 self.kb_mode = "backpack"
                 self.backpack.clear_item_id()
                 return
+            if keys[pygame.K_F1]:
+                self.kb_mode = "controls"
+                self.backpack.clear_item_id()
+                return
             # меняем режим клавиатуры с карты на атаку
             if keys[pygame.K_a]:
                 self.kb_mode = "attack"
@@ -173,8 +179,16 @@ class Game:
             elif keys[pygame.K_d]:
                 hero.drop_down_item()
                 return
+            elif keys[pygame.K_w]:
+                hero.wear()
+                return
 
         # управление в рюкзаке
+        elif self.kb_mode == 'controls':
+            # переключаем управление на карту
+            if keys[pygame.K_ESCAPE] or keys[pygame.K_F1]:
+                self.kb_mode = 'map'
+                return
         elif self.kb_mode == 'backpack':
             # переключаем управление на карту
             if keys[pygame.K_ESCAPE] or keys[pygame.K_i]:
@@ -209,7 +223,7 @@ class Game:
                 return
             elif keys[pygame.K_RIGHT]:
                 hero = self.get_active_character()
-                hero.attack(pygame.K_LEFT)
+                hero.attack(pygame.K_RIGHT)
                 return
 
         # у героя закончились ходы, ход переходит к следующему герою
@@ -230,3 +244,5 @@ class Game:
 
         if self.kb_mode == 'backpack':
             self.backpack.draw(self.screen, character)
+        if self.kb_mode == 'controls':
+            self.controls.draw(self.screen, character)
