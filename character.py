@@ -1,16 +1,20 @@
-import pygame
-import math
+""" Персонажы """
+
 import os
-from backpack import Backpack
 import random
-import time
+from typing import Optional, Tuple
+
+import pygame
+from pygame import Rect
 
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, Knife, Armor_level_1
+from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
+    Medikit, Knife, Armor_level_1, Cotton, Backpack_level_3
 
 
 class Character(pygame.sprite.Sprite):
     """ Персонаж, класс-родитель для героя и монстра """
+
     def __init__(self, name, image, xy, game):
         super().__init__()
         self.game = game
@@ -31,7 +35,13 @@ class Character(pygame.sprite.Sprite):
         self.actions_max = 3  # максимально количество действий героя за один ход игры
         self.actions = self.actions_max  # возможное количество действий на данный момент
 
-    def _get_rect(self):
+    def __repr__(self):
+        line = f"{self.name}, {self.actions}/{self.actions_max}"
+        if self.active:
+            line += " active"
+        return line
+
+    def _get_rect(self) -> Rect:
         """ return координаны картинки героя в зависимости от ячейки на карте """
         rect = self.image.get_rect()
         # координаты ячкйки на экрана
@@ -51,20 +61,19 @@ class Character(pygame.sprite.Sprite):
     #     pic = pygame.transform.scale(self.pic, (self.w, self.h))
     #     screen.blit(pic, (x, y))
 
-    def move(self, pressed_key):
+    def move(self, pressed_key) -> None:
         """ Передвижение персонажа по карте """
         map_ = self.game.map
         # найдём ячейку в которой находится персонаж
         cell = map_.get_cell_by_xy(tuple(self.xy))
-        # найдём ячейку в которой находится герой
-        # cell0 = [i for i in map_.cells if i.xy == tuple(self.xy)][0]
 
         # герой переходит на другую клетку
         is_success = False
 
+        # если стенки нет двигаем персонажа
         if pressed_key == pygame.K_UP:
-            if 't' not in cell.walls:  # если стенки нет
-                self.xy[1] -= 1  # двигаем персонажа
+            if 't' not in cell.walls:
+                self.xy[1] -= 1
                 is_success = True
         elif pressed_key == pygame.K_DOWN:
             if 'b' not in cell.walls:
@@ -92,13 +101,14 @@ class Character(pygame.sprite.Sprite):
                 for cell_ in map_.cells:
                     if cell_.xy == tuple(self.xy):
                         cell_.characters.append(self)
+
             # звук столкновения персонажа со стеной
             else:
                 # pygame.mixer.Sound(c.SOUND_PUNCH_TO_WALL).play()  # todo repair sounds
                 pass
         # print()
 
-    def death(self, ):
+    def death(self) -> None:
         """ Персонаж умирает """
         # ищем героя на карте
         for cell in self.game.map.cells:
@@ -116,18 +126,24 @@ class Character(pygame.sprite.Sprite):
 
 
 class Hero(Character):
+    """ Герой """
+
     def __init__(self, name, image, xy, game):
         super().__init__(name, image, xy, game)
         self.type = 'hero'
         self.items = []  # колличество вещей
-        self.items_max = 3
         self.armor = None
         self.armor_points = 0
+        self.backpack = None
+        self.backpack_points = 0
+        if self.backpack:
+            self.backpack_points = self.backpack.apacity
+        self.items_max = 3 + self.backpack_points
         if self.armor:
             self.armor_points = self.armor.strength
         self.lives = 10 + self.armor_points
 
-    def pick_up_item(self):
+    def pick_up_item(self) -> None:
         """ герой поднемает вещь на карте """
         map_ = self.game.map
         is_success = False
@@ -170,7 +186,7 @@ class Hero(Character):
         if is_success is True:
             self.actions -= 1
 
-    def drop_down_item(self):
+    def drop_down_item(self) -> None:
         """ выбрасываем вещь из рук на карту """
         map_ = self.game.map
         if self.item_in_hands is None:
@@ -179,9 +195,11 @@ class Hero(Character):
             cell = map_.get_cell_by_xy(tuple(self.xy))
             cell.items.append(self.item_in_hands)
             self.item_in_hands = None
-    def wear(self):
+
+    def wear(self) -> None:
+        """ Одевает броню или рюкзак """
         if self.item_in_hands:
-            if self.item_in_hands.kind_0 == 'armor':
+            if self.item_in_hands.kind_0 == "armor":
                 if not self.armor:
                     self.armor = self.item_in_hands
                     self.item_in_hands = None
@@ -190,10 +208,36 @@ class Hero(Character):
                     self.armor = self.item_in_hands
                     self.items.append(armor)
                     self.item_in_hands = None
-    def attack(self, pressed_key) -> int:
+
+            if self.item_in_hands.kind_0 == "backpack":
+                if not self.backpack:
+                    self.backpack = self.item_in_hands
+                    self.item_in_hands = None
+                    self.items_max += self.backpack.apacity
+                else:
+                    backpack = self.backpack
+                    self.items_max -= backpack.apacity
+                    self.backpack = self.item_in_hands
+                    self.items_max += backpack.apacity
+                    self.items.append(backpack)
+                    self.item_in_hands = None
+
+    def use(self):
+        print(self.items_max)
+        if self.item_in_hands:
+            if self.item_in_hands.kind == 'medikit':
+                self.lives += self.item_in_hands.heal
+                self.item_in_hands = None
+                if self.lives >= 10:
+                    self.lives = 10
+            if self.item_in_hands.kind == 'cotton':
+                if self.armor:
+                    self.armor.strength += self.item_in_hands.heal
+                    self.item_in_hands = None
+
+    def attack(self, pressed_key) -> None:
         """ атакуем персонажа на соседней клетке """
         map_ = self.game.map
-        charecters = self.game.characters
         xy = self.xy
         wall = None
 
@@ -293,14 +337,15 @@ class Hero(Character):
                                             ch_attacked.death()
                             # никого, промах
                             if not cells_attacked:
-                                rikoshet = pygame.mixer.Sound(os.path.join(c.SOUNDS_DIR, 'rikoshet.wav'))
+                                rikoshet = pygame.mixer.Sound(
+                                    os.path.join(c.SOUNDS_DIR, 'rikoshet.wav'))
                                 rikoshet.play()
 
                             self.actions -= 1
 
-        #
-        # elif self.item_in_hands.kind_0 == 'grenade':  # todo
-        #     pass
+            #
+            # elif self.item_in_hands.kind_0 == 'grenade':  # todo
+            #     pass
             elif self.item_in_hands.kind_0 == 'steelweapon':  # todo
                 cell_attacked = None  # атакуемая клетка
                 if pressed_key == pygame.K_UP:
@@ -331,7 +376,10 @@ class Hero(Character):
 
 
 class Monster(Character):
-    def __init__(self, name, image, xy, actions, lives, game):
+    """ Монстр """
+
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], actions: int, lives: int,
+                 game: "Game"):
         super().__init__(name, image, xy, game)
         self.type = 'monster'
         self.actions_max = actions  # максимально количество действий монстра за один ход игры
@@ -340,9 +388,12 @@ class Monster(Character):
 
 
 class Cheater(Hero):
-    def __init__(self, name, image, xy, game):
+    """ Читер """
+
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
         super().__init__(name, image, xy, game)
-        self.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(), LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1()]
+        self.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
+                      LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1(), Medikit(), Cotton(), Backpack_level_3()]
         self.item_in_hands = Digle()
         self.items_max = 1000
         self.actions = 10000

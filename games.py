@@ -59,18 +59,16 @@ class Game:
         """ Создадим группу из героев """
         heroes = Group()
         attributes = [
-            ('hero_1', 'hero1.png', (-10, -1), self),
+            ('hero_1', 'hero1.png', (1, 1), self),
             ('hero_2', 'hero2.png', (1, 2), self),
-            ('hero_3', 'hero3.png', (1, 5), self),
+            ('hero_3', 'hero3.png', (1, 3), self),
             ('hero_4', 'hero4.png', (1, 4), self),
         ]
-        if count:
-            for i, attrs in enumerate(attributes):
-                heroes.add(Hero(*attrs))
-                if i >= count:
-                    break
-        else:
-            heroes.add(Cheater('chiter', 'Cheater.png', (10, 8), self))
+        for i, attrs in enumerate(attributes):
+            heroes.add(Hero(*attrs))
+            if count and i + 1 >= count:
+                break
+
         # первый герой активный
         sprites = heroes.sprites()
         sprites[0].active = True
@@ -80,12 +78,6 @@ class Game:
         """ Создадим группу из монстров """
         monsters = Group()
         attributes = [
-            ('little_monster', 'litel_monster.png', (10, 2), 2, 1, self),
-            ('big_monster', 'big_monster.png', (10, 4), 1, 1, self),
-            ('boss_monster_1', 'monster_boss_1.png', (10, 5), 1, 1, self),
-            ('little_monster', 'litel_monster.png', (10, 3), 2, 1, self),
-            ('little_monster', 'litel_monster.png', (10, 6), 2, 1, self),
-            ('little_monster', 'litel_monster.png', (10, 7), 2, 1, self),
         ]
         for i, attrs in enumerate(attributes):
             monsters.add(Monster(*attrs))
@@ -121,12 +113,20 @@ class Game:
         characters = self.characters.sprites()
         for i, character in enumerate(characters):
             if character.active:
+                # выдодим если ходы у активного игрока ещё не закончились
+                if character.actions > 0:
+                    break
+                # ходы у активного игрока закончились
                 character.active = False
-            if len(characters) > i + 1:
-                characters[i + 1].active = True
-            else:
-                characters[0].active = True
-
+                character.actions = character.actions_max
+                # если есть следующий игрок в листе, то ход переходит следующиму игроку
+                if len(characters) > i + 1:
+                    characters[i + 1].active = True
+                    break
+                # если это последний игрок в очереди, то ход передаестся первому игроку
+                else:
+                    characters[0].active = True
+                    break
 
     def keys_actions(self):
         """ В зависимости от нажатой кнопки меняем управление клавиатуры
@@ -181,6 +181,9 @@ class Game:
                 return
             elif keys[pygame.K_w]:
                 hero.wear()
+                return
+            elif keys[pygame.K_u]:
+                hero.use()
                 return
 
         # управление в рюкзаке

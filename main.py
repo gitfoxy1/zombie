@@ -1,32 +1,25 @@
-import pygame
-import random
-import os
-import math
+""" game zombie """
+# pylint: disable=no-member
 
-import constants as c
+import pygame
+
 import functions as f
-from character import Hero
-from character import Monster
-from character import Cheater
-from map import Map
-from dashboard import DashboardLeft
-from Items import Digle, Uzi, Kalashnikov
-from backpack import Backpack
 from games import Game
+
 
 FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])
 clock = pygame.time.Clock()
-game = Game(0)
+game = Game()
 
-run = True  # если run = False, тогда выходим из игры
-while run:
+RUN = True  # если run = False, тогда выходим из игры
+while RUN:
     keys = pygame.key.get_pressed()
     game.keys_actions()
     for event in pygame.event.get():  # проверяем любые нажатые кнопки
         if f.exit_game(event):  # Вйти из игры если нажат знак QUIT или кнопка ESCAPE
-            run = False
+            RUN = False
     # отрисовка экрана
     game.draw()
     pygame.display.update()

@@ -47,6 +47,10 @@ class Backpack(Text):
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
             elif hero.items[i].kind_0 == 'armor':
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
+            elif hero.items[i].kind_0 == 'medicines':
+                line = f"{line}. {hero.items[i].kind}"
+            elif hero.items[i].kind_0 == 'backpack':
+                line = f"{line}. {hero.items[i].kind}"
             else:
                 raise NotImplementedError(f"neizvestnij predmet: {hero.items[i]}")  # todo udalit' kogda budut vse vidi oruzhja
             if self.active_items_id == i:
@@ -75,4 +79,7 @@ class Backpack(Text):
         item_in_hands = hero.item_in_hands
         item_in_backpack = hero.items[self.active_items_id]
         hero.item_in_hands = item_in_backpack
-        hero.items[self.active_items_id] = item_in_hands
+        if item_in_hands:
+            hero.items[self.active_items_id] = item_in_hands
+        else:
+            del hero.items[self.active_items_id]

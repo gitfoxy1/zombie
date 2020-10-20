@@ -194,17 +194,56 @@ class Armor_level_3(Armor):
         self.kind = 'armor_level_3'
         self.strength = 4
 
-# todo чделать рюкзак
-# class Backpack(Items):
-#     def __init__(self):
-#         super().__init__()
-#         self.kind_0 = 'backpack'
-#         self.apacity = None
 
-# todo чделать медикоменты
-# class Medicines(Items):
-#     def __init__(self):
-#         super().__init__()
-#         self.heal = None
-#         self.heal_target = None
-#         self.kind_0 = 'medicines'
+class Backpack(Items):
+    def __init__(self):
+        super().__init__()
+        self.kind_0 = 'backpack'
+        self.apacity = None
+
+
+class Backpack_level_1(Backpack):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'backpack_level_1'
+        self.apacity = 1
+
+
+class Backpack_level_2(Backpack):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'backpack_level_2'
+        self.apacity = 2
+
+
+class Backpack_level_3(Backpack):
+    def __init__(self):
+        super().__init__()
+        self.kind = 'backpack_level_3'
+        self.apacity = 3
+
+
+class Medicines(Items):
+    def __init__(self):
+        super().__init__()
+        self.heal = None
+        self.heal_target = None
+        self.kind_0 = 'medicines'
+
+
+class Medikit(Medicines):
+    def __init__(self):
+        super().__init__()
+        self.heal = 3
+        self.heal_target = 'health'
+        self.kind_0 = 'medicines'
+        self.kind = 'Medikit'
+
+
+class Cotton(Medicines):
+    def __init__(self):
+        super().__init__()
+        self.heal = 1
+        self.heal_target = 'armor'
+        self.kind_0 = 'medicines'
+        self.kind = 'cotton'

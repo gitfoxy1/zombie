@@ -44,6 +44,7 @@ class Controls(Text):
             pattern.format(' ', 'left:', 'arrow left'),
             pattern.format(' ', 'drop item:', 'D'),
             pattern.format(' ', 'wear item:', 'W'),
+            pattern.format(' ', 'use item:', 'U'),
             'BACKPACK',
             pattern.format(' ', 'backpack:', 'I'),
             pattern.format(' ', 'backpack:', 'I or esc'),

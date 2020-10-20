@@ -3,7 +3,8 @@ import math
 import pygame
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-SOUNDS_DIR = os.path.join(PROJECT_DIR, 'sounds')
+SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
+IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
 
@@ -32,12 +33,8 @@ COLORS = {
     'yellow': YELLOW,
 }
 
-# картинки
-IMAGES_DIR = 'images'
-
-
 # звуки
-SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, 'punch_to_wall.wav')  # звук столкновения героя со стеной
+SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")  # звук столкновения героя со стеной
 
 # карты в ascii символах сгенерированая при помощи https://notimetoplay.itch.io/ascii-mapper
 # map_ size 15/10 as chars size 32/22
