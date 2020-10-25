@@ -58,8 +58,18 @@ class Test(unittest.TestCase):
         self.assertFalse(hero2.active, msg="Expected: hero2.active=False")
         self.assertIs(hero1.actions, 3, msg="Expected: hero1.actions=3/3")
         self.assertIs(hero2.actions, 3, msg="Expected: hero2.actions=3/3")
-        print()
-        print()
+
+    def test_update_rounds_wave_counter(self):
+        """ Game.update_rounds_wave_counter()
+            обновляем счетчик кругов и волн монстров
+        """
+        pygame.init()
+        game = Game(2)
+        for i in range(10):
+            waves_counter = (i + 1) // game.rounds_in_wave
+            game.update_rounds_wave_counter(True)
+            self.assertEqual(game.rounds_counter, i + 1, msg=f"i={i}, game.rounds_counter")
+            self.assertEqual(game.waves_counter, waves_counter, msg=f"i={i}, game.waves_counter")
 
 
 if __name__ == '__main__':

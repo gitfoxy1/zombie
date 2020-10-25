@@ -2,7 +2,7 @@
 
 import os
 import random
-from typing import Optional, Tuple
+from typing import Tuple
 
 import pygame
 from pygame import Rect
@@ -378,22 +378,52 @@ class Hero(Character):
 class Monster(Character):
     """ Монстр """
 
+    # noinspection PyUnresolvedReferences
     def __init__(self, name: str, image: str, xy: Tuple[int, int], actions: int, lives: int,
-                 game: "Game"):
+                 damage: int, game: "Game"):
         super().__init__(name, image, xy, game)
         self.type = 'monster'
         self.actions_max = actions  # максимально количество действий монстра за один ход игры
         self.actions = self.actions_max  # возможное количество действий на данный момент
         self.lives = lives
+        self.damage = damage
+
+    # noinspection PyUnresolvedReferences
+    @classmethod
+    def little_monster(cls, id_: int, xy: Tuple[int, int], game: "Game"):
+        """ создадим маленького монстра """
+        monster = cls(name=f"little_monster_{id_}",
+                      image="little_monster.png",
+                      xy=xy,
+                      actions=2,
+                      lives=1,
+                      damage=1,
+                      game=game)
+        return monster
+
+    # noinspection PyUnresolvedReferences
+    @classmethod
+    def big_monster(cls, id_: int, xy: Tuple[int, int], game: "Game"):
+        """ создадим большого монстра """
+        monster = cls(name=f"big_monster_{id_}",
+                      image="big_monster.png",
+                      xy=xy,
+                      actions=2,
+                      lives=3,
+                      damage=1,
+                      game=game)
+        return monster
 
 
 class Cheater(Hero):
     """ Читер """
 
+    # noinspection PyUnresolvedReferences
     def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
         super().__init__(name, image, xy, game)
         self.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
-                      LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1(), Medikit(), Cotton(), Backpack_level_3()]
+                      LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1(), Medikit(),
+                      Cotton(), Backpack_level_3()]
         self.item_in_hands = Digle()
         self.items_max = 1000
         self.actions = 10000

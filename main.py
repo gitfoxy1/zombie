@@ -11,7 +11,7 @@ FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])
 clock = pygame.time.Clock()
-game = Game()
+game = Game(1)
 
 RUN = True  # если run = False, тогда выходим из игры
 while RUN:
