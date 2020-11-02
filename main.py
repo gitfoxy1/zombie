@@ -15,9 +15,20 @@ game = Game(1)
 
 RUN = True  # если run = False, тогда выходим из игры
 while RUN:
-    keys = pygame.key.get_pressed()
-    game.keys_actions()
-    for event in pygame.event.get():  # проверяем любые нажатые кнопки
+
+    # обновляет счётчики, если у героя закончился действия, то ход переходит к следующему герою
+    counters = game.update_round()
+    # добавляет монстров каждую волну
+    if counters.wave:
+        game.init_monsters_wave()
+
+    active_character = game.get_active_character()
+    if active_character.type == "hero":
+        game.hero_actions()
+    elif active_character.type == "monster":
+        game.monster_actions()
+
+    for event in pygame.event.get():  # проверяет любые нажатые кнопки
         if f.exit_game(event):  # Вйти из игры если нажат знак QUIT или кнопка ESCAPE
             RUN = False
     # отрисовка экрана

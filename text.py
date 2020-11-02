@@ -12,7 +12,7 @@ class Text:
         self.size = 30
 
     def draw_header1_center(self, text, screen, x, y):
-        """ Пишем загловок в центре """
+        """ Пишет загловок в центре """
         size = int(self.size * 2)
         font = pygame.font.SysFont(self.font, size)
         font.set_underline(True)
@@ -26,7 +26,7 @@ class Text:
         return box_rect
 
     def draw_header2_left(self, text, screen, x, y):
-        """ Пишем загловок слела """
+        """ Пишет загловок слела """
         size = int(self.size * 1.5)
         font = pygame.font.SysFont(self.font, size)
         font.set_underline(True)
@@ -40,7 +40,7 @@ class Text:
         return box_rect
 
     def draw_list(self, lines, screen, x, y):
-        """ Пишем список строк """
+        """ Пишет список строк """
         size = self.size
         font = pygame.font.SysFont(self.font, size)
         font.set_underline(False)

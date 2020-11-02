@@ -2,13 +2,13 @@ import pygame
 import os
 # import numpy
 import random
-
+from pygame import Rect
 import constants as c
 from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, Mozambyk, Knife, Bat
 
 
 class Cell:
-    """" Ячейка карты """
+    """ Ячейка карты """
     def __init__(self, xy, walls):
         self.w = c.CELL_W
         self.h = self.w
@@ -24,7 +24,7 @@ class Cell:
 
 
 class Map:
-    """" Карта """
+    """ Карта """
     def __init__(self, screen_rect, ascii_map):
         self.cell_w = c.CELL_W
         self.cell_count_x = None  # количество ячеек по горизонтали
@@ -37,7 +37,7 @@ class Map:
         self.create_from_ascii(ascii_map)
 
     def draw(self, screen):  # todo добавить рисовку вещей в ячейке
-        """" Рисуем карту """
+        """ Рисует карту """
         for cell in self.cells:
             cell_x = cell.xy[0] * cell.w
             cell_y = cell.xy[1] * cell.h
@@ -64,26 +64,24 @@ class Map:
                 end = (cell_x, cell_y + cell.w)
                 pygame.draw.line(screen, c.RED_DARK, start, end, self.wall_w)
 
-            # рисуем вещь если она лежит на карте
+            # рисует вещь если она лежит на карте
             if cell.items:
                 for item in cell.items:
                     item.draw(screen, cell)
 
-
-    def add_charecters(self, charecters):
+    def add_characters(self, charecters):
         """помещает персонажей на карту"""
         for charecter in charecters:
             for cell in self.cells:
-
-                if charecter.xy[0] >= self.cell_count_x:
-                    charecter.xy[0] = self.cell_count_x - 1
-                if charecter.xy[1] >= self.cell_count_y:
-                    charecter.xy[1] = self.cell_count_y - 1
-                if charecter.xy[0] <= -1:
-                    charecter.xy[0] = 0
-                if charecter.xy[1] <= -1:
-                    charecter.xy[1] = 0
-                if tuple(charecter.xy) == cell.xy:
+                if charecter.cell_xy[0] >= self.cell_count_x:
+                    charecter.cell_xy[0] = self.cell_count_x - 1
+                if charecter.cell_xy[1] >= self.cell_count_y:
+                    charecter.cell_xy[1] = self.cell_count_y - 1
+                if charecter.cell_xy[0] <= -1:
+                    charecter.cell_xy[0] = 0
+                if charecter.cell_xy[1] <= -1:
+                    charecter.cell_xy[1] = 0
+                if tuple(charecter.cell_xy) == cell.xy:
                     cell.characters.append(charecter)
 
     def add_items_to_map(self):
@@ -113,20 +111,20 @@ class Map:
             cell = random.choice(self.cells)
             cell.items.append(obj)
 
-    def get_cell_by_xy(self, xy) -> "Cell":
-        """ Возвращаем ячейку карты по координатам xy """
-        xy = tuple(xy)
-        cells = [i for i in self.cells if i.xy == xy]
+    def get_cell_by_xy(self, cell_xy) -> "Cell":
+        """ возвращает ячейку карты по координатам xy """
+        cell_xy = tuple(cell_xy)
+        cells = [i for i in self.cells if i.xy == cell_xy]
         if cells:
             return cells[0]
 
     def create_from_ascii(self, ascii_map: str) -> "map1":
-        """" Создадим карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
-        lines = ascii_map.splitlines()  # разбиваем тект на сторки
-        lines = [s for s in lines if len(s)]  # даляем пустые строки
-        lines = lines[1:]  # удаляем первую стоку с адресами ячеек "0 1 2 3 4 5"
+        """ Создаёт карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
+        lines = ascii_map.splitlines()  # разбивает тект на сторки
+        lines = [s for s in lines if len(s)]  # даляет пустые строки
+        lines = lines[1:]  # удаляет первую стоку с адресами ячеек "0 1 2 3 4 5"
 
-        # удаляем первый столбец с адресами ячеек "0 1 2 3 4 5"
+        # удаляет первый столбец с адресами ячеек "0 1 2 3 4 5"
         lines_new = []
         for line in lines:
             line = [s for s in line]
@@ -149,9 +147,9 @@ class Map:
         for y in range(self.cell_count_y):
             for x in range(self.cell_count_x):
                 cell = Cell((x, y), [])  # ячейка карты без стен
-                self.cells.append(cell)  # добавим ячейку в карту
+                self.cells.append(cell)  # добавляет ячейку в карту
 
-        # добавим стены в ячейки
+        # добавляет стены в ячейки
         for row_id in range(len(lines)):
             if (row_id % 2) == 0:  # чётные ряды, это верхние и нижние стены
                 for coll_id in range(len(lines[row_id])):
@@ -160,10 +158,10 @@ class Map:
                             x = coll_id // 2
                             y = row_id // 2
                             cell = self.get_cell_by_xy((x, y))  # ячейка
-                            if cell:  # Если ячейка найдена, добавим верхнюю стену
+                            if cell:  # Если ячейка найдена, добавляет верхнюю стену
                                 cell.walls.add('t')
                             cell_up = self.get_cell_by_xy((x, y - 1))  # ячейка сверху
-                            if cell_up:  # Если ячейка сверху найдена, добавим там нижнюю стену
+                            if cell_up:  # Если ячейка сверху найдена, добавляет там нижнюю стену
                                 cell_up.walls.add('b')
 
             else:  # нечётные ряды, это левые и правые стены
@@ -173,11 +171,41 @@ class Map:
                             x = coll_id // 2
                             y = row_id // 2
                             cell = self.get_cell_by_xy((x, y))  # ячейка
-                            if cell:  # Если ячейка найдена, добавим левую стену
+                            if cell:  # Если ячейка найдена, добавляет левую стену
                                 cell.walls.add('l')
                             cell_left = self.get_cell_by_xy((x - 1, y))  # ячейка сверху
-                            if cell_left:  # Если ячейка сверху найдена, добавим там нижнюю стену
+                            if cell_left:  # Если ячейка сверху найдена, добавляет там нижнюю стену
                                 cell_left.walls.add('r')
                     else:  # нечётные столбцы
                         pass  # центр ячейки
         return self
+
+    def draw_xy_on_map(self, screen):
+        """ рисует на карте координаты клетки xy """
+        font_h = 15
+        font_color = c.BLACK
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
+        shift = 0.05
+
+        # координаты клетки x, y
+        for cell in self.cells:
+            x = cell.xy[0]
+            y = cell.xy[1]
+            x_tl = cell.xy[0] * cell.w
+            y_tl = cell.xy[1] * cell.h
+            render = font.render(f"{x}, {y}", True, font_color)
+            rect_txt = render.get_rect()
+            x_txt = x_tl + rect_txt.w * shift
+            y_txt = y_tl + rect_txt.h * shift
+            screen.blit(render, (x_txt, y_txt))
+
+            # координаты экрана: bottom, right
+            x_screen = cell.xy[0] * cell.w
+            y_screen = cell.xy[1] * cell.h
+            x_br = x_screen + cell.w
+            y_br = y_screen + cell.h
+            render = font.render(f"{x_br},{y_br}", True, font_color)
+            rect_txt = render.get_rect()
+            x_txt = x_br - rect_txt.w - rect_txt.w * shift
+            y_txt = y_br - rect_txt.h - rect_txt.h * shift
+            screen.blit(render, (x_txt, y_txt))

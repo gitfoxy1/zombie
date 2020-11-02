@@ -13,7 +13,7 @@ class Items:
         self.kind_0 = None
 
     def draw(self, screen, cell):
-        """ Рисуем персонажа на карте """
+        """ Рисует персонажа на карте """
 
         cell_x = c.CELL_W * cell.xy[0]  # координаты ячкйки на экрана
         cell_y = c.CELL_W * cell.xy[1]
@@ -43,7 +43,7 @@ class Guns(Items):
 
 
 class Digle(Guns):
-    """"Характеристика пистолета"""
+    """Характеристика пистолета"""
     def __init__(self):
         super().__init__()
         self.kind = 'Digle'
@@ -110,7 +110,7 @@ class Awp(Guns):
 
 
 class Cartridge(Items):
-    """" патроны """
+    """ патроны """
     def __init__(self):
         super().__init__()
         self.type = None

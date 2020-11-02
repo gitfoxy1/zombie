@@ -1,5 +1,5 @@
 import os
-from typing import Optional
+from typing import Optional, NamedTuple, Union
 
 import pygame
 from pygame import Rect, Surface
@@ -7,38 +7,47 @@ from pygame.sprite import Group
 
 import constants as c
 from backpack import Backpack
-from character import Hero
-from character import Monster
 from controls import Controls
 from dashboard import DashboardLeft
+from hero import Hero
 from map import Map
+from monsters import Monster
+
+CharacterHM = Union[Hero, Monster]
+
+
+class Counters(NamedTuple):
+    """ Состояния счётчиков после каждого turn/хода """
+    turn: bool
+    round: bool
+    wave: bool
 
 
 class Game:
     """
-     dictionary of terms:
-     round -
-     turn -
-     actions -
+     Термины:
+     round - Круг. За один круг все персонажи делают по одному ходу.
+     turn - Ход. За один ход, персонаж делает заданное количество действий.
+     action - Действиею Переход на соседнюю клетку, атака.
      """
     screen: Optional[Surface] = None
-    heroes: Optional[Group] = None
-    monsters: Optional[Group] = None
-    characters: Optional[Group] = None
-    map: Optional[Map] = None
-    dashboard_left: Optional[DashboardLeft] = None
-    backpack: Optional[Backpack] = None
-    kb_mode: str = "map"  # keyboard mode, карта по умолчанию
-    key_pressed: bool = False  # нажата люмая кнопка
+    heroes: Optional[Group] = None  # спрайты с героями
+    monsters: Optional[Group] = None  # спрайты с монстрами
+    characters: Optional[Group] = None  # спрайты с героями и монстрами
+    map: Optional[Map] = None  # карта
+    dashboard_left: Optional[DashboardLeft] = None  # приборная панель
+    backpack: Optional[Backpack] = None  # рюкзак
+    kb_mode: str = "map"  # keyboard mode, map/attack/backpack
+    kb_locked: bool = False  # нажата любая кнопка
+    # счётчики
+    turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
-    # когда rounds_counter дойдет до этого значения он сбросится а waves_counter увеличится на 1
-    rounds_in_wave: int = 5
-    waves_counter: int = 0  # счетчик волн монстров
+    monster_waves_counter: int = 0  # счетчик волн монстров
+    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
 
-    def __init__(self, heroes=0, monsters=10):
-        """  Создадим игру
-        :param heroes: колличество героев в игре. Если players_count=0, то будет читер.
-        :param monsters: колличество мончтров в игре.
+    def __init__(self, heroes=0):
+        """  Создаёт игру
+        :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
         self.screen = self._init_screen()
         self.heroes = self._init_heroes(heroes)
@@ -51,53 +60,72 @@ class Game:
 
     @staticmethod
     def _init_screen() -> Surface:
-        """ Создадим экран игры """
+        """ Создаёт экран игры """
         os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
         screen = pygame.display.set_mode()
         return screen
 
     def screen_rect(self) -> Rect:
-        """ возвращает прямоугольник экрана """
+        """ Возвращает прямоугольник экрана """
         screen_w, screen_h = self.screen.get_size()
         screen_rect = Rect(0, 0, screen_w, screen_h)
         return screen_rect
 
     def _init_heroes(self, count: int) -> Group:
-        """ Создадим группу из героев """
+        """ Создаёт группу из героев """
         heroes = Group()
-        attributes = [
-            ('hero_1', 'hero1.png', (1, 1), self),
-            ('hero_2', 'hero2.png', (1, 2), self),
-            ('hero_3', 'hero3.png', (1, 3), self),
-            ('hero_4', 'hero4.png', (1, 4), self),
-        ]
-        for i, attrs in enumerate(attributes):
-            heroes.add(Hero(*attrs))
-            if count and i + 1 >= count:
-                break
+
+        # герои
+        if count:
+            attributes = [
+                ('hero_1', 'hero1.png', (1, 1), self),
+                ('hero_2', 'hero2.png', (1, 2), self),
+                ('hero_3', 'hero3.png', (1, 3), self),
+                ('hero_4', 'hero4.png', (1, 4), self),
+            ][:count]
+            for attrs in attributes:
+                hero = Hero(*attrs)
+                heroes.add(hero)
+        # читер
+        else:
+            hero = Hero.cheater(self)
+            heroes.add(hero)
 
         # первый герой активный
-        sprites = heroes.sprites()
-        sprites[0].active = True
+        hero1 = heroes.sprites()[0]
+        hero1.start_turn()
+
         return heroes
 
-    def _add_monsters(self) -> None:
-        """ Создадим группу из монстров """
-        wave = self.waves_counter
-        if wave:
-            if wave == 1:
-                monster1 = Monster.little_monster(id_=1, xy=(1, 1), game=self)
-                self.monsters.add(monster1)
-            if wave == 2:
-                monster2 = Monster.little_monster(id_=2, xy=(13, 1), game=self)
-                monster3 = Monster.little_monster(id_=3, xy=(1, 9), game=self)
-                self.monsters.add(monster3, monster2)
-            if wave == 3:
-                monster4 = Monster.big_monster(id_=1, xy=(5, 4), game=self)
-                self.monsters.add(monster4)
+    def init_monsters_wave(self) -> None:
+        """ Создаёт волну монстров. Добавляет монстров в группу спрайтов. """
+
+        # 1-ая волна монстров
+        if self.monster_waves_counter == 1:
+            monster1 = Monster.little(name="little_monster_1", cell_xy=[10, 1], game=self)
+            self.monsters.add(monster1)
+            self.characters.add(monster1)
+            self.map.add_characters([monster1])
+            return
+
+        # 2-ая волна монстров
+        if self.monster_waves_counter == 2:
+            monster2 = Monster.little(name="little_monster_2", cell_xy=[13, 1], game=self)
+            monster3 = Monster.little(name="little_monster_3", cell_xy=[1, 9], game=self)
+            self.monsters.add(monster2, monster3)
+            self.characters.add(monster2, monster3)
+            self.map.add_characters([monster2, monster3])
+            return
+
+        # 3-ая волна монстров
+        if self.monster_waves_counter == 3:
+            monster4 = Monster.big(name="big_monster_1", cell_xy=[5, 4], game=self)
+            self.monsters.add(monster4)
+            self.characters.add(monster4)
+            self.map.add_characters([monster4])
 
     def _init_characters(self) -> Group:
-        """ Создадим группу из всех героев и монстров """
+        """ Создаёт группу из всех героев и монстров """
         characters = Group()
         for hero in self.heroes:
             characters.add(hero)
@@ -106,69 +134,95 @@ class Game:
         return characters
 
     def _init_map(self) -> Map:
-        """ Создадим карту, добавим на карту героев, монстров, вещи """
+        """ Создаёт карту, добавляет на карту героев, монстров, вещи """
         screen_rect = self.screen_rect()
         map_ = Map(screen_rect, c.MAP_1)
-        map_.add_charecters(self.characters)
+        map_.add_characters(self.characters)
         map_.add_items_to_map()
         return map_
 
-    def get_active_character(self) -> Hero:
-        """ возвращает активного героя """
-        for character in self.characters:
+    def get_active_character(self) -> CharacterHM:
+        """ возвращает активного персонажа """
+        characters = self.characters.sprites()
+        for character in characters:
             if character.active:
                 return character
+        raise ValueError("нет активного персонажа")
 
-    def update_active_character(self) -> bool:
-        """ ход переходит к следующему герою """
+    def get_next_character(self) -> CharacterHM:
+        """ возвращает следующего персонажа после активного """
         characters = self.characters.sprites()
+        characters_count = len(characters)
+        # найдём активного персонажа
         for i, character in enumerate(characters):
-            # пропускаем не активных игроков
-            if not character.active:
-                continue
+            if character.active:
+                # если активный персонаж не последний в списке, вернём следующего
+                if characters_count > i + 1:
+                    return characters[i + 1]
+                # если активный персонаж последний в списке, вернём первого
+                return characters[0]
+        raise ValueError("нет активного персонажа")
 
-            # активный игрок
-            # выдодим если действия у активного игрока ещё не закончились
-            if character.actions > 0:
-                return False
-            # действия у активного игрока закончились,
-            # меняем активного игрока на следующего в списке
-            character.active = False
-            character.actions = character.actions_max
-            # если есть следующий игрок в списке, то ход переходит следующиму игроку
-            if len(characters) > i + 1:
-                characters[i + 1].active = True
-                return False
-            # если это последний игрок в очереди, то ход передаестся первому игроку
-            characters[0].active = True
-            return True
+    def update_round(self) -> Counters:
+        """ Меняет активного персонажа и обновляет счётчики.
+        Если у персонажа закончился действия/actions, то ход/turn переходит к следующему персонажу,
+        Если закончился круг/round, обновим счётчик кругов и волн-монстров,
+        """
+        # активный персонаж
+        active_character = self.get_active_character()
 
-    def update_rounds_wave_counter(self, is_round_ended: bool) -> None:
-        """ обновляем счетчик кругов и волн монстров """
-        if is_round_ended:
+        # выходим если у персонажа ещё не закончился действия/actions
+        if active_character.actions > 0:
+            return Counters(turn=False, round=False, wave=False)
+
+        # если у персонажа закончился действия/actions, ход/turn переходит к следующему персонажу
+        self.turns_counter += 1
+        next_character = self.get_next_character()
+        active_character.end_turn()
+        next_character.start_turn()
+
+        # если закончился круг/round, обновим счётчик кругов, начинает ходить первый игрок
+        first_character = self.characters.sprites()[0]
+        if next_character == first_character:
             self.rounds_counter += 1
-            if not self.rounds_counter % self.rounds_in_wave:
-                self.waves_counter += 1
+            self.turns_counter = 0
 
-    def keys_actions(self) -> None:
-        """ В зависимости от нажатой кнопки меняем управление клавиатуры
+            # если счётчик кругов кратен 5, то обновим счётчик волн-монстров
+            if not self.rounds_counter % self.rounds_between_monster_wave:
+                self.monster_waves_counter += 1
+
+                # закончилась волн-монстров
+                return Counters(turn=True, round=True, wave=True)
+            # закончился круг/round
+            return Counters(turn=True, round=True, wave=False)
+        # закончился ход/turn
+        return Counters(turn=True, round=False, wave=False)
+
+    def hero_actions(self) -> None:
+        """ В зависимости от нажатой кнопки меняет управление клавиатуры
         по умолчанию - управление на карте
-            UP, DOWN, LEFT, RIGH
+            UP, DOWN, LEFT, RIGHT
         F1 - help, описание кнопок
         I - управление на рюкзак
-        A - атакуем
+        A - атакует
          """
-        keys = pygame.key.get_pressed()
-        is_key_pressed = bool([i for i in keys if i])  # нажата любая кнопка
-        # клавиатура уже заморожена, пропускаем проверку кнопок
-        if self.key_pressed and is_key_pressed:
-            return
-        # замораживаем клавиатуру, пока не будут отпущены все кнопки
-        self.key_pressed = True
-
         hero = self.get_active_character()
+        keys = pygame.key.get_pressed()
+        is_any_key_pressed = bool([i for i in keys if i])  # нажата любая кнопка
+
+        # если ни одна кнопка не нажата, снимает блокировку клавиатуру
+        if not is_any_key_pressed:
+            self.kb_locked = False
+            return
+        # если нажата клавиша и клавиатура заблокирована, то клавиши не проверяем
+        if self.kb_locked and is_any_key_pressed:
+            return
+        # блокирует клавиатуру, пока не будут отпущены все кнопки
+        if not self.kb_locked and is_any_key_pressed:
+            self.kb_locked = True
+
         if self.kb_mode == "map":
-            # меняем режим клавиатуры с карты на рюкзак
+            # меняет режим клавиатуры с карты на рюкзак
             if keys[pygame.K_i]:
                 self.kb_mode = "backpack"
                 self.backpack.clear_item_id()
@@ -177,56 +231,57 @@ class Game:
                 self.kb_mode = "controls"
                 self.backpack.clear_item_id()
                 return
-            # меняем режим клавиатуры с карты на атаку
+            # меняет режим клавиатуры с карты на атаку
             if keys[pygame.K_a]:
                 self.kb_mode = "attack"
                 return
+
             # Передвижение персонажа по карте
-            elif keys[pygame.K_UP]:
+            if keys[pygame.K_UP]:
                 hero.move(pygame.K_UP)
                 return
-            elif keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:
                 hero.move(pygame.K_DOWN)
                 return
-            elif keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT]:
                 hero.move(pygame.K_LEFT)
                 return
-            elif keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT]:
                 hero.move(pygame.K_RIGHT)
                 return
             # герой поднимает вещь на карте
-            elif keys[pygame.K_e]:
+            if keys[pygame.K_e]:
                 hero.pick_up_item()
                 return
-            elif keys[pygame.K_d]:
+            if keys[pygame.K_d]:
                 hero.drop_down_item()
                 return
-            elif keys[pygame.K_w]:
+            if keys[pygame.K_w]:
                 hero.wear()
                 return
-            elif keys[pygame.K_u]:
+            if keys[pygame.K_u]:
                 hero.use()
                 return
 
         # управление в рюкзаке
         elif self.kb_mode == 'controls':
-            # переключаем управление на карту
+            # переключает управление на карту
             if keys[pygame.K_ESCAPE] or keys[pygame.K_F1]:
                 self.kb_mode = 'map'
                 return
         elif self.kb_mode == 'backpack':
-            # переключаем управление на карту
+            # переключает управление на карту
             if keys[pygame.K_ESCAPE] or keys[pygame.K_i]:
                 self.kb_mode = 'map'
                 return
-            # выбираем вещь в рюкзаке
-            elif keys[pygame.K_UP]:
+            # выбирает вещь в рюкзаке
+            if keys[pygame.K_UP]:
                 self.backpack.select_item(pygame.K_UP)
                 return
-            elif keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:
                 self.backpack.select_item(pygame.K_DOWN)
                 return
-            elif keys[pygame.K_e]:
+            if keys[pygame.K_e]:
                 self.backpack.item_to_hands()
                 return
 
@@ -234,38 +289,36 @@ class Game:
             if keys[pygame.K_ESCAPE] or keys[pygame.K_a]:
                 self.kb_mode = 'map'
                 return
-            elif keys[pygame.K_UP]:
+            if keys[pygame.K_UP]:
                 hero = self.get_active_character()
                 hero.attack(pygame.K_UP)
                 return
-            elif keys[pygame.K_DOWN]:
+            if keys[pygame.K_DOWN]:
                 hero = self.get_active_character()
                 hero.attack(pygame.K_DOWN)
                 return
-            elif keys[pygame.K_LEFT]:
+            if keys[pygame.K_LEFT]:
                 hero = self.get_active_character()
                 hero.attack(pygame.K_LEFT)
                 return
-            elif keys[pygame.K_RIGHT]:
+            if keys[pygame.K_RIGHT]:
                 hero = self.get_active_character()
                 hero.attack(pygame.K_RIGHT)
                 return
 
-        # у героя закончился ход, ход переходит к следующему герою
-        is_round_ended = self.update_active_character()
-        self.update_rounds_wave_counter(is_round_ended)
-        if is_round_ended and not self.rounds_counter % self.rounds_in_wave:
-            self._add_monsters()
-        print(self.waves_counter, self.rounds_counter, self.monsters, is_round_ended)
-        # размораживаем клавиатуру, ни одна кнопка не нажата
-        self.key_pressed = False
+    def monster_actions(self) -> None:
+        """ двигает монстров """
+        for monster in self.monsters:
+            monster.move()
+            print(monster.cell_xy[0])
 
     def draw(self) -> None:
-        """ Рисуем карту, героев, мрнстров """
+        """ Рисует карту, героев, мрнстров """
         self.screen.fill(c.BLACK)
         # pygame.draw.rect(self.screen, c.GREEN, self.map.rect, 1)
         # pygame.draw.rect(self.screen, c.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
+        self.map.draw_xy_on_map(self.screen)
         self.characters.draw(self.screen)
         self.monsters.draw(self.screen)
         character = self.get_active_character()

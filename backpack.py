@@ -59,7 +59,7 @@ class Backpack(Text):
         self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
 
     def select_item(self, pressed_key):
-        """ кнопками UP/DOWN вибираем предмет в рюкзаке """
+        """ кнопками UP/DOWN вибирает предмет в рюкзаке """
         if pressed_key == pygame.K_UP:
             if self.active_items_id > 0:
                 self.active_items_id -= 1

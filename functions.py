@@ -2,7 +2,7 @@ import pygame
 
 
 def exit_game(event):
-    """" Вйти из игры если нажат знак QUIT или кнопка ESCAPE """
+    """ Вйти из игры если нажат знак QUIT или кнопка ESCAPE """
     # по умолчанию игра продолжается
     exit_ = False
 
