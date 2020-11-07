@@ -23,7 +23,7 @@ class Test(unittest.TestCase):
         # ходы у hero1 ещё не закончились
         # hero1 actions=3/3 active=True
         # hero2 actions=3/3 active=False
-        game.update_round()
+        game.update_counters()
         self.assertTrue(hero1.active, msg="Expected: hero1.active=True")
         self.assertFalse(hero2.active, msg="Expected: hero2.active=False")
         self.assertIs(hero1.actions, 3, msg="Expected: hero1.actions=3/3")
@@ -33,7 +33,7 @@ class Test(unittest.TestCase):
         # hero1: actions=0/3 active=True  -> actions=3/3 active=False
         # hero2: actions=3/3 active=False -> actions=3/3 active=True
         hero1.actions = 0
-        game.update_round()
+        game.update_counters()
         self.assertFalse(hero1.active, msg="Expected: hero2.active=False")
         self.assertTrue(hero2.active, msg="Expected: hero2.active=True")
         self.assertIs(hero1.actions, 3, msg="Expected: hero1.actions=3/3")
@@ -43,7 +43,7 @@ class Test(unittest.TestCase):
         # hero1: actions=0/3 active=True  -> actions=3/3 active=False
         # hero2: actions=3/3 active=False -> actions=3/3 active=True
         hero2.actions = 2
-        game.update_round()
+        game.update_counters()
         self.assertFalse(hero1.active, msg="Expected: hero2.active=False")
         self.assertTrue(hero2.active, msg="Expected: hero2.active=True")
         self.assertIs(hero1.actions, 3, msg="Expected: hero1.actions=3/3")
@@ -53,7 +53,7 @@ class Test(unittest.TestCase):
         # hero1 actions=3/3 active=True
         # hero2 actions=3/3 active=False
         hero2.actions = 0
-        game.update_round()
+        game.update_counters()
         self.assertTrue(hero1.active, msg="Expected: hero1.active=True")
         self.assertFalse(hero2.active, msg="Expected: hero2.active=False")
         self.assertIs(hero1.actions, 3, msg="Expected: hero1.actions=3/3")

@@ -3,18 +3,23 @@ import os
 # import numpy
 import random
 from pygame import Rect
+from typing import Iterable, List, Tuple, Union
+
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, Mozambyk, Knife, Bat
+from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
+    Mozambyk, Knife, Bat
 
 
 class Cell:
     """ Ячейка карты """
+
     def __init__(self, xy, walls):
         self.w = c.CELL_W
         self.h = self.w
         self.xy = tuple(xy)
         self.rect = pygame.Rect(self.xy[0], self.xy[1], self.w, self.h)
-        images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]  # картинки рандом 1..6
+        images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in
+                  range(1, 7)]  # картинки рандом 1..6
         self.pic = pygame.image.load(random.choice(images))
         self.walls = set(walls)
         self.characters = list()  # hero, monster
@@ -22,14 +27,19 @@ class Cell:
         self.status = set()  # todo default, fire, smoke
         self.rikoshet = pygame.mixer.Sound(os.path.join(c.SOUNDS_DIR, 'rikoshet.wav'))
 
+    def __repr__(self):
+        return f"xy:{self.xy[0]},{self.xy[1]}"
+
 
 class Map:
     """ Карта """
+
     def __init__(self, screen_rect, ascii_map):
         self.cell_w = c.CELL_W
         self.cell_count_x = None  # количество ячеек по горизонтали
         self.cell_count_y = None  # количество ячеек по вертикали
-        self.rect = pygame.Rect(screen_rect.x, screen_rect.y, c.CELL_W * c.CELL_COUNT_X_MAX, c.CELL_W * c.CELL_COUNT_Y_MAX)
+        self.rect = pygame.Rect(screen_rect.x, screen_rect.y, c.CELL_W * c.CELL_COUNT_X_MAX,
+                                c.CELL_W * c.CELL_COUNT_Y_MAX)
         self.wall_w = 7  # толщина стенки
         self.wall_char = 'o'  # символ стенки в генераторе-карт
         self.line_w = 2  # толщина разделительной линии между ячейками
@@ -111,7 +121,7 @@ class Map:
             cell = random.choice(self.cells)
             cell.items.append(obj)
 
-    def get_cell_by_xy(self, cell_xy) -> "Cell":
+    def get_cell_by_xy(self, cell_xy: Iterable) -> "Cell":
         """ возвращает ячейку карты по координатам xy """
         cell_xy = tuple(cell_xy)
         cells = [i for i in self.cells if i.xy == cell_xy]
@@ -136,8 +146,10 @@ class Map:
         # найдём размер карты, число рядов и столбцов
         coll_count = [len(l) for l in lines]  # длины всех сток
         coll_count = set(coll_count)  # если длины одинаковые, тогда в set только одно число
-        assert len(coll_count) == 1, f"Не одинаковая длина строк: {coll_count}"  # если длины не одинаковые, тогда ошибка
-        coll_count = list(coll_count)[0] // 2  # число рядов на карте, в двое меньше чем символов в строке
+        assert len(coll_count) == 1, f"Не одинаковая длина строк: {coll_count}"  # если длины не
+        # одинаковые, тогда ошибка
+        coll_count = list(coll_count)[0] // 2  # число рядов на карте, в двое меньше чем символов
+        # в строке
         row_count = len(lines) // 2  # число рядов на карте, в двое меньше чем строк
         self.cell_count_x = coll_count
         self.cell_count_y = row_count
@@ -208,4 +220,20 @@ class Map:
             rect_txt = render.get_rect()
             x_txt = x_br - rect_txt.w - rect_txt.w * shift
             y_txt = y_br - rect_txt.h - rect_txt.h * shift
+            screen.blit(render, (x_txt, y_txt))
+
+    def draw_ii_cells(self, screen):
+        font_h = 30
+        font_color = c.BLUE
+        font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
+        # координаты клетки x, y
+        for cell in self.cells:
+            x = cell.xy[0]
+            y = cell.xy[1]
+            x_tl = cell.xy[0] * cell.w
+            y_tl = cell.xy[1] * cell.h
+            render = font.render(f"+", True, font_color)
+            rect_txt = render.get_rect()
+            x_txt = x_tl + cell.w / 2 - rect_txt.w / 2
+            y_txt = y_tl + cell.h / 2 - rect_txt.h / 2
             screen.blit(render, (x_txt, y_txt))

@@ -41,6 +41,7 @@ class Hero(Character):
         cheater.item_in_hands = Digle()
         cheater.items_max = 1000
         cheater.actions = 10000
+        return cheater
 
     def move(self, pressed_key) -> None:
         """ Передвижение героя по карте """

@@ -45,7 +45,7 @@ class Game:
     monster_waves_counter: int = 0  # счетчик волн монстров
     rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
 
-    def __init__(self, heroes=0):
+    def __init__(self, heroes: int, map_id: int):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
@@ -53,7 +53,7 @@ class Game:
         self.heroes = self._init_heroes(heroes)
         self.monsters = Group()
         self.characters = self._init_characters()
-        self.map = self._init_map()
+        self.map = self._init_map(map_id)
         self.dashboard_left = DashboardLeft(self.screen_rect(), self.map)
         self.backpack = Backpack(self)
         self.controls = Controls(self)
@@ -86,14 +86,14 @@ class Game:
             for attrs in attributes:
                 hero = Hero(*attrs)
                 heroes.add(hero)
+            # первый герой активный
+            hero1 = heroes.sprites()[0]
+            hero1.start_turn()
         # читер
         else:
-            hero = Hero.cheater(self)
-            heroes.add(hero)
-
-        # первый герой активный
-        hero1 = heroes.sprites()[0]
-        hero1.start_turn()
+            pass
+            # hero = Hero.cheater(self)
+            # heroes.add(hero)
 
         return heroes
 
@@ -102,7 +102,7 @@ class Game:
 
         # 1-ая волна монстров
         if self.monster_waves_counter == 1:
-            monster1 = Monster.little(name="little_monster_1", cell_xy=[10, 1], game=self)
+            monster1 = Monster.little(name="little_monster_1", cell_xy=[1, 1], game=self)
             self.monsters.add(monster1)
             self.characters.add(monster1)
             self.map.add_characters([monster1])
@@ -133,10 +133,17 @@ class Game:
             characters.add(monster)
         return characters
 
-    def _init_map(self) -> Map:
+    def _init_map(self, map_id: int = 1) -> Map:
         """ Создаёт карту, добавляет на карту героев, монстров, вещи """
         screen_rect = self.screen_rect()
-        map_ = Map(screen_rect, c.MAP_1)
+        if map_id == 0:
+            map_ = Map(screen_rect, c.MAP_SANDBOX_NO_WALLS)
+        elif map_id == 1:
+            map_ = Map(screen_rect, c.MAP_1)
+        elif map_id == 2:
+            map_ = Map(screen_rect, c.MAP_SANDBOX)
+        else:
+            raise ValueError("не задан map_id")
         map_.add_characters(self.characters)
         map_.add_items_to_map()
         return map_
@@ -163,7 +170,7 @@ class Game:
                 return characters[0]
         raise ValueError("нет активного персонажа")
 
-    def update_round(self) -> Counters:
+    def update_counters(self) -> Counters:
         """ Меняет активного персонажа и обновляет счётчики.
         Если у персонажа закончился действия/actions, то ход/turn переходит к следующему персонажу,
         Если закончился круг/round, обновим счётчик кругов и волн-монстров,
@@ -308,9 +315,11 @@ class Game:
 
     def monster_actions(self) -> None:
         """ двигает монстров """
-        for monster in self.monsters:
-            monster.move()
-            print(monster.cell_xy[0])
+        if not self.get_active_character().type == "monster":
+            return
+        monster = self.get_active_character()
+        monster.move()
+        print(monster.cell_xy[0])
 
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
@@ -319,6 +328,7 @@ class Game:
         # pygame.draw.rect(self.screen, c.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
         self.map.draw_xy_on_map(self.screen)
+        # self.map.draw_ii_cells(self.screen)
         self.characters.draw(self.screen)
         self.monsters.draw(self.screen)
         character = self.get_active_character()
