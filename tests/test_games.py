@@ -72,5 +72,5 @@ class Test(unittest.TestCase):
             self.assertEqual(game.monster_waves_counter, waves_counter, msg=f"i={i}, game.waves_counter")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

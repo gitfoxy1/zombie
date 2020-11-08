@@ -16,5 +16,3 @@ def exit_game(event):
             exit_ = True
 
     return exit_
-
-

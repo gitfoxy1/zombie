@@ -1,17 +1,21 @@
+from typing import List
+
 import pygame
+from pygame import Surface
+
 import constants as c
 
 
 class Text:
     """ текст """
     def __init__(self):
-        # self.font = "consolas"
-        self.font = "Comic Sans MS"
+        self.font = "consolas"
+        # self.font = "Comic Sans MS"
         # self.font = "a_AlternaSw"
         self.color = c.RED_DARK
         self.size = 30
 
-    def draw_header1_center(self, text, screen, x, y):
+    def draw_header1_center(self, text: str, screen: Surface, xy: List[int]):
         """ Пишет загловок в центре """
         size = int(self.size * 2)
         font = pygame.font.SysFont(self.font, size)
@@ -19,13 +23,13 @@ class Text:
         font.set_bold(True)
         render = font.render(text, True, self.color)
         text_rect = render.get_rect()
-        xy = (x - text_rect.centerx, y)
-        screen.blit(render, xy)
-        box_rect = pygame.Rect(xy, text_rect.size)
+        xy_ = (xy[0] - text_rect.centerx, xy[1])
+        screen.blit(render, xy_)
+        box_rect = pygame.Rect(xy_, text_rect.size)
         # pygame.draw.rect(screen, c.BLUE, box_rect, 1)
         return box_rect
 
-    def draw_header2_left(self, text, screen, x, y):
+    def draw_header2_left(self, text: str, screen: Surface, xy: List[int]):
         """ Пишет загловок слела """
         size = int(self.size * 1.5)
         font = pygame.font.SysFont(self.font, size)
@@ -33,7 +37,7 @@ class Text:
         font.set_bold(True)
         render = font.render(text, True, self.color)
         text_rect = render.get_rect()
-        xy = (x + size * 0.2, y)
+        xy = (xy[0] + size * 0.2, xy[1])
         screen.blit(render, xy)
         box_rect = pygame.Rect(xy, text_rect.size)
         # pygame.draw.rect(screen, c.BLUE, box_rect, 1)

@@ -1,6 +1,5 @@
-import os
 import math
-import pygame
+import os
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
@@ -8,7 +7,7 @@ IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
 
-# размер ячейки
+# размер клетки
 CELL_W = 100
 CELL_COUNT_X_MAX = 15
 CELL_COUNT_Y_MAX = 10
@@ -23,18 +22,18 @@ BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 COLORS = {
-    'black': BLACK,
-    'white': WHITE,
-    'red': RED,
-    'red_dark': RED_DARK,
-    'grey': GREY,
-    'blue': BLUE,
-    'green': GREEN,
-    'yellow': YELLOW,
+    "black": BLACK,
+    "white": WHITE,
+    "red": RED,
+    "red_dark": RED_DARK,
+    "grey": GREY,
+    "blue": BLUE,
+    "green": GREEN,
+    "yellow": YELLOW,
 }
 
-# звуки
-SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")  # звук столкновения героя со стеной
+# звук столкновения героя со стеной
+SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")
 
 # карты в ascii символах сгенерированая при помощи https://notimetoplay.itch.io/ascii-mapper
 # map_ size 15/10 as chars size 32/22

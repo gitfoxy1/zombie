@@ -1,21 +1,30 @@
+from typing import Optional
+
 import pygame
-import os
+from pygame import Rect, Surface
 
 import constants as c
 from text import Text
 
 
 class Backpack(Text):
-    """ Рюкзак """
-    def __init__(self, game):
+    """ Рюкзака с вещами """
+    # noinspection PyUnresolvedReferences
+    game: Optional["Game"] = None  # ссылка на игру
+    rect: Rect  # прямоугольник окна на экране (пиксели)
+    # background: Surface  # картинка рюкзака  todo
+    active_items_id: int  # выбранная вещ в рюкзаке
+
+    # noinspection PyUnresolvedReferences
+    def __init__(self, game: "Game"):
         super().__init__()
         self.game = game
         screen_rect = game.screen_rect()
-        # фон картинка
-        self.rect = pygame.Rect((screen_rect.x + 90, screen_rect.y + 90), (screen_rect.w - 580, screen_rect.h - 200))
-        self.image = pygame.image.load(os.path.join(c.IMAGES_DIR, 'backpack_background.png'))
-        self.background = pygame.transform.scale(self.image, (self.rect.w, self.rect.h))
-
+        self.rect = Rect((screen_rect.x + 90, screen_rect.y + 90),
+                         (screen_rect.w - 580, screen_rect.h - 200))
+        # фон картинка todo background
+        # image = pygame.image.load(os.path.join(c.IMAGES_DIR, "backpack_background.png"))
+        # self.background = pygame.transform.scale(image, (self.rect.w, self.rect.h))
         self.color = c.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
@@ -23,42 +32,46 @@ class Backpack(Text):
         self.style = pygame.font.SysFont(self.font, self.text_h)
         self.active_items_id = 0
 
-    def draw(self, screen, hero):
+    # noinspection PyUnresolvedReferences
+    def draw(self, screen: Surface, hero: "Hero") -> None:
+        # todo background
         # фон картинка
         # screen.blit(self.background, self.rect.topleft)
-        # # фон прямоуголник
+        # фон прямоуголник
         pygame.draw.rect(screen, c.BLACK, self.rect)
         pygame.draw.rect(screen, c.BLUE, self.rect, 5)
 
-
         # заголовок окна рюкзак
-        window_hdr_rect = self.draw_header1_center("BACKPACK", screen, self.rect.centerx, self.rect.y + 10)
+        xy = [self.rect.centerx, self.rect.y + 10]
+        window_hdr_rect = self.draw_header1_center("BACKPACK", screen, xy)
         # заголовок вещей
-        items_hdr_rect = self.draw_header2_left("ITEMS:", screen, self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
+        xy = [self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10]
+        items_hdr_rect = self.draw_header2_left("ITEMS:", screen, xy)
         # текст
         lines = []
         for i in range(len(hero.items)):
             line = i
-            if hero.items[i].kind_0 == 'cart':  # если патроны
+            if hero.items[i].kind_0 == "cart":  # если патроны
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].count}"
-            elif hero.items[i].kind_0 == 'gun':
+            elif hero.items[i].kind_0 == "gun":
                 line = f"{line}. {hero.items[i].kind}"
-            elif hero.items[i].kind_0 == 'steelweapon':
+            elif hero.items[i].kind_0 == "steelweapon":
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
-            elif hero.items[i].kind_0 == 'armor':
+            elif hero.items[i].kind_0 == "armor":
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
-            elif hero.items[i].kind_0 == 'medicines':
+            elif hero.items[i].kind_0 == "medicines":
                 line = f"{line}. {hero.items[i].kind}"
-            elif hero.items[i].kind_0 == 'backpack':
+            elif hero.items[i].kind_0 == "backpack":
                 line = f"{line}. {hero.items[i].kind}"
             else:
-                raise NotImplementedError(f"neizvestnij predmet: {hero.items[i]}")  # todo udalit' kogda budut vse vidi oruzhja
+                # todo удалить когда будут все виды оружия
+                raise NotImplementedError(f"neizvestnij predmet: {hero.items[i]}")
             if self.active_items_id == i:
-                line = f'{line} {"    <"}'
+                line += "     <"
             lines.append(line)
         self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
 
-    def select_item(self, pressed_key):
+    def select_item(self, pressed_key: int) -> None:
         """ кнопками UP/DOWN вибирает предмет в рюкзаке """
         if pressed_key == pygame.K_UP:
             if self.active_items_id > 0:
@@ -70,10 +83,10 @@ class Backpack(Text):
             else:
                 self.active_items_id += 1
 
-    def clear_item_id(self):
+    def clear_item_id(self) -> None:
         self.active_items_id = 0
 
-    def item_to_hands(self):
+    def item_to_hands(self) -> None:
         """ берём вещь в руки из рюкзака """
         hero = self.game.get_active_character()
         item_in_hands = hero.item_in_hands

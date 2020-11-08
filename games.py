@@ -11,7 +11,7 @@ from controls import Controls
 from dashboard import DashboardLeft
 from hero import Hero
 from map import Map
-from monsters import Monster
+from monster import Monster
 
 CharacterHM = Union[Hero, Monster]
 
@@ -61,7 +61,7 @@ class Game:
     @staticmethod
     def _init_screen() -> Surface:
         """ Создаёт экран игры """
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "0,0"
+        os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
         screen = pygame.display.set_mode()
         return screen
 
@@ -78,10 +78,10 @@ class Game:
         # герои
         if count:
             attributes = [
-                ('hero_1', 'hero1.png', (1, 1), self),
-                ('hero_2', 'hero2.png', (1, 2), self),
-                ('hero_3', 'hero3.png', (1, 3), self),
-                ('hero_4', 'hero4.png', (1, 4), self),
+                ("hero_1", "hero1.png", (1, 1), self),
+                ("hero_2", "hero2.png", (1, 2), self),
+                ("hero_3", "hero3.png", (1, 3), self),
+                ("hero_4", "hero4.png", (1, 4), self),
             ][:count]
             for attrs in attributes:
                 hero = Hero(*attrs)
@@ -102,7 +102,7 @@ class Game:
 
         # 1-ая волна монстров
         if self.monster_waves_counter == 1:
-            monster1 = Monster.little(name="little_monster_1", cell_xy=[1, 1], game=self)
+            monster1 = Monster.little(name="little_monster_1", xy=[1, 1], game=self)
             self.monsters.add(monster1)
             self.characters.add(monster1)
             self.map.add_characters([monster1])
@@ -110,8 +110,8 @@ class Game:
 
         # 2-ая волна монстров
         if self.monster_waves_counter == 2:
-            monster2 = Monster.little(name="little_monster_2", cell_xy=[13, 1], game=self)
-            monster3 = Monster.little(name="little_monster_3", cell_xy=[1, 9], game=self)
+            monster2 = Monster.little(name="little_monster_2", xy=[13, 1], game=self)
+            monster3 = Monster.little(name="little_monster_3", xy=[1, 9], game=self)
             self.monsters.add(monster2, monster3)
             self.characters.add(monster2, monster3)
             self.map.add_characters([monster2, monster3])
@@ -119,7 +119,7 @@ class Game:
 
         # 3-ая волна монстров
         if self.monster_waves_counter == 3:
-            monster4 = Monster.big(name="big_monster_1", cell_xy=[5, 4], game=self)
+            monster4 = Monster.big(name="big_monster_1", xy=[5, 4], game=self)
             self.monsters.add(monster4)
             self.characters.add(monster4)
             self.map.add_characters([monster4])
@@ -145,7 +145,7 @@ class Game:
         else:
             raise ValueError("не задан map_id")
         map_.add_characters(self.characters)
-        map_.add_items_to_map()
+        map_.init_items()
         return map_
 
     def get_active_character(self) -> CharacterHM:
@@ -258,7 +258,7 @@ class Game:
                 return
             # герой поднимает вещь на карте
             if keys[pygame.K_e]:
-                hero.pick_up_item()
+                hero.pickup_item()
                 return
             if keys[pygame.K_d]:
                 hero.drop_down_item()
@@ -271,15 +271,15 @@ class Game:
                 return
 
         # управление в рюкзаке
-        elif self.kb_mode == 'controls':
+        elif self.kb_mode == "controls":
             # переключает управление на карту
             if keys[pygame.K_ESCAPE] or keys[pygame.K_F1]:
-                self.kb_mode = 'map'
+                self.kb_mode = "map"
                 return
-        elif self.kb_mode == 'backpack':
+        elif self.kb_mode == "backpack":
             # переключает управление на карту
             if keys[pygame.K_ESCAPE] or keys[pygame.K_i]:
-                self.kb_mode = 'map'
+                self.kb_mode = "map"
                 return
             # выбирает вещь в рюкзаке
             if keys[pygame.K_UP]:
@@ -292,9 +292,9 @@ class Game:
                 self.backpack.item_to_hands()
                 return
 
-        elif self.kb_mode == 'attack':
+        elif self.kb_mode == "attack":
             if keys[pygame.K_ESCAPE] or keys[pygame.K_a]:
-                self.kb_mode = 'map'
+                self.kb_mode = "map"
                 return
             if keys[pygame.K_UP]:
                 hero = self.get_active_character()
@@ -319,7 +319,7 @@ class Game:
             return
         monster = self.get_active_character()
         monster.move()
-        print(monster.cell_xy[0])
+        print(monster.xy[0])
 
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
@@ -327,14 +327,14 @@ class Game:
         # pygame.draw.rect(self.screen, c.GREEN, self.map.rect, 1)
         # pygame.draw.rect(self.screen, c.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
-        self.map.draw_xy_on_map(self.screen)
+        self.map.draw_xy(self.screen)
         # self.map.draw_ii_cells(self.screen)
         self.characters.draw(self.screen)
         self.monsters.draw(self.screen)
         character = self.get_active_character()
         self.dashboard_left.draw(self.screen, character)
 
-        if self.kb_mode == 'backpack':
+        if self.kb_mode == "backpack":
             self.backpack.draw(self.screen, character)
-        if self.kb_mode == 'controls':
-            self.controls.draw(self.screen, character)
+        if self.kb_mode == "controls":
+            self.controls.draw(self.screen)

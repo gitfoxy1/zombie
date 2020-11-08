@@ -2,24 +2,38 @@
 
 import os
 import random
-from typing import Tuple, List
+from typing import Optional, List
 
 import pygame
-from pygame import Rect
 
 import constants as c
+from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
+    Awp, Medikit, Knife, Armor, Cotton, Backpack_level_3
+from backpack import Backpack
 from character import Character
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
-    Medikit, Knife, Armor_level_1, Cotton, Backpack_level_3
 
 
 class Hero(Character):
     """ Герой """
+    items: List[Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif,
+                Awp, Medikit, Knife, Armor, Cotton, Backpack_level_3]  # вещи в рюкзаке
+    armor: Optional[Armor] = None
+    armor_points: int = 0  # todo description
+    backpack: Optional[Backpack] = None  # рюкзак
+    backpack_points: int = 0  # todo description
+    key_pressed: int = 0  # нажатая клавиша
 
-    def __init__(self, name, image, cell_xy, game):
-        super().__init__(name, image, cell_xy, game)
+    # noinspection PyUnresolvedReferences
+    def __init__(self, name, image, xy, game: "Game"):
+        """ делает героя
+        @param name: имя героя
+        @param image: картинка героя
+        @param xy: координаты героя на карте/map
+        @param game: ссылка на игру
+        """
+        super().__init__(name, image, xy, game)
         self.type = "hero"
-        self.items = []  # колличество вещей
+        self.items = []
         self.armor = None
         self.armor_points = 0
         self.backpack = None
@@ -32,59 +46,60 @@ class Hero(Character):
         self.lives = 10 + self.armor_points
 
     @classmethod
-    def cheater(cls, game):
-        """ делает читера """
-        cheater = cls(name="cheater", image="cheater.png", cell_xy=(1, 1), game=game)
+    def cheater(cls, xy: List[int], game) -> "Hero":
+        """ делает читера (герой с сверх способностями)
+        @param xy: координаты читера на карте/map
+        @param game: ссылка на игру
+        @return: герой
+        """
+        cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
         cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
-                         LittleCartridge(), Awp(), Mastif(), Knife(), Armor_level_1(), Medikit(),
+                         LittleCartridge(), Awp(), Mastif(), Knife(), Armor(), Medikit(),
                          Cotton(), Backpack_level_3()]
         cheater.item_in_hands = Digle()
         cheater.items_max = 1000
         cheater.actions = 10000
         return cheater
 
-    def move(self, pressed_key) -> None:
+    def move(self, pressed_key: int) -> None:
         """ Передвижение героя по карте """
         map_ = self.game.map
-        # найдём ячейку в которой находится персонаж
-        cell = map_.get_cell_by_xy(tuple(self.cell_xy))
+        # найдём клетку в которой находится персонаж
+        cell = map_.get_cell(tuple(self.xy))
 
         # герой переходит на другую клетку
         is_success = False
 
         # если стенки нет двигает персонажа
         if pressed_key == pygame.K_UP:
-            if 't' not in cell.walls:
-                self.cell_xy[1] -= 1
+            if "t" not in cell.walls:
+                self.xy[1] -= 1
                 is_success = True
         elif pressed_key == pygame.K_DOWN:
-            if 'b' not in cell.walls:
-                self.cell_xy[1] += 1
+            if "b" not in cell.walls:
+                self.xy[1] += 1
                 is_success = True
         elif pressed_key == pygame.K_RIGHT:
-            if 'r' not in cell.walls:
-                self.cell_xy[0] += 1
+            if "r" not in cell.walls:
+                self.xy[0] += 1
                 is_success = True
         elif pressed_key == pygame.K_LEFT:
-            if 'l' not in cell.walls:
-                self.cell_xy[0] -= 1
+            if "l" not in cell.walls:
+                self.xy[0] -= 1
                 is_success = True
 
         # инкремент счётчика действий или звук столкновения персонажа со стеной
         if pressed_key in [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT]:
             # инкремент счётчика действий
             if is_success is True:
-                self.rect = self._get_rect()
+                self.rect = self._rect_in_cell_center()
                 self.actions -= 1
                 self.key_pressed = True
 
                 # меняет положение героя на карте
-                try:
-                    cell.characters.remove(self)
-                except Exception:
-                    print()
+                cell.characters.remove(self)
                 for cell_ in map_.cells:
-                    if cell_.xy == tuple(self.cell_xy):
+                    if cell_.xy == tuple(self.xy):
                         cell_.characters.append(self)
 
             # звук столкновения персонажа со стеной
@@ -93,17 +108,17 @@ class Hero(Character):
                 pass
         # print()
 
-    def pick_up_item(self) -> None:
+    def pickup_item(self) -> None:
         """ герой поднемает вещь на карте """
         map_ = self.game.map
         is_success = False
         for cell in map_.cells:
-            if cell.xy == tuple(self.cell_xy):  # если герой стоит на этой ячейке
-                if cell.items:  # если вещь есть на ячейке
+            if cell.xy == tuple(self.xy):  # если герой стоит на этой клетке
+                if cell.items:  # если вещь есть на клетке
                     item_on_map = cell.items.pop()  # поднимает вещь с карты
 
                     # если это патроны
-                    if item_on_map.kind_0 == 'cart':
+                    if item_on_map.kind_0 == "cart":
                         # патроны того же типа в рюкзаке
                         carts_the_same = [i for i in self.items if i.kind == item_on_map.kind]
                         if carts_the_same:  # если в рюкзаке патроны, то добавляет к существуещим
@@ -142,7 +157,7 @@ class Hero(Character):
         if self.item_in_hands is None:
             return
         else:
-            cell = map_.get_cell_by_xy(tuple(self.cell_xy))
+            cell = map_.get_cell(tuple(self.xy))
             cell.items.append(self.item_in_hands)
             self.item_in_hands = None
 
@@ -163,24 +178,24 @@ class Hero(Character):
                 if not self.backpack:
                     self.backpack = self.item_in_hands
                     self.item_in_hands = None
-                    self.items_max += self.backpack.apacity
+                    self.items_max += self.backpack.capacity
                 else:
                     backpack = self.backpack
-                    self.items_max -= backpack.apacity
+                    self.items_max -= backpack.capacity
                     self.backpack = self.item_in_hands
-                    self.items_max += backpack.apacity
+                    self.items_max += backpack.capacity
                     self.items.append(backpack)
                     self.item_in_hands = None
 
-    def use(self):
+    def use(self) -> None:
         print(self.items_max)
         if self.item_in_hands:
-            if self.item_in_hands.kind == 'medikit':
+            if self.item_in_hands.kind == "medikit":
                 self.lives += self.item_in_hands.heal
                 self.item_in_hands = None
                 if self.lives >= 10:
                     self.lives = 10
-            if self.item_in_hands.kind == 'cotton':
+            if self.item_in_hands.kind == "cotton":
                 if self.armor:
                     self.armor.strength += self.item_in_hands.heal
                     self.item_in_hands = None
@@ -188,7 +203,7 @@ class Hero(Character):
     def attack(self, pressed_key) -> None:
         """ атакует персонажа на соседней клетке """
         map_ = self.game.map
-        cell_xy = self.cell_xy
+        xy = self.xy
         wall = None
 
         # рукапашный бой
@@ -196,13 +211,13 @@ class Hero(Character):
             # находим атакуемую клетку
             cell_attacked = None  # атакуемая клетка
             if pressed_key == pygame.K_UP:
-                cell_attacked = map_.get_cell_by_xy((cell_xy[0], cell_xy[1] - 1))
+                cell_attacked = map_.get_cell((xy[0], xy[1] - 1))
             elif pressed_key == pygame.K_DOWN:
-                cell_attacked = map_.get_cell_by_xy((cell_xy[0], cell_xy[1] + 1))
+                cell_attacked = map_.get_cell((xy[0], xy[1] + 1))
             elif pressed_key == pygame.K_LEFT:
-                cell_attacked = map_.get_cell_by_xy((cell_xy[0] - 1, cell_xy[1]))
+                cell_attacked = map_.get_cell((xy[0] - 1, xy[1]))
             elif pressed_key == pygame.K_RIGHT:
-                cell_attacked = map_.get_cell_by_xy((cell_xy[0] + 1, cell_xy[1]))
+                cell_attacked = map_.get_cell((xy[0] + 1, xy[1]))
 
             # отнимает жизьни у атакуюмого персонажа
             if cell_attacked.characters:
@@ -215,7 +230,7 @@ class Hero(Character):
 
         # gun
         elif self.item_in_hands:
-            if self.item_in_hands.kind_0 == 'gun':
+            if self.item_in_hands.kind_0 == "gun":
                 for item in self.items:
                     # ищет патроны нужного типа в рюкзаке
                     if item.kind == self.item_in_hands.cartridge_kind:
@@ -227,17 +242,17 @@ class Hero(Character):
                         cells_attacked = []
                         for i in range(self.item_in_hands.range + 1):
                             if pressed_key == pygame.K_UP:
-                                cells_attacked.append(map_.get_cell_by_xy((cell_xy[0], cell_xy[1] - i)))
-                                wall = 'b'
+                                cells_attacked.append(map_.get_cell((xy[0], xy[1] - i)))
+                                wall = "b"
                             elif pressed_key == pygame.K_DOWN:
-                                cells_attacked.append(map_.get_cell_by_xy((cell_xy[0], cell_xy[1] + i)))
-                                wall = 't'
+                                cells_attacked.append(map_.get_cell((xy[0], xy[1] + i)))
+                                wall = "t"
                             elif pressed_key == pygame.K_LEFT:
-                                cells_attacked.append(map_.get_cell_by_xy((cell_xy[0] - i, cell_xy[1])))
-                                wall = 'r'
+                                cells_attacked.append(map_.get_cell((xy[0] - i, xy[1])))
+                                wall = "r"
                             elif pressed_key == pygame.K_RIGHT:
-                                cells_attacked.append(map_.get_cell_by_xy((cell_xy[0] + i, cell_xy[1])))
-                                wall = 'l'
+                                cells_attacked.append(map_.get_cell((xy[0] + i, xy[1])))
+                                wall = "l"
                             if cells_attacked[-1] is None:
                                 cells_attacked.remove(cells_attacked[-1])
                                 break
@@ -288,24 +303,24 @@ class Hero(Character):
                             # никого, промах
                             if not cells_attacked:
                                 rikoshet = pygame.mixer.Sound(
-                                    os.path.join(c.SOUNDS_DIR, 'rikoshet.wav'))
+                                    os.path.join(c.SOUNDS_DIR, "rikoshet.wav"))
                                 rikoshet.play()
 
                             self.actions -= 1
 
             #
-            # elif self.item_in_hands.kind_0 == 'grenade':  # todo
+            # elif self.item_in_hands.kind_0 == "grenade":  # todo grenade
             #     pass
-            elif self.item_in_hands.kind_0 == 'steelweapon':  # todo
+            elif self.item_in_hands.kind_0 == "steelweapon":
                 cell_attacked = None  # атакуемая клетка
                 if pressed_key == pygame.K_UP:
-                    cell_attacked = map_.get_cell_by_xy((cell_xy[0], cell_xy[1] - 1))
+                    cell_attacked = map_.get_cell((xy[0], xy[1] - 1))
                 elif pressed_key == pygame.K_DOWN:
-                    cell_attacked = map_.get_cell_by_xy((cell_xy[0], cell_xy[1] + 1))
+                    cell_attacked = map_.get_cell((xy[0], xy[1] + 1))
                 elif pressed_key == pygame.K_LEFT:
-                    cell_attacked = map_.get_cell_by_xy((cell_xy[0] - 1, cell_xy[1]))
+                    cell_attacked = map_.get_cell((xy[0] - 1, xy[1]))
                 elif pressed_key == pygame.K_RIGHT:
-                    cell_attacked = map_.get_cell_by_xy((cell_xy[0] + 1, cell_xy[1]))
+                    cell_attacked = map_.get_cell((xy[0] + 1, xy[1]))
 
                 # отнимает жизьни у атакуюмого персонажа
                 if cell_attacked.characters:
