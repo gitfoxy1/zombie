@@ -15,8 +15,7 @@ from character import Character
 
 class Hero(Character):
     """ Герой """
-    items: List[Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif,
-                Awp, Medikit, Knife, Armor, Cotton, Backpack_level_3]  # вещи в рюкзаке
+    items: list = []  # вещи в рюкзаке  # todo typing
     armor: Optional[Armor] = None
     armor_points: int = 0  # todo description
     backpack: Optional[Backpack] = None  # рюкзак
