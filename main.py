@@ -6,7 +6,6 @@ import pygame
 import functions as f
 from games import Game
 
-
 FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])

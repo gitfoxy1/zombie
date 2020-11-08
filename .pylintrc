@@ -142,7 +142,11 @@ disable=print-statement,
         #todo отключино для проекта zombie
         too-many-arguments,
         too-many-statements,
-        no-member
+        too-many-instance-attributes,
+        too-few-public-methods,
+        no-member,
+        invalid-name,
+        fixme,
 
 
 # Enable the message, report, category or checker with the given id(s). You can

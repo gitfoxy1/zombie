@@ -1,4 +1,5 @@
-from typing import List
+""" текст """
+from typing import Tuple
 
 import pygame
 from pygame import Surface
@@ -15,7 +16,7 @@ class Text:
         self.color = c.RED_DARK
         self.size = 30
 
-    def draw_header1_center(self, text: str, screen: Surface, xy: List[int]):
+    def draw_header1_center(self, text: str, screen: Surface, xy: Tuple[int, int]):
         """ Пишет загловок в центре """
         size = int(self.size * 2)
         font = pygame.font.SysFont(self.font, size)
@@ -29,7 +30,7 @@ class Text:
         # pygame.draw.rect(screen, c.BLUE, box_rect, 1)
         return box_rect
 
-    def draw_header2_left(self, text: str, screen: Surface, xy: List[int]):
+    def draw_header2_left(self, text: str, screen: Surface, xy: Tuple[int, int]):
         """ Пишет загловок слела """
         size = int(self.size * 1.5)
         font = pygame.font.SysFont(self.font, size)
@@ -51,8 +52,7 @@ class Text:
         font.set_bold(False)
         box_w = int()
         box_h = int()
-        for i in range(len(lines)):
-            text = lines[i]
+        for i, text in enumerate(lines):
             render = font.render(text, True, self.color)
             text_rect = render.get_rect()
             y_i = y + size * i

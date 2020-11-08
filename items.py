@@ -1,3 +1,4 @@
+""" Вещи """
 import os
 from typing import Optional
 
@@ -47,7 +48,7 @@ class Guns(Items):
 
 
 class Digle(Guns):
-    """Характеристика пистолета"""
+    """ пистолет Digle """
 
     def __init__(self):
         super().__init__()
@@ -60,6 +61,7 @@ class Digle(Guns):
 
 
 class Uzi(Guns):
+    """автомат U.Z.I."""
     def __init__(self):
         super().__init__()
         self.kind = "U.Z.I."
@@ -71,6 +73,8 @@ class Uzi(Guns):
 
 
 class Kalashnikov(Guns):
+    """автомат Kalashnikov"""
+
     def __init__(self):
         super().__init__()
         self.kind = "Kalashnikov"
@@ -82,6 +86,7 @@ class Kalashnikov(Guns):
 
 
 class Mastif(Guns):
+    """Mastif"""
     def __init__(self):
         super().__init__()
         self.kind = "Mastif"
@@ -93,6 +98,7 @@ class Mastif(Guns):
 
 
 class Mozambyk(Guns):
+    "Mozambyk"
     def __init__(self):
         super().__init__()
         self.kind = "Mozambyk"
@@ -104,6 +110,7 @@ class Mozambyk(Guns):
 
 
 class Awp(Guns):
+    "A.W.P"
     def __init__(self):
         super().__init__()
         self.kind = "A.W.P"
@@ -125,6 +132,7 @@ class Cartridge(Items):
 
 
 class LittleCartridge(Cartridge):
+    """ лёгкие патроны """
     def __init__(self):
         super().__init__()
         self.kind = "Little Cartridge"
@@ -133,6 +141,7 @@ class LittleCartridge(Cartridge):
 
 
 class HeavyCartridge(Cartridge):
+    """ тяжёлые патроны """
     def __init__(self):
         super().__init__()
         self.kind = "Heavy Cartridge"
@@ -141,6 +150,7 @@ class HeavyCartridge(Cartridge):
 
 
 class Fraction(Cartridge):
+    """ патроны """
     def __init__(self):
         super().__init__()
         self.kind = "Fraction"
@@ -158,6 +168,7 @@ class SteelWeapon(Items):
 
 
 class Knife(SteelWeapon):
+    """ ножик """
     def __init__(self):
         super().__init__()
         self.kind = "Knife"
@@ -166,6 +177,7 @@ class Knife(SteelWeapon):
 
 
 class Bat(SteelWeapon):
+    """ Bat """
     def __init__(self):
         super().__init__()
         self.kind = "Bat"
@@ -184,6 +196,7 @@ class Armor(Items):
 
 
 class Armor_level_1(Armor):  # todo armor
+    """ броня """
     def __init__(self):
         super().__init__()
         self.kind = "Armor level 1"
@@ -191,6 +204,7 @@ class Armor_level_1(Armor):  # todo armor
 
 
 class Armor_level_2(Armor):
+    """ броня """
     def __init__(self):
         super().__init__()
         self.kind = "armor_level_2"
@@ -198,6 +212,7 @@ class Armor_level_2(Armor):
 
 
 class Armor_level_3(Armor):
+    """ броня """
     def __init__(self):
         super().__init__()
         self.kind = "armor_level_3"
@@ -205,6 +220,7 @@ class Armor_level_3(Armor):
 
 
 class Backpack_(Items):
+    """ рюкзак """
     capacity: int = 0  # вместимость рюкзака
 
     def __init__(self):
@@ -214,6 +230,8 @@ class Backpack_(Items):
 
 
 class Backpack_level_1(Backpack_):  # todo Backpack
+    """ рюкзак """
+
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_1"
@@ -221,6 +239,8 @@ class Backpack_level_1(Backpack_):  # todo Backpack
 
 
 class Backpack_level_2(Backpack_):
+    """ рюкзак """
+
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_2"
@@ -228,6 +248,8 @@ class Backpack_level_2(Backpack_):
 
 
 class Backpack_level_3(Backpack_):
+    """ рюкзак """
+
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_3"
@@ -235,6 +257,8 @@ class Backpack_level_3(Backpack_):
 
 
 class Medicines(Items):
+    """ лекарство """
+
     def __init__(self):
         super().__init__()
         self.heal = None
@@ -243,6 +267,8 @@ class Medicines(Items):
 
 
 class Medikit(Medicines):
+    """ лекарство """
+
     def __init__(self):
         super().__init__()
         self.heal = 3

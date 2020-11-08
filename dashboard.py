@@ -1,3 +1,4 @@
+""" Левая панель """
 import pygame
 from pygame import Rect
 
@@ -21,6 +22,7 @@ class DashboardLeft:
         self.style = pygame.font.SysFont(self.font, self.text_h)
 
     def draw(self, screen, hero):
+        """ рисует панель в левой части экрана """
         # фон
         pygame.draw.rect(screen, c.BLACK, self.rect)
 
@@ -75,10 +77,9 @@ class DashboardLeft:
 
         # рисует текст на дашборде
         rows = rows1 + rows2
-        for cart_count_str in range(len(rows)):
-            row = rows[cart_count_str]
+        for i, row in enumerate(rows):
             text = self.style.render(row, True, self.color)
-            xy = (self.text_x, self.text_y + self.text_h * cart_count_str)
+            xy = (self.text_x, self.text_y + self.text_h * i)
             screen.blit(text, xy)
 
 
@@ -89,4 +90,4 @@ class DashboardBottom:
         self.rect = pygame.Rect(map_.rect.bottomleft, (map_.rect.w, screen_rect.h - map_.rect.h))
 
     def draw(self):
-        pass
+        """ рисует панель внизу экрана """

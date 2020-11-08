@@ -1,3 +1,4 @@
+""" Help, назначение клавиш """
 import pygame
 
 import constants as c
@@ -22,13 +23,14 @@ class Controls(Text):
         self.active_items_id = 0
 
     def draw(self, screen):
+        """ рисует окно Help поверх карты """
         # фон прямоуголник
         pygame.draw.rect(screen, c.BLACK, self.rect)
         pygame.draw.rect(screen, c.GREEN, self.rect, 5)
 
-        xy = [self.rect.centerx, self.rect.y + 10]
+        xy = (self.rect.centerx, self.rect.y + 10)
         window_hdr_rect = self.draw_header1_center("Controls", screen, xy)
-        xy = [self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10]
+        xy = (self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
         items_hdr_rect = self.draw_header2_left("", screen, xy)
 
         pattern = "{:<4}{:<10}{}"

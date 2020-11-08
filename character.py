@@ -1,7 +1,7 @@
 """ Персонажы """
 
 import os
-from typing import Optional, List
+from typing import Optional, Tuple
 
 import pygame
 from pygame import Rect, Surface
@@ -13,23 +13,23 @@ class Character(pygame.sprite.Sprite):
     """ Персонаж, класс-родитель для героя и монстра """
     # noinspection PyUnresolvedReferences
     game: Optional["Game"] = None  # ссылка на игру
-    type: Optional[str]  # тип персонажа: "hero", "monster"
-    name: str  # имя персонажа
-    active: bool  # True= персонаж активный, может действовать; False= не активный, ждёт
-    xy: List[int]  # координаты персонажа на карте/map
-    scale: float  # размер персонажа относительно клетки карты
-    w: int  # ширина персонажа на экране (пиксели) по оси x
-    h: int  # высота персонажа на экране (пиксели) по оси y
-    image: Surface  # картинка персонажа
+    type: Optional[str] = ""  # тип персонажа: "hero", "monster"
+    name: str = ""  # имя персонажа
+    active: bool = False  # True= персонаж активный, может действовать; False= не активный, ждёт
+    xy: Optional[Tuple[int, int]] = None  # координаты персонажа на карте/map
+    scale: float = 0.0  # размер персонажа относительно клетки карты
+    w: int = 0  # ширина персонажа на экране (пиксели) по оси x
+    h: int = 0  # высота персонажа на экране (пиксели) по оси y
+    image: Optional[Surface] = None  # картинка персонажа
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, image: str, xy: list, game: "Game"):
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
         super().__init__()
         self.game = game
         self.type = None
         self.name = name
         self.active = False
-        self.xy = list(xy)  # todo list() не нужен
+        self.xy = xy
         self.scale = 0.9
         self.w = int(c.CELL_W * self.scale)
         self.h = self.w

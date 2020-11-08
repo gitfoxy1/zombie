@@ -1,33 +1,49 @@
+""" Карта """
 import random
-from typing import List, Tuple, Union
+from typing import Optional, Tuple
 
 import pygame
-from pygame import Rect, Surface
+from pygame import Surface
 
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
-    Mozambyk, Knife, Bat
 from cell import Cell
+from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
+    Mozambyk, Knife, Bat
 
 
 class Map:
     """ Карта """
+    # noinspection PyUnresolvedReferences
+    game: Optional["Game"] = None  # ссылка на игру
+    name: str = ""  # название карты
+    cell_w: int = 0  # ширина клеток
+    cell_h: int = 0  # высота клеток
+    cells_x: int = 0  # количество клеток по горизонтали
+    cells_y: int = 0  # количество клеток по вертикали
 
-    def __init__(self, screen_rect: Rect, ascii_map: str):
+    def __repr__(self):
+        return f"{self.name}, {self.cells_x},{self.cells_y}"
+
+    # noinspection PyUnresolvedReferences
+    def __init__(self, name: str, ascii_: str, game: "Game"):
         """ Карта
-        @param screen_rect: прямоугольник экрана
-        @param ascii_map: карта в текстовом формате на основе генератора карт
+        @param name: название карты
+        @param ascii_: карта в текстовом формате на основе генератора карт
+        @param map: прямоугольник экрана
         """
-        self.cell_w = c.CELL_W
-        self.cell_count_x = None  # количество ячеек по горизонтали
-        self.cell_count_y = None  # количество ячеек по вертикали
-        self.rect = pygame.Rect(screen_rect.x, screen_rect.y, c.CELL_W * c.CELL_COUNT_X_MAX,
-                                c.CELL_W * c.CELL_COUNT_Y_MAX)
+        self.game = game
+        self.name = name
         self.wall_w = 7  # толщина стенки
         self.wall_char = "o"  # символ стенки в генераторе-карт
         self.line_w = 2  # толщина разделительной линии между клетками
         self.cells = []
-        self.create_from_ascii(ascii_map)
+        self.from_ascii(ascii_)
+        cell = self.cells[0]
+        self.cell_w = cell.w
+        self.cell_h = cell.h
+        screen_rect = self.game.screen_rect()
+        self.rect = pygame.Rect((screen_rect.x, screen_rect.y),
+                                (self.cells_x * cell.w, self.cells_y * cell.h))
 
     def draw(self, screen: Surface) -> None:  # todo добавить рисовку вещей в клетке
         """ Рисует карту """
@@ -66,10 +82,10 @@ class Map:
         """помещает персонажей на карту"""
         for character in characters:
             for cell in self.cells:
-                if character.xy[0] >= self.cell_count_x:
-                    character.xy[0] = self.cell_count_x - 1
-                if character.xy[1] >= self.cell_count_y:
-                    character.xy[1] = self.cell_count_y - 1
+                if character.xy[0] >= self.cells_x:
+                    character.xy[0] = self.cells_x - 1
+                if character.xy[1] >= self.cells_y:
+                    character.xy[1] = self.cells_y - 1
                 if character.xy[0] <= -1:
                     character.xy[0] = 0
                 if character.xy[1] <= -1:
@@ -96,7 +112,7 @@ class Map:
 
         items = []  # сгенерированные вещи
         for obj, count in obj_counts:
-            for i in range(count):
+            for _ in range(count):
                 items.append(obj())
 
         # добавилм вещи на керту
@@ -104,26 +120,31 @@ class Map:
             cell = random.choice(self.cells)
             cell.items.append(obj)
 
-    def get_cell(self, xy: Union[List[int], Tuple[int, int]]) -> Cell:
-        """ возвращает клетку карты по координатам xy """
-        if isinstance(xy, list):
-            xy = tuple(xy)
+    def get_cell(self, xy: Tuple[int, int]) -> Optional[Cell]:
+        """ return клетку карты по координатам xy """
         cells = [i for i in self.cells if i.xy == xy]
         if cells:
             return cells[0]
+        return None
 
-    def create_from_ascii(self, ascii_map: str) -> "Map":
+    def random_cell(self) -> Cell:
+        """ return случайную клетку на карте """
+        random_x = random.choice(range(self.cells_x))
+        random_y = random.choice(range(self.cells_y))
+        random_cell = self.get_cell((random_x, random_y))
+        return random_cell
+
+    def from_ascii(self, ascii_map: str) -> None:
         """ Создаёт карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
         lines = ascii_map.splitlines()  # разбивает тект на сторки
         lines = [s for s in lines if len(s)]  # даляет пустые строки
-        lines = lines[1:]  # удаляет первую стоку с адресами ячеек "0 1 2 3 4 5"
+        lines = lines[1:]  # удаляет первую стоку с адресами клеток "0 1 2 3 4 5"
 
-        # удаляет первый столбец с адресами ячеек "0 1 2 3 4 5"
+        # удаляет первый столбец с адресами клеток "0 1 2 3 4 5"
         lines_new = []
-        for line in lines:
-            line = [s for s in line]
-            line = line[1:]
-            lines_new.append(line)
+        for char in lines:
+            char = char[1:]
+            lines_new.append(char)
         lines = lines_new
         del lines_new
 
@@ -135,22 +156,22 @@ class Map:
         coll_count = list(coll_count)[0] // 2  # число рядов на карте, в двое меньше чем символов
         # в строке
         row_count = len(lines) // 2  # число рядов на карте, в двое меньше чем строк
-        self.cell_count_x = coll_count
-        self.cell_count_y = row_count
+        self.cells_x = coll_count
+        self.cells_y = row_count
 
         # создадим карту без стен
         self.cells = []
-        for y in range(self.cell_count_y):
-            for x in range(self.cell_count_x):
+        for y in range(self.cells_y):
+            for x in range(self.cells_x):
                 cell = Cell((x, y), set())  # клетка карты без стен
                 self.cells.append(cell)  # добавляет клетку в карту
 
         # добавляет стены в клетки
-        for row_id in range(len(lines)):
+        for row_id, line in enumerate(lines):
             if (row_id % 2) == 0:  # чётные ряды, это верхние и нижние стены
-                for coll_id in range(len(lines[row_id])):
+                for coll_id, char in enumerate(line):
                     if (coll_id % 2) != 0:  # нечётные столбцы, это верхние и нижние стены
-                        if lines[row_id][coll_id] == self.wall_char:
+                        if char == self.wall_char:
                             x = coll_id // 2
                             y = row_id // 2
                             cell = self.get_cell((x, y))  # клетка
@@ -161,9 +182,9 @@ class Map:
                                 cell_up.walls.add("b")
 
             else:  # нечётные ряды, это левые и правые стены
-                for coll_id in range(len(lines[row_id])):
+                for coll_id, char in enumerate(line):
                     if (coll_id % 2) == 0:  # чётные столбцы, это левые и правые стены
-                        if lines[row_id][coll_id] == self.wall_char:
+                        if char == self.wall_char:
                             x = coll_id // 2
                             y = row_id // 2
                             cell = self.get_cell((x, y))  # клетка
@@ -174,35 +195,26 @@ class Map:
                                 cell_left.walls.add("r")
                     else:  # нечётные столбцы
                         pass  # центр клетки
-        return self
 
     def draw_xy(self, screen: Surface) -> None:
         """ рисует на карте координаты клетки xy """
         font_h = 15
         font_color = c.BLACK
         font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
-        shift = 0.2
+        shift = 3  # сместим текс на 3 пикселя от края ячейки
 
         for cell in self.cells:
             # координаты клетки (x, y): top, left
-            x = cell.xy[0]
-            y = cell.xy[1]
-            render = font.render(f"{x}, {y}", True, font_color)
-            rect1 = render.get_rect()
-            x1 = int(cell.rect.left + rect1.w * shift)
-            y1 = int(cell.rect.top + rect1.h * shift)
-            screen.blit(render, (x1, y1))
+            render = font.render(f"{cell.xy[0]},{cell.xy[1]}", True, font_color)
+            xy1 = cell.top_left(shift)
+            screen.blit(render, xy1)
 
             # координаты экрана (пиксели): bottom, right
-            x_screen = cell.xy[0] * cell.w  # TODO
-            y_screen = cell.xy[1] * cell.h
-            x_br = cell.rect.right
-            y_br = cell.rect.bottom
-            render = font.render(f"{x_br},{y_br}", True, font_color)
+            render = font.render(f"{cell.rect.right},{cell.rect.bottom}", True, font_color)
             rect2 = render.get_rect()
-            x2 = int(x_br - rect2.w - rect2.w * shift)
-            y2 = int(y_br - rect2.h - rect2.h * shift)
-            screen.blit(render, (x2, y2))
+            xy2 = cell.bottom_right(shift)
+            xy2 = (xy2[0] - rect2.w, xy2[1] - rect2.h)
+            screen.blit(render, xy2)
 
     def draw_monster_path(self, screen: Surface) -> None:
         """ рисует на карте путь монстра """
@@ -214,7 +226,7 @@ class Map:
         for cell in self.cells:
             x_tl = cell.xy[0] * cell.w
             y_tl = cell.xy[1] * cell.h
-            render = font.render(f"+", True, font_color)
+            render = font.render("+", True, font_color)
             rect_txt = render.get_rect()
             x_txt = x_tl + cell.w / 2 - rect_txt.w / 2
             y_txt = y_tl + cell.h / 2 - rect_txt.h / 2

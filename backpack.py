@@ -1,3 +1,5 @@
+""" Рюкзак """
+
 from typing import Optional
 
 import pygame
@@ -8,11 +10,10 @@ from text import Text
 
 
 class Backpack(Text):
-    """ Рюкзака с вещами """
+    """ Рюкзак с вещами """
     # noinspection PyUnresolvedReferences
     game: Optional["Game"] = None  # ссылка на игру
     rect: Rect  # прямоугольник окна на экране (пиксели)
-    # background: Surface  # картинка рюкзака  todo
     active_items_id: int  # выбранная вещ в рюкзаке
 
     # noinspection PyUnresolvedReferences
@@ -22,9 +23,6 @@ class Backpack(Text):
         screen_rect = game.screen_rect()
         self.rect = Rect((screen_rect.x + 90, screen_rect.y + 90),
                          (screen_rect.w - 580, screen_rect.h - 200))
-        # фон картинка todo background
-        # image = pygame.image.load(os.path.join(c.IMAGES_DIR, "backpack_background.png"))
-        # self.background = pygame.transform.scale(image, (self.rect.w, self.rect.h))
         self.color = c.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
@@ -34,18 +32,16 @@ class Backpack(Text):
 
     # noinspection PyUnresolvedReferences
     def draw(self, screen: Surface, hero: "Hero") -> None:
-        # todo background
-        # фон картинка
-        # screen.blit(self.background, self.rect.topleft)
+        """ рисует окно рюкзака поверх карты """
         # фон прямоуголник
         pygame.draw.rect(screen, c.BLACK, self.rect)
         pygame.draw.rect(screen, c.BLUE, self.rect, 5)
 
         # заголовок окна рюкзак
-        xy = [self.rect.centerx, self.rect.y + 10]
+        xy = (self.rect.centerx, self.rect.y + 10)
         window_hdr_rect = self.draw_header1_center("BACKPACK", screen, xy)
         # заголовок вещей
-        xy = [self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10]
+        xy = (self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
         items_hdr_rect = self.draw_header2_left("ITEMS:", screen, xy)
         # текст
         lines = []
@@ -82,9 +78,6 @@ class Backpack(Text):
                 pass
             else:
                 self.active_items_id += 1
-
-    def clear_item_id(self) -> None:
-        self.active_items_id = 0
 
     def item_to_hands(self) -> None:
         """ берём вещь в руки из рюкзака """

@@ -1,3 +1,4 @@
+""" клетка карты """
 import os
 import random
 from typing import List, Set, Tuple, Union
@@ -6,7 +7,7 @@ import pygame
 from pygame import Rect, Surface
 
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
+from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
     Awp, Mozambyk, Knife, Bat
 
 
@@ -30,7 +31,7 @@ class Cell:
         self.h = self.w
         x_screen = self.xy[0] * self.w
         y_screen = self.xy[1] * self.h
-        self.rect = pygame.Rect((x_screen, y_screen), (x_screen + self.w, y_screen + self.h))
+        self.rect = pygame.Rect((x_screen, y_screen), (self.w, self.h))
         # картинки рандом 1..6
         images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
         self.image = pygame.image.load(random.choice(images))
@@ -42,3 +43,45 @@ class Cell:
 
     def __repr__(self) -> str:
         return f"xy:{self.xy[0]},{self.xy[1]}"
+
+    def top_left(self, shift: float = 0) -> Tuple[int, int]:
+        """ return координаты экрана, верхний левый угол """
+        screen_x = int(self.xy[0] * self.w)
+        screen_y = int(self.xy[1] * self.h)
+        if shift:
+            screen_x += shift
+            screen_y += shift
+        return screen_x, screen_y
+
+    def top_right(self, shift: float = 0) -> Tuple[int, int]:
+        """ return координаты экрана, верхний правый угол """
+        screen_x = int(self.xy[0] * self.w + self.w)
+        screen_y = int(self.xy[1] * self.h)
+        if shift:
+            screen_x -= shift
+            screen_y += shift
+        return screen_x, screen_y
+
+    def bottom_left(self, shift: float = 0) -> Tuple[int, int]:
+        """ return координаты экрана, нижний левый угол """
+        screen_x = int(self.xy[0] * self.w)
+        screen_y = int(self.xy[1] * self.h + self.h)
+        if shift:
+            screen_x += shift
+            screen_y -= shift
+        return screen_x, screen_y
+
+    def bottom_right(self, shift: float = 0) -> Tuple[int, int]:
+        """ return координаты экрана, нижний правый угол """
+        screen_x = int(self.xy[0] * self.w + self.w)
+        screen_y = int(self.xy[1] * self.h + self.h)
+        if shift:
+            screen_x -= shift
+            screen_y -= shift
+        return screen_x, screen_y
+
+    def center(self) -> Tuple[int, int]:
+        """ return координаты экрана, центр """
+        screen_x = int(self.xy[0] * self.w + round(self.w / 2, 0))
+        screen_y = int(self.xy[1] * self.h + round(self.h / 2, 0))
+        return screen_x, screen_y

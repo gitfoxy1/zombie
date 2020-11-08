@@ -1,15 +1,15 @@
-""" Персонажы """
+""" Персонаж герой """
 
 import os
 import random
-from typing import Optional, List
+from typing import Optional, Tuple
 
 import pygame
 
 import constants as c
-from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
-    Awp, Medikit, Knife, Armor, Cotton, Backpack_
 from character import Character
+from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
+    Awp, Medikit, Knife, Armor, Cotton, Backpack_
 
 
 class Hero(Character):
@@ -22,7 +22,7 @@ class Hero(Character):
     key_pressed: int = 0  # нажатая клавиша
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, name, image, xy, game: "Game"):
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
         """ делает героя
         @param name: имя героя
         @param image: картинка героя
@@ -44,7 +44,7 @@ class Hero(Character):
         self.lives = 10 + self.armor_points
 
     @classmethod
-    def cheater(cls, xy: List[int], game) -> "Hero":
+    def cheater(cls, xy: Tuple[int, int], game) -> "Hero":
         """ делает читера (герой с сверх способностями)
         @param xy: координаты читера на карте/map
         @param game: ссылка на игру
@@ -71,19 +71,19 @@ class Hero(Character):
         # если стенки нет двигает персонажа
         if pressed_key == pygame.K_UP:
             if "t" not in cell.walls:
-                self.xy[1] -= 1
+                self.xy = (self.xy[0], self.xy[1] - 1)
                 is_success = True
         elif pressed_key == pygame.K_DOWN:
             if "b" not in cell.walls:
-                self.xy[1] += 1
+                self.xy = (self.xy[0], self.xy[1] + 1)
                 is_success = True
         elif pressed_key == pygame.K_RIGHT:
             if "r" not in cell.walls:
-                self.xy[0] += 1
+                self.xy = (self.xy[0] + 1, self.xy[1])
                 is_success = True
         elif pressed_key == pygame.K_LEFT:
             if "l" not in cell.walls:
-                self.xy[0] -= 1
+                self.xy = (self.xy[0] - 1, self.xy[1])
                 is_success = True
 
         # инкремент счётчика действий или звук столкновения персонажа со стеной
@@ -123,9 +123,9 @@ class Hero(Character):
                             for cart in carts_the_same:
                                 if cart.count >= cart.count_max:  # если слот с патронами переполнен
                                     continue
-                                else:  # если слот с патронами не переполнен
-                                    cart.count += item_on_map.count  # кладём вещь в рюкзак
-                                    break
+                                # если слот с патронами не переполнен
+                                cart.count += item_on_map.count  # кладём вещь в рюкзак
+                                break
                             else:
                                 if len(self.items) < self.items_max:  # если рюкзак не полный
                                     self.items.append(item_on_map)  # кладём патроны в рюкзак
@@ -152,9 +152,7 @@ class Hero(Character):
     def drop_down_item(self) -> None:
         """ выбрасывает вещь из рук на карту """
         map_ = self.game.map
-        if self.item_in_hands is None:
-            return
-        else:
+        if self.item_in_hands:
             cell = map_.get_cell(tuple(self.xy))
             cell.items.append(self.item_in_hands)
             self.item_in_hands = None
@@ -186,7 +184,7 @@ class Hero(Character):
                     self.item_in_hands = None
 
     def use(self) -> None:
-        print(self.items_max)
+        """ используем вещь в руках """
         if self.item_in_hands:
             if self.item_in_hands.kind == "medikit":
                 self.lives += self.item_in_hands.heal

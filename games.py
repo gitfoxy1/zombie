@@ -1,3 +1,4 @@
+""" игра """
 import os
 from typing import Optional, NamedTuple, Union
 
@@ -90,10 +91,10 @@ class Game:
         """ Создаёт группу из монстров """
         monsters = Group()
         attributes = [
-            ("little_monster_1", [2, 1], self),
-            ("little_monster_1", [2, 2], self),
-            ("little_monster_1", [2, 3], self),
-            ("little_monster_1", [2, 4], self),
+            ("little_monster_1", (2, 1), self),
+            ("little_monster_1", (2, 2), self),
+            ("little_monster_1", (2, 3), self),
+            ("little_monster_1", (2, 4), self),
         ]
         for i in range(count):
             attrs = attributes[i]
@@ -145,15 +146,14 @@ class Game:
 
     def _init_map(self, map_id: int = 1) -> Map:
         """ Создаёт карту, добавляет на карту героев, монстров, вещи """
-        screen_rect = self.screen_rect()
         if map_id == 0:
-            map_ = Map(screen_rect, c.MAP_SANDBOX_NO_WALLS)
+            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=c.MAP_SANDBOX_NO_WALLS, game=self)
         elif map_id == 1:
-            map_ = Map(screen_rect, c.MAP_1)
+            map_ = Map(name="MAP1", ascii_=c.MAP_1, game=self)
         elif map_id == 2:
-            map_ = Map(screen_rect, c.MAP_SANDBOX)
+            map_ = Map(name="SANDBOX", ascii_=c.MAP_SANDBOX, game=self)
         else:
-            raise ValueError("не задан map_id")
+            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=c.MAP_SANDBOX_NO_WALLS, game=self)
         map_.add_characters(self.characters)
         map_.init_items()
         return map_
@@ -242,11 +242,11 @@ class Game:
             # меняет режим клавиатуры с карты на рюкзак
             if keys[pygame.K_i]:
                 self.kb_mode = "backpack"
-                self.backpack.clear_item_id()
+                self.backpack.active_items_id = 0
                 return
             if keys[pygame.K_F1]:
                 self.kb_mode = "controls"
-                self.backpack.clear_item_id()
+                self.backpack.active_items_id = 0
                 return
             # меняет режим клавиатуры с карты на атаку
             if keys[pygame.K_a]:

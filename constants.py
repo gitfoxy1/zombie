@@ -1,3 +1,5 @@
+""" константы """
+
 import math
 import os
 
@@ -31,6 +33,9 @@ COLORS = {
     "green": GREEN,
     "yellow": YELLOW,
 }
+
+# стены клетки: t=top, b=bottom, l=left, r=right
+WALLS = {"t", "b", "l", "r"}
 
 # звук столкновения героя со стеной
 SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")
