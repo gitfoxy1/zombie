@@ -28,7 +28,9 @@ class Cell:
         self.xy = xy
         self.w = c.CELL_W
         self.h = self.w
-        self.rect = pygame.Rect(self.xy[0], self.xy[1], self.w, self.h)
+        x_screen = self.xy[0] * self.w
+        y_screen = self.xy[1] * self.h
+        self.rect = pygame.Rect((x_screen, y_screen), (x_screen + self.w, y_screen + self.h))
         # картинки рандом 1..6
         images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
         self.image = pygame.image.load(random.choice(images))

@@ -7,13 +7,14 @@ import functions as f
 from games import Game
 from monster import Monster
 from hero import Hero
+from random import choice
 
 
 FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])
 clock = pygame.time.Clock()
-game = Game(heroes=0, map_id=2)
+game = Game(heroes=0, monsters=0, map_id=1)
 
 # добавим монстра
 monster1 = Monster.little(name="little_monster_1", xy=[1, 1], game=game)
@@ -23,11 +24,12 @@ game.characters.add(monster1)
 game.map.add_characters([monster1])
 
 #  добавить героя
-hero = Hero(name="hero_1", image="hero1.png", xy=[3, 3], game=game)
+x = choice([i for i in range(15)])
+y = choice([i for i in range(10)])
+hero = Hero(name="hero_1", image="hero1.png", xy=[x, y], game=game)
 game.heroes.add(hero)
 game.characters.add(hero)
 game.map.add_characters([hero])
-
 
 
 RUN = True  # если run = False, тогда выходим из игры

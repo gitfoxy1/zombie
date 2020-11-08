@@ -181,30 +181,28 @@ class Map:
         font_h = 15
         font_color = c.BLACK
         font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
-        shift = 0.05
+        shift = 0.2
 
-        # координаты клетки x, y
         for cell in self.cells:
+            # координаты клетки (x, y): top, left
             x = cell.xy[0]
             y = cell.xy[1]
-            x_tl = cell.xy[0] * cell.w
-            y_tl = cell.xy[1] * cell.h
             render = font.render(f"{x}, {y}", True, font_color)
-            rect_txt = render.get_rect()
-            x_txt = x_tl + rect_txt.w * shift
-            y_txt = y_tl + rect_txt.h * shift
-            screen.blit(render, (x_txt, y_txt))
+            rect1 = render.get_rect()
+            x1 = int(cell.rect.left + rect1.w * shift)
+            y1 = int(cell.rect.top + rect1.h * shift)
+            screen.blit(render, (x1, y1))
 
-            # координаты экрана: bottom, right
-            x_screen = cell.xy[0] * cell.w
+            # координаты экрана (пиксели): bottom, right
+            x_screen = cell.xy[0] * cell.w  # TODO
             y_screen = cell.xy[1] * cell.h
-            x_br = x_screen + cell.w
-            y_br = y_screen + cell.h
+            x_br = cell.rect.right
+            y_br = cell.rect.bottom
             render = font.render(f"{x_br},{y_br}", True, font_color)
-            rect_txt = render.get_rect()
-            x_txt = x_br - rect_txt.w - rect_txt.w * shift
-            y_txt = y_br - rect_txt.h - rect_txt.h * shift
-            screen.blit(render, (x_txt, y_txt))
+            rect2 = render.get_rect()
+            x2 = int(x_br - rect2.w - rect2.w * shift)
+            y2 = int(y_br - rect2.h - rect2.h * shift)
+            screen.blit(render, (x2, y2))
 
     def draw_monster_path(self, screen: Surface) -> None:
         """ рисует на карте путь монстра """

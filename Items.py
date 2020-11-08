@@ -204,7 +204,7 @@ class Armor_level_3(Armor):
         self.strength = 4
 
 
-class Backpack(Items):
+class Backpack_(Items):
     capacity: int = 0  # вместимость рюкзака
 
     def __init__(self):
@@ -213,21 +213,21 @@ class Backpack(Items):
         self.capacity = 0
 
 
-class Backpack_level_1(Backpack):  # todo Backpack
+class Backpack_level_1(Backpack_):  # todo Backpack
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_1"
         self.capacity = 1
 
 
-class Backpack_level_2(Backpack):
+class Backpack_level_2(Backpack_):
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_2"
         self.capacity = 2
 
 
-class Backpack_level_3(Backpack):
+class Backpack_level_3(Backpack_):
     def __init__(self):
         super().__init__()
         self.kind = "backpack_level_3"

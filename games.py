@@ -45,13 +45,13 @@ class Game:
     monster_waves_counter: int = 0  # счетчик волн монстров
     rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
 
-    def __init__(self, heroes: int, map_id: int):
+    def __init__(self, heroes: int = 0, monsters: int = 0, map_id: int = 1):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
         self.screen = self._init_screen()
         self.heroes = self._init_heroes(heroes)
-        self.monsters = Group()
+        self.monsters = self._init_monsters(monsters)
         self.characters = self._init_characters()
         self.map = self._init_map(map_id)
         self.dashboard_left = DashboardLeft(self.screen_rect(), self.map)
@@ -74,28 +74,47 @@ class Game:
     def _init_heroes(self, count: int) -> Group:
         """ Создаёт группу из героев """
         heroes = Group()
-
-        # герои
-        if count:
-            attributes = [
-                ("hero_1", "hero1.png", (1, 1), self),
-                ("hero_2", "hero2.png", (1, 2), self),
-                ("hero_3", "hero3.png", (1, 3), self),
-                ("hero_4", "hero4.png", (1, 4), self),
-            ][:count]
-            for attrs in attributes:
-                hero = Hero(*attrs)
-                heroes.add(hero)
-            # первый герой активный
-            hero1 = heroes.sprites()[0]
-            hero1.start_turn()
-        # читер
-        else:
-            pass
-            # hero = Hero.cheater(self)
-            # heroes.add(hero)
-
+        attributes = [
+            ("hero_1", "hero1.png", (12, 9), self),
+            ("hero_2", "hero2.png", (1, 2), self),
+            ("hero_3", "hero3.png", (1, 3), self),
+            ("hero_4", "hero4.png", (1, 4), self),
+        ]
+        for i in range(count):
+            attrs = attributes[i]
+            hero = Hero(*attrs)
+            heroes.add(hero)
         return heroes
+
+    def _init_monsters(self, count: int) -> Group:
+        """ Создаёт группу из монстров """
+        monsters = Group()
+        attributes = [
+            ("little_monster_1", [2, 1], self),
+            ("little_monster_1", [2, 2], self),
+            ("little_monster_1", [2, 3], self),
+            ("little_monster_1", [2, 4], self),
+        ]
+        for i in range(count):
+            attrs = attributes[i]
+            monster = Monster.little(*attrs)
+            monsters.add(monster)
+        return monsters
+
+    def _init_characters(self) -> Group:
+        """ Создаёт группу из всех героев и монстров, первый персонаж активный """
+        characters = Group()
+        for hero in self.heroes:
+            characters.add(hero)
+        for monster in self.monsters:
+            characters.add(monster)
+
+        # первый персонаж активный
+        characters_ = characters.sprites()
+        if characters_:
+            character_1st = characters_[0]
+            character_1st.start_turn()
+        return characters
 
     def init_monsters_wave(self) -> None:
         """ Создаёт волну монстров. Добавляет монстров в группу спрайтов. """
@@ -123,15 +142,6 @@ class Game:
             self.monsters.add(monster4)
             self.characters.add(monster4)
             self.map.add_characters([monster4])
-
-    def _init_characters(self) -> Group:
-        """ Создаёт группу из всех героев и монстров """
-        characters = Group()
-        for hero in self.heroes:
-            characters.add(hero)
-        for monster in self.monsters:
-            characters.add(monster)
-        return characters
 
     def _init_map(self, map_id: int = 1) -> Map:
         """ Создаёт карту, добавляет на карту героев, монстров, вещи """

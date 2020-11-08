@@ -8,8 +8,7 @@ import pygame
 
 import constants as c
 from Items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
-    Awp, Medikit, Knife, Armor, Cotton, Backpack_level_3
-from backpack import Backpack
+    Awp, Medikit, Knife, Armor, Cotton, Backpack_
 from character import Character
 
 
@@ -18,7 +17,7 @@ class Hero(Character):
     items: list = []  # вещи в рюкзаке  # todo typing
     armor: Optional[Armor] = None
     armor_points: int = 0  # todo description
-    backpack: Optional[Backpack] = None  # рюкзак
+    backpack: Optional[Backpack_] = None  # рюкзак вещи
     backpack_points: int = 0  # todo description
     key_pressed: int = 0  # нажатая клавиша
 
@@ -54,7 +53,7 @@ class Hero(Character):
         cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
         cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
                          LittleCartridge(), Awp(), Mastif(), Knife(), Armor(), Medikit(),
-                         Cotton(), Backpack_level_3()]
+                         Cotton(), Backpack_()]
         cheater.item_in_hands = Digle()
         cheater.items_max = 1000
         cheater.actions = 10000
