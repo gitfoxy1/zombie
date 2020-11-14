@@ -73,7 +73,7 @@ class Backpack(Text):
             if self.active_items_id > 0:
                 self.active_items_id -= 1
         if pressed_key == pygame.K_DOWN:
-            hero = self.game.get_active_character()
+            hero = self.game.get_active_hero()
             if self.active_items_id >= len(hero.items) - 1:
                 pass
             else:
@@ -81,7 +81,7 @@ class Backpack(Text):
 
     def item_to_hands(self) -> None:
         """ берём вещь в руки из рюкзака """
-        hero = self.game.get_active_character()
+        hero = self.game.get_active_hero()
         item_in_hands = hero.item_in_hands
         item_in_backpack = hero.items[self.active_items_id]
         hero.item_in_hands = item_in_backpack

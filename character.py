@@ -4,12 +4,14 @@ import os
 from typing import Optional, Tuple
 
 import pygame
-from pygame import Rect, Surface
+from pygame import Surface
+from pygame.sprite import Sprite
 
 import constants as c
+from cell import Cell
 
 
-class Character(pygame.sprite.Sprite):
+class Character(Sprite):
     """ Персонаж, класс-родитель для героя и монстра """
     # noinspection PyUnresolvedReferences
     game: Optional["Game"] = None  # ссылка на игру
@@ -35,7 +37,7 @@ class Character(pygame.sprite.Sprite):
         self.h = self.w
         image = pygame.image.load(os.path.join(c.IMAGES_DIR, image))
         self.image = pygame.transform.scale(image, (self.w, self.h))
-        self.rect = self._rect_in_cell_center()
+        self.update_rect()  # attribute in Sprite
         self.items = []
         self.lives = None
         self.item_in_hands = None  # вещь на руках
@@ -49,8 +51,25 @@ class Character(pygame.sprite.Sprite):
             line += " active"
         return line
 
-    def _rect_in_cell_center(self) -> Rect:
-        """ устанавливает прямоугольник героя на экране (пиксели) в центре клетки """
+    def get_cell(self):
+        """ return клетку в которой находится персонаж """
+        cell = self.game.map.get_cell(self.xy)
+        return cell
+
+    def move_to_cell(self, cell_to: Cell) -> None:
+        """ Передвижение персонажа в клету"""
+        # найдём клетку в которой находится персонаж
+        map_ = self.game.map
+        cell_from = map_.get_cell(self.xy)
+
+        # перемещаеме персонаж в другую клетку на карте
+        self.xy = cell_to.xy
+        cell_from.characters.remove(self)  # удаляем из сатрой клетки
+        cell_to.characters.append(self)  # добавляем в новую клетку
+        self.update_rect()  # обновили на экране
+
+    def update_rect(self) -> None:
+        """ обновляем Sprite.rect на экране (пиксели) в центр клетки """
         rect = self.image.get_rect()
         # координаты клетки на экрана в пикселях
         px = c.CELL_W * self.xy[0]
@@ -58,7 +77,7 @@ class Character(pygame.sprite.Sprite):
         # координаты героя на экрана, центр героя в центре клетки
         rect.x = px + c.CELL_W / 2 - self.w / 2
         rect.y = py + c.CELL_W / 2 - self.h / 2
-        return rect
+        self.rect = rect
 
     def death(self) -> None:
         """ Персонаж умирает """

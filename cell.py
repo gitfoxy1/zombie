@@ -1,7 +1,7 @@
 """ клетка карты """
 import os
 import random
-from typing import List, Set, Tuple, Union
+from typing import List, Optional, Set, Tuple, Union
 
 import pygame
 from pygame import Rect, Surface
@@ -11,6 +11,7 @@ from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Frac
     Awp, Mozambyk, Knife, Bat
 
 
+# noinspection PyUnresolvedReferences
 class Cell:
     """ клетка карты """
     xy: Tuple[int, int]  # координаты клетки на карте/map
@@ -42,7 +43,10 @@ class Cell:
         self.rikoshet = pygame.mixer.Sound(os.path.join(c.SOUNDS_DIR, "rikoshet.wav"))  # todo play
 
     def __repr__(self) -> str:
-        return f"xy:{self.xy[0]},{self.xy[1]}"
+        msg = f"xy:{self.xy[0]},{self.xy[1]} "
+        characters = [str(o) for o in self.characters]
+        msg += ", ".join(characters)
+        return msg
 
     def top_left(self, shift: float = 0) -> Tuple[int, int]:
         """ return координаты экрана, верхний левый угол """
@@ -85,3 +89,24 @@ class Cell:
         screen_x = int(self.xy[0] * self.w + round(self.w / 2, 0))
         screen_y = int(self.xy[1] * self.h + round(self.h / 2, 0))
         return screen_x, screen_y
+
+    def get_character(self) -> Optional["Character"]:
+        """ return первого персонажа в этой клетке """
+        character = [o for o in self.characters]
+        if not character:
+            return None
+        return character[0]
+
+    def get_hero(self) -> Optional["Hero"]:
+        """ return первого героя в этой клетке """
+        hero = [o for o in self.characters if o.type == "hero"]
+        if not hero:
+            return None
+        return hero[0]
+
+    def get_monster(self) -> Optional["Monster"]:
+        """ return первого монстра в этой клетке """
+        monster = [o for o in self.characters if o.type == "monster"]
+        if not monster:
+            return None
+        return monster[0]

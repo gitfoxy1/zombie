@@ -61,57 +61,46 @@ class Hero(Character):
 
     def move(self, pressed_key: int) -> None:
         """ Передвижение героя по карте """
-        map_ = self.game.map
+
         # найдём клетку в которой находится персонаж
-        cell = map_.get_cell(tuple(self.xy))
+        map_ = self.game.map
+        cell_from = self.game.map.get_cell(self.xy)
 
-        # герой переходит на другую клетку
-        is_success = False
-
-        # если стенки нет двигает персонажа
+        # если стенки нет передвигаем персонажа на новую клетку
+        cell_to = None
         if pressed_key == pygame.K_UP:
-            if "t" not in cell.walls:
-                self.xy = (self.xy[0], self.xy[1] - 1)
-                is_success = True
+            if "t" not in cell_from.walls:
+                cell_to = map_.get_cell((self.xy[0], self.xy[1] - 1))
         elif pressed_key == pygame.K_DOWN:
-            if "b" not in cell.walls:
-                self.xy = (self.xy[0], self.xy[1] + 1)
-                is_success = True
+            if "b" not in cell_from.walls:
+                cell_to = map_.get_cell((self.xy[0], self.xy[1] + 1))
         elif pressed_key == pygame.K_RIGHT:
-            if "r" not in cell.walls:
-                self.xy = (self.xy[0] + 1, self.xy[1])
-                is_success = True
+            if "r" not in cell_from.walls:
+                cell_to = map_.get_cell((self.xy[0] + 1, self.xy[1]))
         elif pressed_key == pygame.K_LEFT:
-            if "l" not in cell.walls:
-                self.xy = (self.xy[0] - 1, self.xy[1])
-                is_success = True
+            if "l" not in cell_from.walls:
+                cell_to = map_.get_cell((self.xy[0] - 1, self.xy[1]))
 
         # инкремент счётчика действий или звук столкновения персонажа со стеной
         if pressed_key in [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT]:
             # инкремент счётчика действий
-            if is_success is True:
-                self.rect = self._rect_in_cell_center()
+            if cell_to:
+                self.move_to_cell(cell_to)
                 self.actions -= 1
                 self.key_pressed = True
 
-                # меняет положение героя на карте
-                cell.characters.remove(self)
-                for cell_ in map_.cells:
-                    if cell_.xy == tuple(self.xy):
-                        cell_.characters.append(self)
-
+            # todo repair sounds
             # звук столкновения персонажа со стеной
             else:
-                # pygame.mixer.Sound(c.SOUND_PUNCH_TO_WALL).play()  # todo repair sounds
+                # pygame.mixer.Sound(c.SOUND_PUNCH_TO_WALL).play()
                 pass
-        # print()
 
     def pickup_item(self) -> None:
         """ герой поднемает вещь на карте """
         map_ = self.game.map
         is_success = False
         for cell in map_.cells:
-            if cell.xy == tuple(self.xy):  # если герой стоит на этой клетке
+            if cell.xy == self.xy:  # если герой стоит на этой клетке
                 if cell.items:  # если вещь есть на клетке
                     item_on_map = cell.items.pop()  # поднимает вещь с карты
 
@@ -153,7 +142,7 @@ class Hero(Character):
         """ выбрасывает вещь из рук на карту """
         map_ = self.game.map
         if self.item_in_hands:
-            cell = map_.get_cell(tuple(self.xy))
+            cell = map_.get_cell(self.xy)
             cell.items.append(self.item_in_hands)
             self.item_in_hands = None
 
@@ -205,7 +194,6 @@ class Hero(Character):
         # рукапашный бой
         if self.item_in_hands is None:
             # находим атакуемую клетку
-            cell_attacked = None  # атакуемая клетка
             if pressed_key == pygame.K_UP:
                 cell_attacked = map_.get_cell((xy[0], xy[1] - 1))
             elif pressed_key == pygame.K_DOWN:
@@ -214,6 +202,8 @@ class Hero(Character):
                 cell_attacked = map_.get_cell((xy[0] - 1, xy[1]))
             elif pressed_key == pygame.K_RIGHT:
                 cell_attacked = map_.get_cell((xy[0] + 1, xy[1]))
+            else:
+                cell_attacked = None
 
             # отнимает жизьни у атакуюмого персонажа
             if cell_attacked.characters:
@@ -221,7 +211,7 @@ class Hero(Character):
                 ch_attacked = cell_attacked.characters[-1]
                 ch_attacked.lives -= 1
                 self.actions -= 1
-                if ch_attacked.lives == 0:
+                if ch_attacked.lives <= 0:
                     ch_attacked.death()
 
         # gun

@@ -1,6 +1,7 @@
 """ игра """
 import os
 from typing import Optional, NamedTuple, Union
+from time import sleep
 
 import pygame
 from pygame import Rect, Surface
@@ -122,7 +123,7 @@ class Game:
 
         # 1-ая волна монстров
         if self.monster_waves_counter == 1:
-            monster1 = Monster.little(name="little_monster_1", xy=[1, 1], game=self)
+            monster1 = Monster.little(name="little_monster_1", xy=(1, 1), game=self)
             self.monsters.add(monster1)
             self.characters.add(monster1)
             self.map.add_characters([monster1])
@@ -130,8 +131,8 @@ class Game:
 
         # 2-ая волна монстров
         if self.monster_waves_counter == 2:
-            monster2 = Monster.little(name="little_monster_2", xy=[13, 1], game=self)
-            monster3 = Monster.little(name="little_monster_3", xy=[1, 9], game=self)
+            monster2 = Monster.little(name="little_monster_2", xy=(13, 1), game=self)
+            monster3 = Monster.little(name="little_monster_3", xy=(1, 9), game=self)
             self.monsters.add(monster2, monster3)
             self.characters.add(monster2, monster3)
             self.map.add_characters([monster2, monster3])
@@ -139,7 +140,7 @@ class Game:
 
         # 3-ая волна монстров
         if self.monster_waves_counter == 3:
-            monster4 = Monster.big(name="big_monster_1", xy=[5, 4], game=self)
+            monster4 = Monster.big(name="big_monster_1", xy=(5, 4), game=self)
             self.monsters.add(monster4)
             self.characters.add(monster4)
             self.map.add_characters([monster4])
@@ -158,6 +159,14 @@ class Game:
         map_.init_items()
         return map_
 
+    def all_heroes_dead(self) -> bool:
+        """ return True если все герои умерли """
+        characters = self.characters.sprites()
+        heroes = [o for o in characters if o.type == "hero"]
+        if heroes:
+            return False
+        return True
+
     def get_active_character(self) -> CharacterHM:
         """ возвращает активного персонажа """
         characters = self.characters.sprites()
@@ -165,6 +174,20 @@ class Game:
             if character.active:
                 return character
         raise ValueError("нет активного персонажа")
+
+    def get_active_hero(self) -> Optional[Hero]:
+        """ возвращает активного героя """
+        character = self.get_active_character()
+        if character.type == "hero":
+            return character
+        return None
+
+    def get_active_monster(self) -> Optional[Monster]:
+        """ возвращает активного монстра """
+        character = self.get_active_character()
+        if character.type == "monster":
+            return character
+        return None
 
     def get_next_character(self) -> CharacterHM:
         """ возвращает следующего персонажа после активного """
@@ -223,7 +246,10 @@ class Game:
         I - управление на рюкзак
         A - атакует
          """
-        hero = self.get_active_character()
+        hero = self.get_active_hero()
+        if not hero:
+            return
+
         keys = pygame.key.get_pressed()
         is_any_key_pressed = bool([i for i in keys if i])  # нажата любая кнопка
 
@@ -307,29 +333,29 @@ class Game:
                 self.kb_mode = "map"
                 return
             if keys[pygame.K_UP]:
-                hero = self.get_active_character()
+                hero = self.get_active_hero()
                 hero.attack(pygame.K_UP)
                 return
             if keys[pygame.K_DOWN]:
-                hero = self.get_active_character()
+                hero = self.get_active_hero()
                 hero.attack(pygame.K_DOWN)
                 return
             if keys[pygame.K_LEFT]:
-                hero = self.get_active_character()
+                hero = self.get_active_hero()
                 hero.attack(pygame.K_LEFT)
                 return
             if keys[pygame.K_RIGHT]:
-                hero = self.get_active_character()
+                hero = self.get_active_hero()
                 hero.attack(pygame.K_RIGHT)
                 return
 
     def monster_actions(self) -> None:
         """ двигает монстров """
-        if not self.get_active_character().type == "monster":
+        monster = self.get_active_monster()
+        if not monster:
             return
-        monster = self.get_active_character()
         monster.move()
-        print(monster.xy[0])
+        monster.attack()
 
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
@@ -338,9 +364,8 @@ class Game:
         # pygame.draw.rect(self.screen, c.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
         self.map.draw_xy(self.screen)
-        # self.map.draw_ii_cells(self.screen)
         self.characters.draw(self.screen)
-        self.monsters.draw(self.screen)
+        self.draw_monster_path()
         character = self.get_active_character()
         self.dashboard_left.draw(self.screen, character)
 
@@ -348,3 +373,35 @@ class Game:
             self.backpack.draw(self.screen, character)
         if self.kb_mode == "controls":
             self.controls.draw(self.screen)
+
+    def draw_monster_path(self) -> None:
+        """ рисует на карте путь монстра """
+        monster = self.get_active_monster()
+        if not monster:
+            return
+        route = monster.route
+        for i_from, cell_from in enumerate(route):
+            i_to = i_from + 1
+            if i_to >= len(route):
+                break
+            cell_to = monster.route[i_to]
+            pygame.draw.line(self.screen, c.RED, cell_from.center(), cell_to.center(), 10)
+            pygame.display.update()
+        #     sleep(0.01)
+        # sleep(1)
+
+    def draw_game_over(self) -> None:
+        """ рисуем надпись GameOver """
+        font = pygame.font.SysFont("consolas", 100)
+        text = font.render("Game Over", True, c.RED)
+        text_rect = text.get_rect()
+        text_rect.center = self.map.rect.center
+
+        size = (text_rect.w + 50, text_rect.h + 50)
+        background = pygame.Surface(size)
+        background.fill(c.BLACK)
+        background_rect = background.get_rect()
+        background_rect.center = text_rect.center
+
+        self.screen.blit(background, background_rect.topleft)
+        self.screen.blit(text, text_rect.topleft)

@@ -4,6 +4,7 @@ from typing import Optional, Tuple
 
 import pygame
 from pygame import Surface
+from pygame import Rect
 
 import constants as c
 from cell import Cell
@@ -16,6 +17,7 @@ class Map:
     # noinspection PyUnresolvedReferences
     game: Optional["Game"] = None  # ссылка на игру
     name: str = ""  # название карты
+    rect: Optional[Rect] = None
     cell_w: int = 0  # ширина клеток
     cell_h: int = 0  # высота клеток
     cells_x: int = 0  # количество клеток по горизонтали
@@ -215,19 +217,3 @@ class Map:
             xy2 = cell.bottom_right(shift)
             xy2 = (xy2[0] - rect2.w, xy2[1] - rect2.h)
             screen.blit(render, xy2)
-
-    def draw_monster_path(self, screen: Surface) -> None:
-        """ рисует на карте путь монстра """
-        font_h = 100
-        font_color = c.BLUE
-        font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
-
-        # координаты клетки x, y
-        for cell in self.cells:
-            x_tl = cell.xy[0] * cell.w
-            y_tl = cell.xy[1] * cell.h
-            render = font.render("+", True, font_color)
-            rect_txt = render.get_rect()
-            x_txt = x_tl + cell.w / 2 - rect_txt.w / 2
-            y_txt = y_tl + cell.h / 2 - rect_txt.h / 2
-            screen.blit(render, (x_txt, y_txt))

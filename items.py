@@ -25,8 +25,8 @@ class Items:
         """ Рисует персонажа на карте """
         cell_x = c.CELL_W * cell.xy[0]  # координаты клетки на экрана
         cell_y = c.CELL_W * cell.xy[1]
-        font = pygame.font.SysFont("Times", 100)
-        text = font.render(self.image_on_map, True, c.RED)
+        font = pygame.font.SysFont("Times", 75)
+        text = font.render(self.image_on_map, True, c.BLACK)
         rect = text.get_rect()
         rect.centerx = cell_x + c.CELL_W // 2
         rect.centery = cell_y + c.CELL_W // 2
