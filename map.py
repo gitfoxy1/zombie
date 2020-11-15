@@ -9,7 +9,8 @@ from pygame import Rect
 import constants as c
 from cell import Cell
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
-    Mozambyk, Knife, Bat
+    Mozambyk, Knife, Bat, Armor_level_1, Armor_level_2, Armor_level_3, Backpack_level_1, \
+    Backpack_level_2, Backpack_level_3, Medikit, Cotton
 
 
 class Map:
@@ -103,13 +104,13 @@ class Map:
             (Uzi, random.randrange(1)),
             (Kalashnikov, random.randrange(1)),
             (Mastif, random.randrange(1)),
-            (LittleCartridge, random.randrange(1)),
-            (HeavyCartridge, random.randrange(1)),
-            (Fraction, random.randrange(1)),
+            (LittleCartridge, random.randrange(5)),
+            (HeavyCartridge, random.randrange(5)),
+            (Fraction, random.randrange(5)),
             (Awp, random.randrange(1)),
             (Mozambyk, random.randrange(1)),
-            (Knife, random.randrange(20)),
-            (Bat, random.randrange(20))
+            (Knife, random.randrange(1)),
+            (Bat, random.randrange(1))
         ]
 
         items = []  # сгенерированные вещи

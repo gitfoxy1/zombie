@@ -11,7 +11,7 @@ FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])
 clock = pygame.time.Clock()
-game = Game(heroes=1, monsters=1, map_id=1)
+game = Game(heroes=1, monsters=0, map_id=1)
 
 RUN = True  # если run = False, тогда выходим из игры
 while RUN:

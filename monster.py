@@ -19,7 +19,7 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     def __init__(self, name: str, image: str, xy: Tuple[int, int], actions_max: int, lives: int,
-                 damage: int, game: "Game"):
+                 damage: int, iq: int, game: "Game"):
         """ Монстр
         @param name: имя монстра
         @param image: картинка
@@ -35,6 +35,7 @@ class Monster(Character):
         self.actions = 0  # количество действий на данный момент
         self.lives = lives
         self.damage = damage
+        self.iq = iq
 
     # noinspection PyUnresolvedReferences
     @classmethod
@@ -43,9 +44,10 @@ class Monster(Character):
         monster = cls(name=name,
                       image="little_monster.png",
                       xy=xy,
-                      actions_max=5,
+                      actions_max=3,
                       lives=1,
                       damage=1,
+                      iq=5,
                       game=game)
         return monster
 
@@ -56,9 +58,10 @@ class Monster(Character):
         monster = cls(name=name,
                       image="big_monster.png",
                       xy=xy,
-                      actions_max=2,
+                      actions_max=3,
                       lives=3,
                       damage=1,
+                      iq=7,
                       game=game)
         return monster
 
@@ -144,7 +147,7 @@ class Monster(Character):
         if not self.actions:
             return
         # получаем самый короткий путь до героя, в зависимости от интелекта
-        route = self.route_to_hero(iq_level=7)
+        route = self.route_to_hero(iq_level=self.iq)
         if len(route) <= 2:
             self.route = route
             return

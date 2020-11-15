@@ -33,27 +33,23 @@ class Controls(Text):
         xy = (self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
         items_hdr_rect = self.draw_header2_left("", screen, xy)
 
-        pattern = "{:<4}{:<10}{}"
+        pattern = "{:<4}{:<25}{}"
         text = [
             "MAP",
             pattern.format(" ", "up:", "arrow up"),
             pattern.format(" ", "down:", "arrow down"),
             pattern.format(" ", "right:", "arrow right"),
             pattern.format(" ", "left:", "arrow left"),
+            pattern.format(" ", "attack", "A then arrow"),
+            pattern.format(" ", "pick up item:", "E"),
             pattern.format(" ", "drop item:", "D"),
             pattern.format(" ", "wear item:", "W"),
             pattern.format(" ", "use item:", "U"),
-            "BACKPACK",
-            pattern.format(" ", "backpack:", "I"),
-            pattern.format(" ", "backpack:", "I or esc"),
-            pattern.format(" ", "select item:", "E"),
-            "ATTACK",
-            pattern.format(" ", "attack:", "A + arrow"),
-            pattern.format(" ", "exit from attack:", "A"),
-            "CONTROLS",
-            pattern.format(" ", "control:", "f1"),
-            pattern.format(" ", "exit from control:", "f1 or esc"),
-            "press alt + f4 to win!!! ;)",
+            pattern.format(" ", "exit from game:", "ALT + F4"),
+            pattern.format(" ", "enter to backpack:", "I"),
+            pattern.format(" ", "select item in backpack:", "ENTER"),
+            pattern.format(" ", "control:", "F1"),
+            '',
             "goodluck!!!! :D"
         ]
         self.draw_list(text, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)

@@ -331,7 +331,7 @@ class Game:
             if keys[pygame.K_DOWN]:
                 self.backpack.select_item(pygame.K_DOWN)
                 return
-            if keys[pygame.K_e]:
+            if keys[pygame.K_RETURN]:
                 self.backpack.item_to_hands()
                 return
 
@@ -342,18 +342,22 @@ class Game:
             if keys[pygame.K_UP]:
                 hero = self.get_active_hero()
                 hero.attack(pygame.K_UP)
+                self.kb_mode = "map"
                 return
             if keys[pygame.K_DOWN]:
                 hero = self.get_active_hero()
                 hero.attack(pygame.K_DOWN)
+                self.kb_mode = "map"
                 return
             if keys[pygame.K_LEFT]:
                 hero = self.get_active_hero()
                 hero.attack(pygame.K_LEFT)
+                self.kb_mode = "map"
                 return
             if keys[pygame.K_RIGHT]:
                 hero = self.get_active_hero()
                 hero.attack(pygame.K_RIGHT)
+                self.kb_mode = "map"
                 return
 
     def monster_actions(self) -> None:
