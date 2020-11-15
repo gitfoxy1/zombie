@@ -156,7 +156,7 @@ class Game:
         # 5-ая волна монстров
         if self.monster_waves_counter == 5:
             monster7 = Monster.big(name="big_monster_3", xy=(7, 1), game=self)
-            monster8 = Monster.little(name="big_monster_4", xy=(6, 6), game=self)
+            monster8 = Monster.little(name="little_monster_4", xy=(6, 6), game=self)
             self.monsters.add(monster7, monster8)
             self.characters.add(monster7, monster8)
             self.map.add_characters([monster7, monster8])
@@ -173,10 +173,9 @@ class Game:
             monster10 = Monster.fast(name="fast_monster_1", xy=(2, 5), game=self)
             monster11 = Monster.big(name="big_monster_5", xy=(9, 9), game=self)
             monster12 = Monster.little(name="big_monster_6", xy=(8, 4), game=self)
-            monster13 = Monster.little(name="little_monster_5", xy=(10, 5), game=self)
-            self.monsters.add(monster10, monster11, monster12, monster13)
-            self.characters.add(monster10, monster11, monster12, monster13)
-            self.map.add_characters([monster10, monster11, monster12, monster13])
+            self.monsters.add(monster10, monster11, monster12)
+            self.characters.add(monster10, monster11, monster12)
+            self.map.add_characters([monster10, monster11, monster12])
 
         # 8-ая волна монстров
         if self.monster_waves_counter == 8:
@@ -185,10 +184,9 @@ class Game:
             monster15 = Monster.big(name="big_monster_5", xy=(3, 14), game=self)
             monster16 = Monster.little(name="big_monster_6", xy=(2, 6), game=self)
             monster17 = Monster.little(name="little_monster_5", xy=(12, 2), game=self)
-            monster18 = Monster.little(name="little_monster_7", xy=(6, 3), game=self)
-            self.monsters.add(monster14, monster15, monster16, monster17, monster19, monster18)
-            self.characters.add(monster14, monster15, monster16, monster17, monster19, monster18)
-            self.map.add_characters([monster14, monster15, monster16, monster17, monster19, monster18])
+            self.monsters.add(monster14, monster15, monster16, monster17, monster19)
+            self.characters.add(monster14, monster15, monster16, monster17, monster19)
+            self.map.add_characters([monster14, monster15, monster16, monster17, monster19])
 
     def _init_map(self, map_id: int = 1) -> Map:
         """ Создаёт карту, добавляет на карту героев, монстров, вещи """
