@@ -15,17 +15,20 @@ game = Game(heroes=1, monsters=1, map_id=1)
 
 RUN = True  # если run = False, тогда выходим из игры
 while RUN:
-    # обновляет счётчики, если у героя закончился действия, то ход переходит к следующему герою
-    counters = game.update_counters()
-    # добавляет монстров каждую волну
-    if counters.wave:
-        game.init_monsters_wave()
+    # update
+    game.characters.update()
+    if game.is_characters_in_cell():
+        # обновляет счётчики, если у героя закончился действия, то ход переходит к следующему герою
+        counters = game.update_counters()
+        # добавляет монстров каждую волну
+        if counters.wave:
+            game.init_monsters_wave()
 
-    active_character = game.get_active_character()
-    if active_character.type == "hero":
-        game.hero_actions()
-    elif active_character.type == "monster":
-        game.monster_actions()
+        active_character = game.get_active_character()
+        if active_character.type == "hero":
+            game.hero_actions()
+        elif active_character.type == "monster":
+            game.monster_actions()
 
     for event in pygame.event.get():  # проверяет любые нажатые кнопки
         if f.exit_game(event):  # Вйти из игры если нажат знак QUIT или кнопка ESCAPE

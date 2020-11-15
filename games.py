@@ -203,6 +203,13 @@ class Game:
                 return characters[0]
         raise ValueError("нет активного персонажа")
 
+    def is_characters_in_cell(self) -> bool:
+        for character in self.characters:
+            cell = self.map.get_cell(character.xy)
+            if character.rect.center != cell.rect.center:
+                return False
+        return True
+
     def update_counters(self) -> Counters:
         """ Меняет активного персонажа и обновляет счётчики.
         Если у персонажа закончился действия/actions, то ход/turn переходит к следующему персонажу,

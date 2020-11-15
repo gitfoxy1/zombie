@@ -17,7 +17,7 @@ class Cell:
     xy: Tuple[int, int]  # координаты клетки на карте/map
     w: int  # ширина клетки на экране (пиксели) по оси x
     h: int  # высота клетки на экране (пиксели) по оси y
-    rect: Rect  # прямоугольник  клетки на экране (пиксели)
+    rect: Optional[Rect] = None  # прямоугольник  клетки на экране (пиксели)
     image: Surface  # картинка клетки
     walls: Set[str]  # стены вокруг клетки: t=top, b=bottom, l=left, r=right
     # noinspection PyUnresolvedReferences
@@ -30,9 +30,9 @@ class Cell:
         self.xy = xy
         self.w = c.CELL_W
         self.h = self.w
-        x_screen = self.xy[0] * self.w
-        y_screen = self.xy[1] * self.h
-        self.rect = pygame.Rect((x_screen, y_screen), (self.w, self.h))
+        px = self.xy[0] * self.w
+        py = self.xy[1] * self.h
+        self.rect = pygame.Rect((px, py), (self.w, self.h))
         # картинки рандом 1..6
         images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
         self.image = pygame.image.load(random.choice(images))

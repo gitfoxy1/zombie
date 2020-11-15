@@ -144,7 +144,7 @@ class Monster(Character):
         if not self.actions:
             return
         # получаем самый короткий путь до героя, в зависимости от интелекта
-        route = self.route_to_hero(iq_level=100)
+        route = self.route_to_hero(iq_level=7)
         if len(route) <= 2:
             self.route = route
             return
