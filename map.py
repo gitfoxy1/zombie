@@ -100,17 +100,25 @@ class Map:
         """помещает вещи на карту"""
         # сгенерим вещи из списка в заданном количестве
         obj_counts = [
-            (Digle, random.randrange(1)),
-            (Uzi, random.randrange(1)),
-            (Kalashnikov, random.randrange(1)),
-            (Mastif, random.randrange(1)),
+            (Digle, random.randrange(2)),
+            (Uzi, random.randrange(2)),
+            (Kalashnikov, random.randrange(2)),
+            (Mastif, random.randrange(2)),
             (LittleCartridge, random.randrange(5)),
             (HeavyCartridge, random.randrange(5)),
             (Fraction, random.randrange(5)),
-            (Awp, random.randrange(1)),
-            (Mozambyk, random.randrange(1)),
-            (Knife, random.randrange(1)),
-            (Bat, random.randrange(1))
+            (Awp, random.randrange(2)),
+            (Mozambyk, random.randrange(2)),
+            (Knife, random.randrange(2)),
+            (Bat, random.randrange(2)),
+            (Armor_level_1, random.randrange(1)),
+            (Armor_level_2, random.randrange(1)),
+            (Armor_level_3, random.randrange(1)),
+            (Backpack_level_1, random.randrange(1)),
+            (Backpack_level_2, random.randrange(1)),
+            (Backpack_level_3, random.randrange(1)),
+            (Cotton, random.randrange(5)),
+            (Medikit, random.randrange(5))
         ]
 
         items = []  # сгенерированные вещи
