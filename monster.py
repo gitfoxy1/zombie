@@ -91,6 +91,33 @@ class Monster(Character):
                       game=game)
         return monster
 
+    @classmethod
+    def eye(cls, name: str, xy: Tuple[int, int], game: "Game"):
+        """ создадим большого монстра """
+        monster = cls(name=name,
+                      image="eye.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=2,
+                      damage=3,
+                      iq=8,
+                      game=game)
+        return monster
+
+    @classmethod
+    def boss_2(cls, name: str, xy: Tuple[int, int], game: "Game"):
+        """ создадим большого монстра """
+        monster = cls(name=name,
+                      image="monster_boss_2.png",
+                      xy=xy,
+                      actions_max=6,
+                      lives=10,
+                      damage=1,
+                      iq=11,
+                      game=game)
+        return monster
+
+
     def route_to_hero(self, iq_level: int) -> List[Cell]:
         """ монстр ищет маршрут к герою """
         # найдём клетку в которой находится персонаж
