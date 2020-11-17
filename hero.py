@@ -41,7 +41,7 @@ class Hero(Character):
         self.items_max = 3 + self.backpack_points
         if self.armor:
             self.armor_points = self.armor.strength
-        self.lives = 10 + self.armor_points
+        self.lives = 1000 + self.armor_points
 
     @classmethod
     def cheater(cls, xy: Tuple[int, int], game) -> "Hero":

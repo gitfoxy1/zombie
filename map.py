@@ -84,41 +84,32 @@ class Map:
     def add_characters(self, characters):  # List[Union[Hero, Monster]]) -> None:
         """помещает персонажей на карту"""
         for character in characters:
-            for cell in self.cells:
-                if character.xy[0] >= self.cells_x:
-                    character.xy[0] = self.cells_x - 1
-                if character.xy[1] >= self.cells_y:
-                    character.xy[1] = self.cells_y - 1
-                if character.xy[0] <= -1:
-                    character.xy[0] = 0
-                if character.xy[1] <= -1:
-                    character.xy[1] = 0
-                if tuple(character.xy) == cell.xy:
-                    cell.characters.append(character)
+            cell = self.get_cell(character.xy)
+            cell.characters.append(character)
 
     def init_items(self) -> None:
         """помещает вещи на карту"""
         # сгенерим вещи из списка в заданном количестве
         obj_counts = [
-            (Digle, random.randrange(2)),
-            (Uzi, random.randrange(2)),
-            (Kalashnikov, random.randrange(2)),
-            (Mastif, random.randrange(2)),
-            (LittleCartridge, random.randrange(5)),
-            (HeavyCartridge, random.randrange(5)),
-            (Fraction, random.randrange(5)),
-            (Awp, random.randrange(2)),
-            (Mozambyk, random.randrange(2)),
-            (Knife, random.randrange(2)),
-            (Bat, random.randrange(2)),
+            (Digle, random.randrange(3)),
+            (Uzi, random.randrange(3)),
+            (Kalashnikov, random.randrange(3)),
+            (Mastif, random.randrange(3)),
+            (LittleCartridge, random.randrange(7)),
+            (HeavyCartridge, random.randrange(7)),
+            (Fraction, random.randrange(7)),
+            (Awp, random.randrange(3)),
+            (Mozambyk, random.randrange(3)),
+            (Knife, random.randrange(3)),
+            (Bat, random.randrange(3)),
             (Armor_level_1, random.randrange(1)),
             (Armor_level_2, random.randrange(1)),
             (Armor_level_3, random.randrange(1)),
             (Backpack_level_1, random.randrange(1)),
             (Backpack_level_2, random.randrange(1)),
             (Backpack_level_3, random.randrange(1)),
-            (Cotton, random.randrange(5)),
-            (Medikit, random.randrange(5))
+            (Cotton, random.randrange(7)),
+            (Medikit, random.randrange(7))
         ]
 
         items = []  # сгенерированные вещи

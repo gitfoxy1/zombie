@@ -117,6 +117,32 @@ class Monster(Character):
                       game=game)
         return monster
 
+    @classmethod
+    def shooting(cls, name: str, xy: Tuple[int, int], game: "Game"):
+        """ создадим большого монстра """
+        monster = cls(name=name,
+                      image="shoting_monster.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=2,
+                      damage=2,
+                      iq=7,
+                      game=game)
+        return monster
+
+    @classmethod
+    def smart(cls, name: str, xy: Tuple[int, int], game: "Game"):
+        """ создадим большого монстра """
+        monster = cls(name=name,
+                      image="smart_monster.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=2,
+                      damage=2,
+                      iq=15,
+                      game=game)
+        return monster
+
 
     def route_to_hero(self, iq_level: int) -> List[Cell]:
         """ монстр ищет маршрут к герою """
@@ -197,19 +223,27 @@ class Monster(Character):
 
     def move(self) -> None:
         """ Передвижение монстра по карте """
+        is_hero = False
         if not self.actions:
             return
-        # получаем самый короткий путь до героя, в зависимости от интелекта
-        route = self.route_to_hero(iq_level=self.iq)
-        if len(route) <= 2:
+        cell = self.game.map.get_cell(self.xy)
+        for c in cell.characters:
+            if c.type == 'hero':
+                is_hero = True
+        if is_hero:
+            self.route = [cell, cell]
+        else:
+            # получаем самый короткий путь до героя, в зависимости от интелекта
+            route = self.route_to_hero(iq_level=self.iq)
+            if len(route) <= 2:
+                self.route = route
+                return
+            # передвигаем монтра по маршруту
+            route = route[1:]  # убирает из маршрута превую клетку (где стоит монстр)
+            cell_to = route[0]
+            self.move_to_cell(cell_to)
+            self.actions -= 1
             self.route = route
-            return
-        # передвигаем монтра по маршруту
-        route = route[1:]  # убирает из маршрута превую клетку (где стоит монстр)
-        cell_to = route[0]
-        self.move_to_cell(cell_to)
-        self.actions -= 1
-        self.route = route
 
     def attack(self) -> None:
         """ монстр атакует героя """
