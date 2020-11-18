@@ -6,19 +6,19 @@ from typing import Optional, Tuple
 
 import pygame
 
-import constants as c
+import settings as s
 from character import Character
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
-    Awp, Medikit, Knife, Armor, Cotton, Backpack_
+    Awp, Medikit, Knife, Armor, Cotton, Backpack0
 
 
 class Hero(Character):
     """ Герой """
-    items: list = []  # вещи в рюкзаке  # todo typing
-    armor: Optional[Armor] = None
-    armor_points: int = 0  # todo description
-    backpack: Optional[Backpack_] = None  # рюкзак вещи
-    backpack_points: int = 0  # todo description
+    items: list = []  # вещи в рюкзаке
+    armor: Optional[Armor] = None  # броня
+    armor_points: int = 0  # броня
+    backpack: Optional[Backpack0] = None  # рюкзак вещи
+    backpack_points: int = 0  # расширение рюкзака
     key_pressed: int = 0  # нажатая клавиша
 
     # noinspection PyUnresolvedReferences
@@ -53,7 +53,7 @@ class Hero(Character):
         cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
         cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
                          LittleCartridge(), Awp(), Mastif(), Knife(), Armor(), Medikit(),
-                         Cotton(), Backpack_()]
+                         Cotton(), Backpack0()]
         cheater.item_in_hands = Digle()
         cheater.items_max = 1000
         cheater.actions = 10000
@@ -92,7 +92,7 @@ class Hero(Character):
             # todo repair sounds
             # звук столкновения персонажа со стеной
             else:
-                # pygame.mixer.Sound(c.SOUND_PUNCH_TO_WALL).play()
+                # pygame.mixer.Sound(s.SOUND_PUNCH_TO_WALL).play()
                 pass
 
     def pickup_item(self) -> None:
@@ -289,7 +289,7 @@ class Hero(Character):
                             # никого, промах
                             if not cells_attacked:
                                 rikoshet = pygame.mixer.Sound(
-                                    os.path.join(c.SOUNDS_DIR, "rikoshet.wav"))
+                                    os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))
                                 rikoshet.play()
 
                             self.actions -= 1

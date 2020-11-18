@@ -8,38 +8,33 @@ from pygame import Surface
 from pygame.sprite import Sprite
 from pygame import Rect
 
-import constants as c
+import settings as s
 from cell import Cell
+from sprite_on_map import SpriteOnMap
+
+Game = "Game"
 
 
-class Character(Sprite):
+class Character(SpriteOnMap):
     """ Персонаж, класс-родитель для героя и монстра """
     # noinspection PyUnresolvedReferences
-    game: Optional["Game"] = None  # ссылка на игру
     type: Optional[str] = ""  # тип персонажа: "hero", "monster"
     name: str = ""  # имя персонажа
     active: bool = False  # True= персонаж активный, может действовать; False= не активный, ждёт
-    xy: Optional[Tuple[int, int]] = None  # координаты персонажа на карте/map
-    rect: Optional[Rect] = None
-    scale: float = 0.0  # размер персонажа относительно клетки карты
-    w: int = 0  # ширина персонажа на экране (пиксели) по оси x
-    h: int = 0  # высота персонажа на экране (пиксели) по оси y
-    image: Optional[Surface] = None  # картинка персонажа
 
-    # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
-        super().__init__()
-        self.game = game
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: Game):
+        self.game: Game = game  # ссылка на игру
+
+        scale = 0.9
+        width = int(s.CELL_W * scale)
+        size = (width, width)
+        super().__init__(image, size)
+        self.xy = xy
+        self.rect = self.get_rect()  # Sprite.rect
+
         self.type = None
         self.name = name
         self.active = False
-        self.xy = xy
-        self.scale = 0.9
-        self.w = int(c.CELL_W * self.scale)
-        self.h = self.w
-        image = pygame.image.load(os.path.join(c.IMAGES_DIR, image))
-        self.image = pygame.transform.scale(image, (self.w, self.h))
-        self.update_rect()  # attribute in Sprite
         self.items = []
         self.lives = None
         self.item_in_hands = None  # вещь на руках
@@ -68,22 +63,21 @@ class Character(Sprite):
         self.xy = cell_to.xy
         cell_from.characters.remove(self)  # удаляем из сатрой клетки
         cell_to.characters.append(self)  # добавляем в новую клетку
-        # self.update_rect()  # обновили на экране
 
-    def update_rect(self) -> None:
-        """ обновляем Sprite.rect на экране (пиксели) в центр клетки """
+    def get_rect(self) -> Rect:
+        """ Sprite.rect на экране (пиксели) в центр клетки """
         rect: Rect = self.image.get_rect()
         # координаты клетки на экрана в пикселях
-        px = c.CELL_W * self.xy[0]
-        py = c.CELL_W * self.xy[1]
+        px = s.CELL_W * self.xy[0]
+        py = s.CELL_W * self.xy[1]
         # координаты героя на экрана, центр героя в центре клетки
-        rect.x = px + c.CELL_W / 2 - self.w / 2
-        rect.y = py + c.CELL_W / 2 - self.h / 2
-        self.rect = rect
+        rect.x = px + s.CELL_W / 2 - rect.w / 2
+        rect.y = py + s.CELL_W / 2 - rect.h / 2
+        return rect
 
     def update(self):
         """ update """
-        speed = 15
+        speed = s.SPEED
         cell = self.game.map.get_cell(self.xy)
         # x
         diff_x = abs(self.rect.centerx - cell.rect.centerx)
@@ -101,7 +95,6 @@ class Character(Sprite):
                 self.rect.centery -= diff_y
             elif self.rect.centery < cell.rect.centery:
                 self.rect.centery += diff_y
-
 
     def death(self) -> None:
         """ Персонаж умирает """

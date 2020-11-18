@@ -6,7 +6,7 @@ from typing import List, Optional, Set, Tuple, Union
 
 import pygame
 
-import constants as c
+import settings as s
 from character import Character
 from map import Cell
 
@@ -39,9 +39,9 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     @classmethod
-    def little(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def little(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим маленького монстра """
-        monster = cls(name=name,
+        monster = cls(name="little_monster_1",
                       image="little_monster.png",
                       xy=xy,
                       actions_max=3,
@@ -53,9 +53,9 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     @classmethod
-    def big(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def big(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="big_monster_1",
                       image="big_monster.png",
                       xy=xy,
                       actions_max=3,
@@ -66,9 +66,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def boss_1(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def boss_1(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="boss_1",
                       image="monster_boss_1.png",
                       xy=xy,
                       actions_max=3,
@@ -79,9 +79,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def fast(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def fast(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="fast",
                       image="fast_monster.png",
                       xy=xy,
                       actions_max=6,
@@ -92,9 +92,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def eye(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def eye(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="eye",
                       image="eye.png",
                       xy=xy,
                       actions_max=3,
@@ -105,9 +105,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def boss_2(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def boss_2(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="boss_2",
                       image="monster_boss_2.png",
                       xy=xy,
                       actions_max=6,
@@ -118,9 +118,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def shooting(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def shooting(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="shooting",
                       image="shoting_monster.png",
                       xy=xy,
                       actions_max=3,
@@ -131,9 +131,9 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def smart(cls, name: str, xy: Tuple[int, int], game: "Game"):
+    def smart(cls, xy: Tuple[int, int], game: "Game"):
         """ создадим большого монстра """
-        monster = cls(name=name,
+        monster = cls(name="smart",
                       image="smart_monster.png",
                       xy=xy,
                       actions_max=3,
@@ -142,7 +142,6 @@ class Monster(Character):
                       iq=15,
                       game=game)
         return monster
-
 
     def route_to_hero(self, iq_level: int) -> List[Cell]:
         """ монстр ищет маршрут к герою """
@@ -181,7 +180,7 @@ class Monster(Character):
 
         # если героя нет на клетке, то мы перебираем все соседние клетки
         cells_checked.add(cell)
-        directions = c.WALLS.copy()  # все возможные направления
+        directions = s.WALLS.copy()  # все возможные направления
         directions.difference_update(cell.walls)  # возможные направления без стен
         directions = sorted(directions)
         random.shuffle(directions)
@@ -207,7 +206,7 @@ class Monster(Character):
             if cell_next in cells_checked:
                 continue
             # # draw  # todo debug
-            # pygame.draw.line(self.game.screen, c.BLUE, cell.center(), cell_next.center(), 10)
+            # pygame.draw.line(self.game.screen, s.BLUE, cell.center(), cell_next.center(), 10)
             # pygame.display.update()
             # sleep(0.01)
 
@@ -227,8 +226,8 @@ class Monster(Character):
         if not self.actions:
             return
         cell = self.game.map.get_cell(self.xy)
-        for c in cell.characters:
-            if c.type == 'hero':
+        for c_i in cell.characters:
+            if c_i.type == 'hero':
                 is_hero = True
         if is_hero:
             self.route = [cell, cell]

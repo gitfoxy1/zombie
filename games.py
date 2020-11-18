@@ -2,18 +2,20 @@
 import os
 from typing import Optional, NamedTuple, Union
 from time import sleep
+import random
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Group
 
-import constants as c
+import settings as s
 from backpack import Backpack
 from controls import Controls
 from dashboard import DashboardLeft
 from hero import Hero
 from map import Map
 from monster import Monster
+from items import items_generator
 
 CharacterHM = Union[Hero, Monster]
 
@@ -33,10 +35,11 @@ class Game:
      action - Действиею Переход на соседнюю клетку, атака.
      """
     screen: Optional[Surface] = None
+    map: Optional[Map] = None  # карта
     heroes: Optional[Group] = None  # спрайты с героями
     monsters: Optional[Group] = None  # спрайты с монстрами
     characters: Optional[Group] = None  # спрайты с героями и монстрами
-    map: Optional[Map] = None  # карта
+    items: Optional[Group] = None  # спрайты с вещами
     dashboard_left: Optional[DashboardLeft] = None  # приборная панель
     backpack: Optional[Backpack] = None  # рюкзак
     kb_mode: str = "map"  # keyboard mode, map/attack/backpack
@@ -47,16 +50,21 @@ class Game:
     monster_waves_counter: int = 0  # счетчик волн монстров
     rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
 
-    def __init__(self, heroes: int = 0, monsters: int = 0, map_id: int = 1):
+    def __init__(self, map_: str, heroes: int, monsters: int):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
         self.screen = self._init_screen()
-        self.heroes = self._init_heroes(heroes)
-        self.monsters = self._init_monsters(monsters)
-        self.characters = self._init_characters()
-        self.map = self._init_map(map_id)
-        self.dashboard_left = DashboardLeft(self.screen_rect(), self.map)
+        self.characters: Group = Group()
+        self.heroes: Group = Group()
+        self.monsters: Group = Group()
+        self.map = self._init_map(map_)
+        self._init_heroes(heroes)
+        self._init_monsters(monsters)
+        self._init_items()
+        self._start_turn()
+
+        self.dashboard_left = DashboardLeft(self.get_screen_rect(), self.map)
         self.backpack = Backpack(self)
         self.controls = Controls(self)
         self.max_x = 14
@@ -69,63 +77,84 @@ class Game:
         screen = pygame.display.set_mode()
         return screen
 
-    def screen_rect(self) -> Rect:
-        """ Возвращает прямоугольник экрана """
+    def get_screen_rect(self) -> Rect:
+        """ return прямоугольник экрана """
         screen_w, screen_h = self.screen.get_size()
         screen_rect = Rect(0, 0, screen_w, screen_h)
         return screen_rect
 
-    def _init_heroes(self, count: int) -> Group:
-        """ Создаёт группу из героев """
-        heroes = Group()
-        attributes = [
-            ("hero_1", "hero1.png", (12, 9), self),
-            ("hero_2", "hero2.png", (1, 2), self),
-            ("hero_3", "hero3.png", (1, 3), self),
-            ("hero_4", "hero4.png", (1, 4), self),
-        ]
-        for i in range(count):
-            attrs = attributes[i]
-            hero = Hero(*attrs)
-            heroes.add(hero)
-        return heroes
+    def _init_map(self, name: str = None) -> Map:
+        """ Создаёт карту """
+        if name == "SANDBOX_NO_WALLS":
+            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=s.MAP_SANDBOX_NO_WALLS, game=self)
+        elif name == "MAP1":
+            map_ = Map(name="MAP1", ascii_=s.MAP_1, game=self)
+        elif name == "SANDBOX":
+            map_ = Map(name="SANDBOX", ascii_=s.MAP_SANDBOX, game=self)
+        else:
+            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=s.MAP_SANDBOX_NO_WALLS, game=self)
+        return map_
 
-    def _init_monsters(self, count: int) -> Group:
-        """ Создаёт группу из монстров """
-        monsters = Group()
-        attributes = [
-            ("little_monster_1", (2, 1), self),
-            ("little_monster_1", (2, 2), self),
-            ("little_monster_1", (2, 3), self),
-            ("little_monster_1", (2, 4), self),
-        ]
-        for i in range(count):
-            attrs = attributes[i]
-            monster = Monster.little(*attrs)
-            monsters.add(monster)
-        return monsters
+    def _init_heroes(self, count: int) -> None:
+        """ Создаёт группу из героев, добавляет на карту, в список спрайтов """
+        self.heroes = Group()
+        for i, attrs in enumerate([
+            dict(name="hero_1", image="hero1.png", xy=(12, 9), game=self),
+            dict(name="hero_2", image="hero2.png", xy=(1, 2), game=self),
+            dict(name="hero_3", image="hero3.png", xy=(1, 3), game=self),
+            dict(name="hero_4", image="hero4.png", xy=(1, 4), game=self),
+        ]):
+            if i >= count:
+                break
+            hero = Hero(**attrs)  # создадим героя
+            self.heroes.add(hero)  # добавим героя в спрайты героев
+            self.characters.add(hero)  # добавим героя в спрайты персонажей
+            cell = self.map.get_cell(attrs["xy"])  # добавим героя на карту
+            cell.characters.append(hero)
 
-    def _init_characters(self) -> Group:
-        """ Создаёт группу из всех героев и монстров, первый персонаж активный """
-        characters = Group()
-        for hero in self.heroes:
-            characters.add(hero)
-        for monster in self.monsters:
-            characters.add(monster)
+    def _init_monsters(self, count: int) -> None:
+        """ Создаёт группу из монстров, добавляет на карту, в список спрайтов """
+        self.monsters = Group()
+        for i, attrs in enumerate([
+            dict(xy=(2, 1), game=self),
+            dict(xy=(2, 2), game=self),
+            dict(xy=(2, 3), game=self),
+            dict(xy=(2, 4), game=self),
+        ]):
+            if i >= count:
+                break
+            monster = Monster.little(**attrs)  # создадим монстра
+            self.monsters.add(monster)  # добавим монстра в спрайты монстрв
+            self.characters.add(monster)  # добавим монстра в спрайты персонажей
+            cell = self.map.get_cell(attrs["xy"])  # добавим монстра на карту
+            cell.characters.append(monster)
 
-        # первый персонаж активный
-        characters_ = characters.sprites()
-        if characters_:
-            character_1st = characters_[0]
-            character_1st.start_turn()
-        return characters
+    def _start_turn(self):
+        """ перый персонаж в списке спрайтов начинает игру (становится активный) """
+        characters = self.characters.sprites()
+        if characters:
+            character = characters[0]
+            character.start_turn()
 
-    def init_monsters_wave(self) -> None:
+    def _init_items(self) -> None:
+        """ Создаёт и помещает вещи на карту """
+        # сгенерим вещи в нужном количестве и добавим в спрйты и на карту
+        self.items = Group()
+        items = items_generator(count=20)
+        for item in items:
+            self.items.add(item)
+            # добавим вещи на карту
+            cell = random.choice(self.map.cells)
+            item.xy = cell.xy
+            item.update_rect_on_map()  # Sprite.rect
+            cell.items.append(item)
+
+    def _init_monsters_wave(self) -> None:
         """ Создаёт волну монстров. Добавляет монстров в группу спрайтов. """
 
         # 1-ая волна монстров
         if self.monster_waves_counter == 1:
-            monster1 = Monster.little(name="little_monster_1", xy=(1, 1), game=self)
+            monster1 = Monster.little(xy=(1, 1), game=self)
             self.monsters.add(monster1)
             self.characters.add(monster1)
             self.map.add_characters([monster1])
@@ -133,8 +162,8 @@ class Game:
 
         # 2-ая волна монстров
         if self.monster_waves_counter == 2:
-            monster2 = Monster.little(name="little_monster_2", xy=(13, 1), game=self)
-            monster3 = Monster.little(name="little_monster_3", xy=(1, 9), game=self)
+            monster2 = Monster.little(xy=(13, 1), game=self)
+            monster3 = Monster.little(xy=(1, 9), game=self)
             self.monsters.add(monster2, monster3)
             self.characters.add(monster2, monster3)
             self.map.add_characters([monster2, monster3])
@@ -142,113 +171,113 @@ class Game:
 
         # 3-ая волна монстров
         if self.monster_waves_counter == 3:
-            monster4 = Monster.big(name="big_monster_1", xy=(5, 4), game=self)
+            monster4 = Monster.big(xy=(5, 4), game=self)
             self.monsters.add(monster4)
             self.characters.add(monster4)
             self.map.add_characters([monster4])
 
         # 4-ая волна монстров
         if self.monster_waves_counter == 4:
-            monster5 = Monster.big(name="big_monster_2", xy=(10, 8), game=self)
-            monster6 = Monster.little(name="little_monster_4", xy=(3, 3), game=self)
+            monster5 = Monster.big(xy=(10, 8), game=self)
+            monster6 = Monster.little(xy=(3, 3), game=self)
             self.monsters.add(monster5, monster6)
             self.characters.add(monster5, monster6)
             self.map.add_characters([monster5, monster6])
 
         # 5-ая волна монстров
         if self.monster_waves_counter == 5:
-            monster7 = Monster.big(name="big_monster_3", xy=(7, 1), game=self)
-            monster8 = Monster.little(name="little_monster_4", xy=(6, 6), game=self)
+            monster7 = Monster.big(xy=(7, 1), game=self)
+            monster8 = Monster.little(xy=(6, 6), game=self)
             self.monsters.add(monster7, monster8)
             self.characters.add(monster7, monster8)
             self.map.add_characters([monster7, monster8])
 
         # 6-ая волна монстров
         if self.monster_waves_counter == 6:
-            monster9 = Monster.boss_1(name="monster_boss_1", xy=(11, 8), game=self)
+            monster9 = Monster.boss_1(xy=(11, 8), game=self)
             self.monsters.add(monster9)
             self.characters.add(monster9)
             self.map.add_characters([monster9])
 
         # 7-ая волна монстров
         if self.monster_waves_counter == 7:
-            monster10 = Monster.fast(name="fast_monster_1", xy=(2, 5), game=self)
-            monster11 = Monster.big(name="big_monster_5", xy=(9, 9), game=self)
-            monster12 = Monster.little(name="big_monster_6", xy=(8, 4), game=self)
+            monster10 = Monster.fast(xy=(2, 5), game=self)
+            monster11 = Monster.big(xy=(9, 9), game=self)
+            monster12 = Monster.little(xy=(8, 4), game=self)
             self.monsters.add(monster10, monster11, monster12)
             self.characters.add(monster10, monster11, monster12)
             self.map.add_characters([monster10, monster11, monster12])
 
         # 8-ая волна монстров
         if self.monster_waves_counter == 8:
-            monster14 = Monster.fast(name="fast_monster_1", xy=(5, 8), game=self)
-            monster19 = Monster.fast(name="fast_monster_2", xy=(10, 2), game=self)
-            monster15 = Monster.big(name="big_monster_5", xy=(3, 9), game=self)
-            monster16 = Monster.little(name="big_monster_6", xy=(2, 6), game=self)
-            monster17 = Monster.little(name="little_monster_5", xy=(12, 2), game=self)
+            monster14 = Monster.fast(xy=(5, 8), game=self)
+            monster19 = Monster.fast(xy=(10, 2), game=self)
+            monster15 = Monster.big(xy=(3, 9), game=self)
+            monster16 = Monster.little(xy=(2, 6), game=self)
+            monster17 = Monster.little(xy=(12, 2), game=self)
             self.monsters.add(monster14, monster15, monster16, monster17, monster19)
             self.characters.add(monster14, monster15, monster16, monster17, monster19)
             self.map.add_characters([monster14, monster15, monster16, monster17, monster19])
 
         # 9-ая волна монстров
         if self.monster_waves_counter == 9:
-            monster24 = Monster.eye(name="eye_1", xy=(7, 3), game=self)
-            monster23 = Monster.big(name="big_monster_5", xy=(6, 3), game=self)
-            monster22 = Monster.big(name="big_monster_6", xy=(4, 9), game=self)
-            monster21 = Monster.little(name="little_monster_5", xy=(4, 6), game=self)
-            monster20 = Monster.little(name="little_monster_5", xy=(2, 9), game=self)
+            monster24 = Monster.eye(xy=(7, 3), game=self)
+            monster23 = Monster.big(xy=(6, 3), game=self)
+            monster22 = Monster.big(xy=(4, 9), game=self)
+            monster21 = Monster.little(xy=(4, 6), game=self)
+            monster20 = Monster.little(xy=(2, 9), game=self)
             self.monsters.add(monster20, monster21, monster22, monster23, monster24)
             self.characters.add(monster20, monster21, monster22, monster23, monster24)
             self.map.add_characters([monster20, monster21, monster22, monster23, monster24])
 
         # 10-ая волна монстров
         if self.monster_waves_counter == 10:
-            monster25 = Monster.eye(name="eye_1", xy=(1, 4), game=self)
-            monster29 = Monster.fast(name="fast_monster_1", xy=(3, 2), game=self)
-            monster26 = Monster.big(name="big_monster_5", xy=(7, 6), game=self)
-            monster27 = Monster.big(name="big_monster_6", xy=(9, 9), game=self)
-            monster28 = Monster.big(name="big_monster_9", xy=(5, 9), game=self)
+            monster25 = Monster.eye(xy=(1, 4), game=self)
+            monster29 = Monster.fast(xy=(3, 2), game=self)
+            monster26 = Monster.big(xy=(7, 6), game=self)
+            monster27 = Monster.big(xy=(9, 9), game=self)
+            monster28 = Monster.big(xy=(5, 9), game=self)
             self.monsters.add(monster25, monster26, monster27, monster28, monster29)
             self.characters.add(monster25, monster26, monster27, monster28, monster29)
             self.map.add_characters([monster25, monster26, monster27, monster28, monster29])
 
         # 11-ая волна монстров
         if self.monster_waves_counter == 11:
-            monster31 = Monster.eye(name="eye_1", xy=(1, 4), game=self)
-            monster30 = Monster.eye(name="eye_1", xy=(1, 4), game=self)
-            monster32 = Monster.little(name="little_monster_5", xy=(12, 2), game=self)
+            monster31 = Monster.eye(xy=(1, 4), game=self)
+            monster30 = Monster.eye(xy=(1, 4), game=self)
+            monster32 = Monster.little(xy=(12, 2), game=self)
             self.monsters.add(monster30, monster31, monster32)
             self.characters.add(monster30, monster31, monster32)
             self.map.add_characters([monster30, monster31, monster32])
 
         # 12-ая волна монстров
         if self.monster_waves_counter == 12:
-            monster33 = Monster.boss_2(name="monster_boss_2", xy=(9, 8), game=self)
+            monster33 = Monster.boss_2(xy=(9, 8), game=self)
             self.monsters.add(monster33)
             self.characters.add(monster33)
             self.map.add_characters([monster33])
 
         # 13-ая волна монстров
         if self.monster_waves_counter == 13:
-            monster34 = Monster.shooting(name="shooting_monster", xy=(10, 2), game=self)
-            monster38 = Monster.eye(name="eye_1", xy=(4, 1), game=self)
-            monster39 = Monster.eye(name="eye_1", xy=(3, 5), game=self)
-            monster37 = Monster.fast(name="fast_monster_1", xy=(3, 2), game=self)
-            monster35 = Monster.little(name="little_monster_5", xy=(12, 2), game=self)
-            monster36 = Monster.little(name="little_monster_5", xy=(6, 1), game=self)
+            monster34 = Monster.shooting(xy=(10, 2), game=self)
+            monster38 = Monster.eye(xy=(4, 1), game=self)
+            monster39 = Monster.eye(xy=(3, 5), game=self)
+            monster37 = Monster.fast(xy=(3, 2), game=self)
+            monster35 = Monster.little(xy=(12, 2), game=self)
+            monster36 = Monster.little(xy=(6, 1), game=self)
             self.monsters.add(monster34, monster35, monster36, monster37, monster38, monster39)
             self.characters.add(monster34, monster35, monster36, monster37, monster38, monster39)
             self.map.add_characters([monster34, monster35, monster36, monster37, monster38, monster39])
 
         # 14-ая волна монстров
         if self.monster_waves_counter == 14:
-            monster40 = Monster.shooting(name="shooting_monster", xy=(10, 2), game=self)
-            monster41 = Monster.shooting(name="shooting_monster", xy=(10, 2), game=self)
-            monster42 = Monster.eye(name="eye_1", xy=(4, 1), game=self)
-            monster43 = Monster.eye(name="eye_1", xy=(3, 5), game=self)
-            monster44 = Monster.fast(name="fast_monster_1", xy=(3, 2), game=self)
-            monster45 = Monster.fast(name="fast_monster_1", xy=(3, 2), game=self)
-            monster46 = Monster.big(name="big_monster_9", xy=(5, 9), game=self)
+            monster40 = Monster.shooting(xy=(10, 2), game=self)
+            monster41 = Monster.shooting(xy=(10, 2), game=self)
+            monster42 = Monster.eye(xy=(4, 1), game=self)
+            monster43 = Monster.eye(xy=(3, 5), game=self)
+            monster44 = Monster.fast(xy=(3, 2), game=self)
+            monster45 = Monster.fast(xy=(3, 2), game=self)
+            monster46 = Monster.big(xy=(5, 9), game=self)
             self.monsters.add(monster40, monster41, monster42, monster43, monster44, monster45, monster46)
             self.characters.add(monster40, monster41, monster42, monster43, monster44, monster45, monster46)
             self.map.add_characters([monster40, monster41, monster42, monster43, monster44, monster45, monster46])
@@ -256,29 +285,16 @@ class Game:
 
         # 15-ая волна монстров
         if self.monster_waves_counter == 15:
-            monster52 = Monster.smart(name="smart_1", xy=(14, 9), game=self)
-            monster51 = Monster.eye(name="eye_1", xy=(7, 5), game=self)
-            monster50 = Monster.eye(name="eye_1", xy=(5, 7), game=self)
-            monster49 = Monster.eye(name="eye_1", xy=(2, 9), game=self)
-            monster48 = Monster.big(name="big_monster_9", xy=(7, 7), game=self)
-            monster47 = Monster.little(name="little_monster_5", xy=(6, 6), game=self)
+            monster52 = Monster.smart(xy=(14, 9), game=self)
+            monster51 = Monster.eye(xy=(7, 5), game=self)
+            monster50 = Monster.eye(xy=(5, 7), game=self)
+            monster49 = Monster.eye(xy=(2, 9), game=self)
+            monster48 = Monster.big(xy=(7, 7), game=self)
+            monster47 = Monster.little(xy=(6, 6), game=self)
             self.monsters.add(monster47, monster48, monster49, monster50, monster51, monster52)
             self.characters.add(monster47, monster48, monster49, monster50, monster51, monster52)
             self.map.add_characters([monster47, monster48, monster49, monster50, monster51, monster52])
 
-    def _init_map(self, map_id: int = 1) -> Map:
-        """ Создаёт карту, добавляет на карту героев, монстров, вещи """
-        if map_id == 0:
-            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=c.MAP_SANDBOX_NO_WALLS, game=self)
-        elif map_id == 1:
-            map_ = Map(name="MAP1", ascii_=c.MAP_1, game=self)
-        elif map_id == 2:
-            map_ = Map(name="SANDBOX", ascii_=c.MAP_SANDBOX, game=self)
-        else:
-            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=c.MAP_SANDBOX_NO_WALLS, game=self)
-        map_.add_characters(self.characters)
-        map_.init_items()
-        return map_
 
     def all_heroes_dead(self) -> bool:
         """ return True если все герои умерли """
@@ -491,11 +507,12 @@ class Game:
 
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
-        self.screen.fill(c.BLACK)
-        # pygame.draw.rect(self.screen, c.GREEN, self.map.rect, 1)
-        # pygame.draw.rect(self.screen, c.RED, self.dashboard_left.rect, 10)
+        self.screen.fill(s.BLACK)
+        # pygame.draw.rect(self.screen, s.GREEN, self.map.rect, 1)
+        # pygame.draw.rect(self.screen, s.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
         self.map.draw_xy(self.screen)
+        self.items.draw(self.screen)
         self.characters.draw(self.screen)
         # self.draw_monster_path()
         character = self.get_active_character()
@@ -517,7 +534,7 @@ class Game:
             if i_to >= len(route):
                 break
             cell_to = monster.route[i_to]
-            pygame.draw.line(self.screen, c.RED, cell_from.center(), cell_to.center(), 10)
+            pygame.draw.line(self.screen, s.RED, cell_from.center(), cell_to.center(), 10)
             pygame.display.update()
         #     sleep(0.01)
         # sleep(1)
@@ -525,13 +542,13 @@ class Game:
     def draw_game_over(self) -> None:
         """ рисуем надпись GameOver """
         font = pygame.font.SysFont("consolas", 100)
-        text = font.render("Game Over", True, c.RED)
+        text = font.render("Game Over", True, s.RED)
         text_rect = text.get_rect()
         text_rect.center = self.map.rect.center
 
         size = (text_rect.w + 50, text_rect.h + 50)
         background = pygame.Surface(size)
-        background.fill(c.BLACK)
+        background.fill(s.BLACK)
         background_rect = background.get_rect()
         background_rect.center = text_rect.center
 

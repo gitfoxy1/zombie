@@ -4,7 +4,7 @@ from typing import Tuple
 import pygame
 from pygame import Surface
 
-import constants as c
+import settings as s
 
 
 class Text:
@@ -13,7 +13,7 @@ class Text:
         self.font = "consolas"
         # self.font = "Comic Sans MS"
         # self.font = "a_AlternaSw"
-        self.color = c.RED_DARK
+        self.color = s.RED_DARK
         self.size = 30
 
     def draw_header1_center(self, text: str, screen: Surface, xy: Tuple[int, int]):
@@ -27,7 +27,7 @@ class Text:
         xy_ = (xy[0] - text_rect.centerx, xy[1])
         screen.blit(render, xy_)
         box_rect = pygame.Rect(xy_, text_rect.size)
-        # pygame.draw.rect(screen, c.BLUE, box_rect, 1)
+        # pygame.draw.rect(screen, s.BLUE, box_rect, 1)
         return box_rect
 
     def draw_header2_left(self, text: str, screen: Surface, xy: Tuple[int, int]):
@@ -41,7 +41,7 @@ class Text:
         xy = (xy[0] + size * 0.2, xy[1])
         screen.blit(render, xy)
         box_rect = pygame.Rect(xy, text_rect.size)
-        # pygame.draw.rect(screen, c.BLUE, box_rect, 1)
+        # pygame.draw.rect(screen, s.BLUE, box_rect, 1)
         return box_rect
 
     def draw_list(self, lines, screen, x, y):
@@ -58,10 +58,10 @@ class Text:
             y_i = y + size * i
             xy = (x, y_i)
             screen.blit(render, xy)
-            # pygame.draw.rect(screen, c.BLUE, (xy, text_rect.size), 1)
+            # pygame.draw.rect(screen, s.BLUE, (xy, text_rect.size), 1)
             box_w = max(box_w, text_rect.w)
             box_h = y_i + text_rect.h
             print()
         box_rect = pygame.Rect((x, y), (box_w, box_h - y))
-        # pygame.draw.rect(screen, c.BLUE, box_rect, 1)
+        # pygame.draw.rect(screen, s.BLUE, box_rect, 1)
         return box_rect

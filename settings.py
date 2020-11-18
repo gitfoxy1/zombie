@@ -9,6 +9,8 @@ IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
 
+SPEED = 100
+
 # размер клетки
 CELL_W = 100
 CELL_COUNT_X_MAX = 15
