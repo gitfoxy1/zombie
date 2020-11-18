@@ -284,4 +284,4 @@ class Cotton(Medicines):
         self.heal = 1
         self.heal_target = "armor"
         self.kind_0 = "medicines"
-        self.kind = "cotton"
+        self.kind = "Cotton"

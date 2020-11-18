@@ -497,7 +497,7 @@ class Game:
         self.map.draw(self.screen)
         self.map.draw_xy(self.screen)
         self.characters.draw(self.screen)
-        self.draw_monster_path()
+        # self.draw_monster_path()
         character = self.get_active_character()
         self.dashboard_left.draw(self.screen, character)
 

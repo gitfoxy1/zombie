@@ -180,7 +180,7 @@ class Hero(Character):
                 self.item_in_hands = None
                 if self.lives >= 10:
                     self.lives = 10
-            if self.item_in_hands.kind == "cotton":
+            if self.item_in_hands.kind == "Cotton":
                 if self.armor:
                     self.armor.strength += self.item_in_hands.heal
                     self.item_in_hands = None
