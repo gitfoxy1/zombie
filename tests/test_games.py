@@ -69,7 +69,8 @@ class Test(unittest.TestCase):
             waves_counter = (i + 1) // game.rounds_between_monster_wave
             game.update_rounds_wave_counter(True)
             self.assertEqual(game.rounds_counter, i + 1, msg=f"i={i}, game.rounds_counter")
-            self.assertEqual(game.monster_waves_counter, waves_counter, msg=f"i={i}, game.waves_counter")
+            self.assertEqual(game.monster_waves_counter, waves_counter,
+                             msg=f"i={i}, game.waves_counter")
 
 
 if __name__ == "__main__":

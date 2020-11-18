@@ -8,16 +8,18 @@ from pygame import Rect, Surface
 import settings as s
 from text import Text
 
+Game = "Game"
+
 
 class Backpack(Text):
     """ Рюкзак с вещами """
     # noinspection PyUnresolvedReferences
-    game: Optional["Game"] = None  # ссылка на игру
+    game: Optional[Game] = None  # ссылка на игру
     rect: Rect  # прямоугольник окна на экране (пиксели)
     active_items_id: int  # выбранная вещ в рюкзаке
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, game: "Game"):
+    def __init__(self, game: Game):
         super().__init__()
         self.game = game
         screen_rect = game.get_screen_rect()

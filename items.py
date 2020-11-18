@@ -1,7 +1,7 @@
 """ Вещи """
 import os
-from typing import Optional
 import random
+
 import pygame
 from pygame import Surface
 
@@ -13,6 +13,7 @@ Game = "Game"
 
 class Items(SpriteOnMap):
     """ Вещи """
+
     def __init__(self, image: str):
         scale = 0.5
         width = int(s.CELL_W * scale)
@@ -27,8 +28,6 @@ class Items(SpriteOnMap):
     # noinspection PyUnresolvedReferences
     def draw(self, screen: Surface, cell: "Cell"):
         """ Рисует персонажа на карте """
-
-
 
         cell_x = s.CELL_W * cell.xy[0]  # координаты клетки на экрана
         cell_y = s.CELL_W * cell.xy[1]
@@ -45,6 +44,7 @@ class Items(SpriteOnMap):
 
 class Guns(Items):
     """ Класс-родитель для оружия """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.damage = None
@@ -57,6 +57,7 @@ class Guns(Items):
 
 class Digle(Guns):
     """ пистолет Digle """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -70,6 +71,7 @@ class Digle(Guns):
 
 class Uzi(Guns):
     """автомат U.Z.I."""
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -83,6 +85,7 @@ class Uzi(Guns):
 
 class Kalashnikov(Guns):
     """автомат Kalashnikov"""
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -96,6 +99,7 @@ class Kalashnikov(Guns):
 
 class Mastif(Guns):
     """Mastif"""
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -109,6 +113,7 @@ class Mastif(Guns):
 
 class Mozambyk(Guns):
     """Mozambyk"""
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -122,6 +127,7 @@ class Mozambyk(Guns):
 
 class Awp(Guns):
     """A.W.P"""
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -137,6 +143,7 @@ class Awp(Guns):
 
 class Cartridge(Items):
     """ Класс-родитель для патронов """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.type = None
@@ -146,6 +153,7 @@ class Cartridge(Items):
 
 class LittleCartridge(Cartridge):
     """ лёгкие патроны """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -156,6 +164,7 @@ class LittleCartridge(Cartridge):
 
 class HeavyCartridge(Cartridge):
     """ тяжёлые патроны """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -166,6 +175,7 @@ class HeavyCartridge(Cartridge):
 
 class Fraction(Cartridge):
     """ патроны """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -178,6 +188,7 @@ class Fraction(Cartridge):
 
 class SteelWeapon(Items):
     """ Класс-родитель для оружия """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.damage = None
@@ -186,6 +197,7 @@ class SteelWeapon(Items):
 
 class Knife(SteelWeapon):
     """ ножик """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -196,6 +208,7 @@ class Knife(SteelWeapon):
 
 class Bat(SteelWeapon):
     """ Bat """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -208,6 +221,7 @@ class Bat(SteelWeapon):
 
 class Armor(Items):
     """ Класс-родитель для брони """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.kind_0 = "armor"
@@ -216,6 +230,7 @@ class Armor(Items):
 
 class Armor1(Armor):
     """ броня """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -225,6 +240,7 @@ class Armor1(Armor):
 
 class Armor2(Armor):
     """ броня """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -234,6 +250,7 @@ class Armor2(Armor):
 
 class Armor3(Armor):
     """ броня """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -245,6 +262,7 @@ class Armor3(Armor):
 
 class Backpack0(Items):
     """ Класс-родитель для рюкзак """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.kind_0 = "backpack"
@@ -253,6 +271,7 @@ class Backpack0(Items):
 
 class Backpack1(Backpack0):
     """ рюкзак """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -262,6 +281,7 @@ class Backpack1(Backpack0):
 
 class Backpack2(Backpack0):
     """ рюкзак """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -271,6 +291,7 @@ class Backpack2(Backpack0):
 
 class Backpack3(Backpack0):
     """ рюкзак """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -282,6 +303,7 @@ class Backpack3(Backpack0):
 
 class Medicine(Items):
     """ Класс-родитель для лекарств """
+
     def __init__(self, image: str):
         super().__init__(image)
         self.heal = None
@@ -291,6 +313,7 @@ class Medicine(Items):
 
 class Medikit(Medicine):
     """ лекарство """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -302,6 +325,7 @@ class Medikit(Medicine):
 
 class Cotton(Medicine):
     """ нитки """
+
     def __init__(self):
         image = "giftbox.png"
         super().__init__(image)
@@ -320,7 +344,7 @@ def items_generator(count: int) -> list:
     # вещи которые должны быть на карте обязательно
     items_mandatory = [
         random.choice([Digle, Uzi]), LittleCartridge,  # Little Gun
-        random.choice([Kalashnikov, Mastif, Awp]), HeavyCartridge,  # Heavy Gun
+        random.choice([Kalashnikov, Awp]), HeavyCartridge,  # Heavy Gun
         random.choice([Mozambyk, Mastif]), Fraction,  # Fraction Gun
         random.choice([Knife, Bat]),  # Steel Weapon
         random.choice([Armor1, Armor2, Armor3]),  # Armor
@@ -335,7 +359,7 @@ def items_generator(count: int) -> list:
         items_extra = [
             [Digle for _ in range(random.randrange(1, 3))],
             [Uzi for _ in range(random.randrange(1, 3))],
-            [Kalashnikov for _ in range(random.randrange(1, 3))],
+            [LittleCartridge for _ in range(random.randrange(1, 3))],
         ]
         items_extra = [i for l in items_extra for i in l]
         item_extra = random.choice(items_extra)

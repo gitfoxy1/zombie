@@ -1,15 +1,13 @@
 """ Персонажы """
 
 import random
-from time import sleep
-from typing import List, Optional, Set, Tuple, Union
-
-import pygame
+from typing import List, Set, Tuple, Union
 
 import settings as s
 from character import Character
 from map import Cell
 
+Game = "Game"
 TRoute = List[List[Cell]]
 
 
@@ -19,7 +17,7 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     def __init__(self, name: str, image: str, xy: Tuple[int, int], actions_max: int, lives: int,
-                 damage: int, iq: int, game: "Game"):
+                 damage: int, iq: int, game: Game):
         """ Монстр
         @param name: имя монстра
         @param image: картинка
@@ -39,7 +37,7 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     @classmethod
-    def little(cls, xy: Tuple[int, int], game: "Game"):
+    def little(cls, xy: Tuple[int, int], game: Game):
         """ создадим маленького монстра """
         monster = cls(name="little_monster_1",
                       image="little_monster.png",
@@ -53,7 +51,7 @@ class Monster(Character):
 
     # noinspection PyUnresolvedReferences
     @classmethod
-    def big(cls, xy: Tuple[int, int], game: "Game"):
+    def big(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="big_monster_1",
                       image="big_monster.png",
@@ -66,7 +64,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def boss_1(cls, xy: Tuple[int, int], game: "Game"):
+    def boss_1(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="boss_1",
                       image="monster_boss_1.png",
@@ -79,7 +77,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def fast(cls, xy: Tuple[int, int], game: "Game"):
+    def fast(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="fast",
                       image="fast_monster.png",
@@ -92,7 +90,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def eye(cls, xy: Tuple[int, int], game: "Game"):
+    def eye(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="eye",
                       image="eye.png",
@@ -105,7 +103,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def boss_2(cls, xy: Tuple[int, int], game: "Game"):
+    def boss_2(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="boss_2",
                       image="monster_boss_2.png",
@@ -118,7 +116,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def shooting(cls, xy: Tuple[int, int], game: "Game"):
+    def shooting(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="shooting",
                       image="shoting_monster.png",
@@ -131,7 +129,7 @@ class Monster(Character):
         return monster
 
     @classmethod
-    def smart(cls, xy: Tuple[int, int], game: "Game"):
+    def smart(cls, xy: Tuple[int, int], game: Game):
         """ создадим большого монстра """
         monster = cls(name="smart",
                       image="smart_monster.png",
@@ -143,13 +141,13 @@ class Monster(Character):
                       game=game)
         return monster
 
-    def route_to_hero(self, iq_level: int) -> List[Cell]:
+    def route_to_hero(self, iq: int) -> List[Cell]:
         """ монстр ищет маршрут к герою """
         # найдём клетку в которой находится персонаж
-        cell = self.get_cell()
+        cell = self.my_cell()
         # получаем самый короткий путь до героя
         routes = list()
-        for _ in range(iq_level):
+        for _ in range(iq):
             routes_i = self.random_routes_to_hero(cell)
             routes_i = sorted(routes_i, key=lambda i: len(i))
             route = routes_i[0]
@@ -222,40 +220,41 @@ class Monster(Character):
 
     def move(self) -> None:
         """ Передвижение монстра по карте """
-        is_hero = False
         if not self.actions:
             return
-        cell = self.game.map.get_cell(self.xy)
-        for c_i in cell.characters:
-            if c_i.type == 'hero':
-                is_hero = True
-        if is_hero:
-            self.route = [cell, cell]
-        else:
-            # получаем самый короткий путь до героя, в зависимости от интелекта
-            route = self.route_to_hero(iq_level=self.iq)
-            if len(route) <= 2:
-                self.route = route
-                return
-            # передвигаем монтра по маршруту
-            route = route[1:]  # убирает из маршрута превую клетку (где стоит монстр)
-            cell_to = route[0]
-            self.move_to_cell(cell_to)
-            self.actions -= 1
+        cell = self.my_cell()
+        # выходим если есть герой на той же клетке вместе с монстром
+        if cell.is_hero():
+            self.route = []
+            return
+        # получаем самый короткий путь до героя, в зависимости от интелекта
+        route = self.route_to_hero(iq=self.iq)
+        if len(route) <= 2:
             self.route = route
+            return
+        # передвигаем монтра по маршруту
+        route = route[1:]  # убирает из маршрута превую клетку (где стоит монстр)
+        cell_to = route[0]
+        self.move_to_cell(cell_to)
+        self.actions -= 1
+        self.route = route
 
     def attack(self) -> None:
         """ монстр атакует героя """
         if not self.actions:
             return
-        # выходим если героя нет на соседней клетке
-        if len(self.route) > 2:
-            return
-        # атака
-        cell_attacked = self.route[1]
-        hero = cell_attacked.get_hero()
+        # монстр атакует свою клетку, если на ней стоит герой
+        cell = self.my_cell()
+        hero = cell.get_hero()
         if hero:
-            hero.lives -= self.damage
-            if hero.lives <= 0:
-                hero.death()
-        self.actions -= 1
+            hero.damage(self.damage)
+            self.actions -= 1
+            return
+        # монстр атакует соседнюю клетку, если на ней стоит герой
+        if self.route and len(self.route) >= 1:
+            cell = self.route[1]
+            hero = cell.get_hero()
+            if hero:
+                hero.damage(self.damage)
+                self.actions -= 1
+                return

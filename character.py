@@ -1,11 +1,7 @@
 """ Персонажы """
 
-import os
 from typing import Optional, Tuple
 
-import pygame
-from pygame import Surface
-from pygame.sprite import Sprite
 from pygame import Rect
 
 import settings as s
@@ -48,7 +44,7 @@ class Character(SpriteOnMap):
             line += " active"
         return line
 
-    def get_cell(self) -> Cell:
+    def my_cell(self) -> Cell:
         """ return клетку в которой находится персонаж """
         cell = self.game.map.get_cell(self.xy)
         return cell
@@ -56,8 +52,7 @@ class Character(SpriteOnMap):
     def move_to_cell(self, cell_to: Cell) -> None:
         """ Передвижение персонажа в клету"""
         # найдём клетку в которой находится персонаж
-        map_ = self.game.map
-        cell_from = map_.get_cell(self.xy)
+        cell_from = self.game.map.get_cell(self.xy)
 
         # перемещаеме персонаж в другую клетку на карте
         self.xy = cell_to.xy
@@ -78,39 +73,58 @@ class Character(SpriteOnMap):
     def update(self):
         """ update """
         speed = s.SPEED
-        cell = self.game.map.get_cell(self.xy)
+        cell = self.my_cell()
+
+        px = cell.rect.centerx
+        py = cell.rect.centery
+        # если в клетке несколько героев, нарисуем их по диогонали todo
+        # shift = 3
+        # if len(cell.characters) >= 1 and cell.characters[0] != self:
+        #     for i, character in enumerate(cell.characters):
+        #         if character != self:
+        #             continue
+        #         if i == 0:
+        #             px = cell.rect.centerx - shift
+        #             py = cell.rect.centery - shift
+        #         elif i == 1:
+        #             px = cell.rect.centerx + shift
+        #             py = cell.rect.centery + shift
+
         # x
-        diff_x = abs(self.rect.centerx - cell.rect.centerx)
+        diff_x = abs(self.rect.centerx - px)
         diff_x = min(speed, diff_x)
         if diff_x:
-            if self.rect.centerx > cell.rect.centerx:
+            if self.rect.centerx > px:
                 self.rect.centerx -= diff_x
-            elif self.rect.centerx < cell.rect.centerx:
+            elif self.rect.centerx < px:
                 self.rect.centerx += diff_x
         # y
-        diff_y = abs(self.rect.centery - cell.rect.centery)
+        diff_y = abs(self.rect.centery - py)
         diff_y = min(speed, diff_y)
         if diff_y:
-            if self.rect.centery > cell.rect.centery:
+            if self.rect.centery > py:
                 self.rect.centery -= diff_y
-            elif self.rect.centery < cell.rect.centery:
+            elif self.rect.centery < py:
                 self.rect.centery += diff_y
 
     def death(self) -> None:
-        """ Персонаж умирает """
-        # ищет героя на карте
-        for cell in self.game.map.cells:
-            if self in cell.characters:
-                # удаляет героя с карты
-                cell.characters.remove(self)
-                # вещи героя сбрасывает на карту
-                for item in self.items:
-                    cell.items.append(item)
-                break
+        """ Персонаж умирает, удаляем из игры """
+        # удаляет героя с карты, вещи героя сбрасывает на карту
+        cell = self.my_cell()
+        cell.characters.remove(self)
+        for item in self.items:
+            cell.append_item(item)
+
         # удаляет героя из игры
-        self.game.characters.remove(self)
         self.game.heroes.remove(self)
         self.game.monsters.remove(self)
+        self.game.characters.remove(self)
+
+    def damage(self, damage: int) -> None:
+        """ Персонаж получает урон """
+        self.lives -= damage
+        if self.lives <= 0:
+            self.death()
 
     def end_turn(self) -> None:
         """ ход/turn закончился actions=0, персонаж становится пасивным """

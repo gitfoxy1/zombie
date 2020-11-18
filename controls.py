@@ -4,12 +4,14 @@ import pygame
 import settings as s
 from text import Text
 
+Game = "Game"
+
 
 class Controls(Text):
     """ Help, назначение клавиш """
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, game: "Game"):
+    def __init__(self, game: Game):
         super().__init__()
         self.game = game
         screen_rect = game.get_screen_rect()

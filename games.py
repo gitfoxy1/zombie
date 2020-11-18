@@ -1,8 +1,7 @@
 """ игра """
 import os
-from typing import Optional, NamedTuple, Union
-from time import sleep
 import random
+from typing import Optional, NamedTuple, Union
 
 import pygame
 from pygame import Rect, Surface
@@ -13,9 +12,9 @@ from backpack import Backpack
 from controls import Controls
 from dashboard import DashboardLeft
 from hero import Hero
+from items import items_generator
 from map import Map
 from monster import Monster
-from items import items_generator
 
 CharacterHM = Union[Hero, Monster]
 
@@ -50,7 +49,7 @@ class Game:
     monster_waves_counter: int = 0  # счетчик волн монстров
     rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
 
-    def __init__(self, map_: str, heroes: int, monsters: int):
+    def __init__(self, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
@@ -61,7 +60,7 @@ class Game:
         self.map = self._init_map(map_)
         self._init_heroes(heroes)
         self._init_monsters(monsters)
-        self._init_items()
+        self._init_items(items)
         self._start_turn()
 
         self.dashboard_left = DashboardLeft(self.get_screen_rect(), self.map)
@@ -136,17 +135,17 @@ class Game:
             character = characters[0]
             character.start_turn()
 
-    def _init_items(self) -> None:
+    def _init_items(self, count: int) -> None:
         """ Создаёт и помещает вещи на карту """
         # сгенерим вещи в нужном количестве и добавим в спрйты и на карту
         self.items = Group()
-        items = items_generator(count=20)
+        items = items_generator(count=count)
         for item in items:
             self.items.add(item)
             # добавим вещи на карту
             cell = random.choice(self.map.cells)
             item.xy = cell.xy
-            item.update_rect_on_map()  # Sprite.rect
+            item.update_rect()  # Sprite.rect
             cell.items.append(item)
 
     def _init_monsters_wave(self) -> None:
@@ -267,7 +266,8 @@ class Game:
             monster36 = Monster.little(xy=(6, 1), game=self)
             self.monsters.add(monster34, monster35, monster36, monster37, monster38, monster39)
             self.characters.add(monster34, monster35, monster36, monster37, monster38, monster39)
-            self.map.add_characters([monster34, monster35, monster36, monster37, monster38, monster39])
+            self.map.add_characters(
+                [monster34, monster35, monster36, monster37, monster38, monster39])
 
         # 14-ая волна монстров
         if self.monster_waves_counter == 14:
@@ -278,10 +278,12 @@ class Game:
             monster44 = Monster.fast(xy=(3, 2), game=self)
             monster45 = Monster.fast(xy=(3, 2), game=self)
             monster46 = Monster.big(xy=(5, 9), game=self)
-            self.monsters.add(monster40, monster41, monster42, monster43, monster44, monster45, monster46)
-            self.characters.add(monster40, monster41, monster42, monster43, monster44, monster45, monster46)
-            self.map.add_characters([monster40, monster41, monster42, monster43, monster44, monster45, monster46])
-
+            self.monsters.add(monster40, monster41, monster42, monster43, monster44, monster45,
+                              monster46)
+            self.characters.add(monster40, monster41, monster42, monster43, monster44, monster45,
+                                monster46)
+            self.map.add_characters(
+                [monster40, monster41, monster42, monster43, monster44, monster45, monster46])
 
         # 15-ая волна монстров
         if self.monster_waves_counter == 15:
@@ -293,8 +295,8 @@ class Game:
             monster47 = Monster.little(xy=(6, 6), game=self)
             self.monsters.add(monster47, monster48, monster49, monster50, monster51, monster52)
             self.characters.add(monster47, monster48, monster49, monster50, monster51, monster52)
-            self.map.add_characters([monster47, monster48, monster49, monster50, monster51, monster52])
-
+            self.map.add_characters(
+                [monster47, monster48, monster49, monster50, monster51, monster52])
 
     def all_heroes_dead(self) -> bool:
         """ return True если все герои умерли """

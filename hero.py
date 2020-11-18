@@ -9,20 +9,22 @@ import pygame
 import settings as s
 from character import Character
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
-    Awp, Medikit, Knife, Armor, Cotton, Backpack0
+    Awp, Medikit, Knife, Armor1, Cotton, Backpack1
+
+Game = "Game"
 
 
 class Hero(Character):
     """ Герой """
     items: list = []  # вещи в рюкзаке
-    armor: Optional[Armor] = None  # броня
+    armor: Optional[Armor1] = None  # броня
     armor_points: int = 0  # броня
-    backpack: Optional[Backpack0] = None  # рюкзак вещи
+    backpack: Optional[Backpack1] = None  # рюкзак вещи
     backpack_points: int = 0  # расширение рюкзака
     key_pressed: int = 0  # нажатая клавиша
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: "Game"):
+    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: Game):
         """ делает героя
         @param name: имя героя
         @param image: картинка героя
@@ -52,8 +54,8 @@ class Hero(Character):
         """
         cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
         cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
-                         LittleCartridge(), Awp(), Mastif(), Knife(), Armor(), Medikit(),
-                         Cotton(), Backpack0()]
+                         LittleCartridge(), Awp(), Mastif(), Knife(), Armor1(), Medikit(),
+                         Cotton(), Backpack1()]
         cheater.item_in_hands = Digle()
         cheater.items_max = 1000
         cheater.actions = 10000
@@ -64,7 +66,7 @@ class Hero(Character):
 
         # найдём клетку в которой находится персонаж
         map_ = self.game.map
-        cell_from = self.game.map.get_cell(self.xy)
+        cell_from = self.my_cell()
 
         # если стенки нет передвигаем персонажа на новую клетку
         cell_to = None
@@ -95,56 +97,50 @@ class Hero(Character):
                 # pygame.mixer.Sound(s.SOUND_PUNCH_TO_WALL).play()
                 pass
 
+    def add_carts_to_backpack(self, item: "Cartridge") -> None:
+        """ добавляет патроны к рюкзак """
+        # патроны того же типа у героя
+        slots_with_cartridges = [o for o in self.items if o.kind == item.kind]
+        for slot in slots_with_cartridges:
+            # если слот с патронами переполнен, ещем следующий свободный слот
+            if slot.count >= slot.count_max:
+                continue
+            # если слот с патронами не переполнен, кладём патроны в рюкзак
+            slot.count += item.count
+            break
+        else:
+            if len(self.items) < self.items_max:  # если рюкзак не полный
+                self.items.append(item)  # кладём патроны в рюкзак
+
     def pickup_item(self) -> None:
         """ герой поднемает вещь на карте """
-        map_ = self.game.map
-        is_success = False
-        for cell in map_.cells:
-            if cell.xy == self.xy:  # если герой стоит на этой клетке
-                if cell.items:  # если вещь есть на клетке
-                    item_on_map = cell.items.pop()  # поднимает вещь с карты
+        cell = self.my_cell()
 
-                    # если это патроны
-                    if item_on_map.kind_0 == "cart":
-                        # патроны того же типа в рюкзаке
-                        carts_the_same = [i for i in self.items if i.kind == item_on_map.kind]
-                        if carts_the_same:  # если в рюкзаке патроны, то добавляет к существуещим
-                            for cart in carts_the_same:
-                                if cart.count >= cart.count_max:  # если слот с патронами переполнен
-                                    continue
-                                # если слот с патронами не переполнен
-                                cart.count += item_on_map.count  # кладём вещь в рюкзак
-                                break
-                            else:
-                                if len(self.items) < self.items_max:  # если рюкзак не полный
-                                    self.items.append(item_on_map)  # кладём патроны в рюкзак
-                            is_success = True
+        # выходим если вещей нет на клетке
+        if not cell.items:
+            return
+        # выходим если рюкзак полный
+        if len(self.items) >= self.items_max:
+            return
 
-                        else:  # если в рюкзаке патронав нет
-                            if len(self.items) < self.items_max:  # если рюкзак не полный
-                                self.items.append(item_on_map)  # кладём вещь в рюкзак
-                                is_success = True
-
-                    # если это не патроны
-                    else:
-                        if len(self.items) < self.items_max:  # если рюкзак не полный
-                            self.items.append(item_on_map)  # кладём в рюкзак
-                            is_success = True
-
-                    # если рюкзак полный, вернём вещь на карту
-                    if len(self.items) >= self.items_max:
-                        cell.items.append(item_on_map)
-
-        if is_success is True:
-            self.actions -= 1
+        # поднимает вещь с карты и ложим вещь в рюкзак
+        item_picked = cell.pop_item()
+        self.actions -= 1
+        # если это патроны
+        if item_picked.kind_0 == "cart":
+            self.add_carts_to_backpack(item_picked)
+        # если это не патроны
+        else:
+            self.items.append(item_picked)
 
     def drop_down_item(self) -> None:
         """ выбрасывает вещь из рук на карту """
-        map_ = self.game.map
-        if self.item_in_hands:
-            cell = map_.get_cell(self.xy)
-            cell.items.append(self.item_in_hands)
-            self.item_in_hands = None
+        if not self.item_in_hands:
+            return
+        item = self.item_in_hands
+        cell = self.my_cell()
+        cell.append_item(item)
+        self.item_in_hands = None
 
     def wear(self) -> None:
         """ Одевает броню или рюкзак """

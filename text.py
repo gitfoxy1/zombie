@@ -9,6 +9,7 @@ import settings as s
 
 class Text:
     """ текст """
+
     def __init__(self):
         self.font = "consolas"
         # self.font = "Comic Sans MS"

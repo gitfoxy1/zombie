@@ -14,6 +14,7 @@ Game = "Game"
 
 class SpriteOnMap(Sprite):
     """ спрайт на карте """
+
     def __init__(self, image: str, size: Tuple[int, int]):
         super().__init__()
 
@@ -21,11 +22,11 @@ class SpriteOnMap(Sprite):
         image = pygame.image.load(image)
         image = pygame.transform.scale(image, size)
         self.image: Surface = image  # картинка спрайта
-        self.xy: Tuple[int, int] = (0, 0)  # координаты клетки спрайта на карте
+        self.xy: Tuple[int, int] = (-1, -1)  # координаты клетки спрайта на карте
         self.rect = self.image.get_rect()
-        self.update_rect_on_map()  # прямоугольник спрайта
+        self.update_rect()  # прямоугольник спрайта
 
-    def update_rect_on_map(self) -> None:
+    def update_rect(self) -> None:
         """ return Sprite.rect на экране (пиксели) в центр клетки карты """
         rect: Rect = self.image.get_rect()
         # координаты клетки на экрана в пикселях

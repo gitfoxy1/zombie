@@ -3,20 +3,19 @@ import random
 from typing import Optional, Tuple
 
 import pygame
-from pygame import Surface
 from pygame import Rect
+from pygame import Surface
 
 import settings as s
 from cell import Cell
-from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
-    Mozambyk, Knife, Bat, Armor1, Armor2, Armor3, Backpack1, \
-    Backpack2, Backpack3, Medikit, Cotton
+
+Game = "Game"
 
 
 class Map:
     """ Карта """
     # noinspection PyUnresolvedReferences
-    game: Optional["Game"] = None  # ссылка на игру
+    game: Optional[Game] = None  # ссылка на игру
     name: str = ""  # название карты
     rect: Optional[Rect] = None
     cell_w: int = 0  # ширина клеток
@@ -28,7 +27,7 @@ class Map:
         return f"{self.name}, {self.cells_x},{self.cells_y}"
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, ascii_: str, game: "Game"):
+    def __init__(self, name: str, ascii_: str, game: Game):
         """ Карта
         @param name: название карты
         @param ascii_: карта в текстовом формате на основе генератора карт
@@ -53,7 +52,8 @@ class Map:
         for cell in self.cells:
             cell_x = cell.xy[0] * cell.w
             cell_y = cell.xy[1] * cell.h
-            pic: Surface = pygame.transform.scale(cell.image, (cell.w - self.line_w, cell.h - self.line_w))
+            pic: Surface = pygame.transform.scale(cell.image,
+                                                  (cell.w - self.line_w, cell.h - self.line_w))
             screen.blit(pic, (cell_x, cell_y))
 
         for cell in self.cells:

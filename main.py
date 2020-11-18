@@ -1,7 +1,6 @@
 """ game zombie """
 # pylint: disable=no-member
 
-from time import sleep
 import pygame
 
 import functions as f
@@ -11,7 +10,7 @@ FPS = 60
 pygame.init()
 # screen = pygame.display.set_mode([100, 100])
 clock = pygame.time.Clock()
-game = Game(map_="MAP1", heroes=1, monsters=0)
+game = Game(map_="MAP1", heroes=1, monsters=4, items=30)
 
 RUN = True  # если run = False, тогда выходим из игры
 GAME_OVER = False

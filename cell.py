@@ -110,3 +110,30 @@ class Cell:
         if not monster:
             return None
         return monster[0]
+
+    def is_hero(self) -> bool:
+        """ True если есть герой на этой клетке """
+        if self.get_hero():
+            return True
+        return False
+
+    def is_monster(self) -> bool:
+        """ True если есть монстр на этой клетке """
+        if self.get_monster():
+            return True
+        return False
+
+    def pop_item(self) -> Optional["Item"]:
+        """ return вещь из клетки карты, удаляет из списка """
+        if not self.items:
+            return
+        item = self.items.pop()
+        item.xy = (-1, -1)
+        item.update_rect()
+        return item
+
+    def append_item(self, item: "Item") -> None:
+        """ кладём вещь на клетку карты """
+        item.xy = self.xy
+        item.update_rect()
+        self.items.append(item)

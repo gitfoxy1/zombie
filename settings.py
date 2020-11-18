@@ -9,7 +9,7 @@ IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
 
-SPEED = 100
+SPEED = 30
 
 # размер клетки
 CELL_W = 100
