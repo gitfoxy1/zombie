@@ -6,7 +6,7 @@ from typing import List, Optional, Set, Tuple, Union
 import pygame
 from pygame import Rect, Surface
 
-import constants as c
+import settings as s
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
     Awp, Mozambyk, Knife, Bat
 
@@ -28,19 +28,19 @@ class Cell:
 
     def __init__(self, xy: Tuple[int, int], walls: set):
         self.xy = xy
-        self.w = c.CELL_W
+        self.w = s.CELL_W
         self.h = self.w
         px = self.xy[0] * self.w
         py = self.xy[1] * self.h
         self.rect = pygame.Rect((px, py), (self.w, self.h))
         # картинки рандом 1..6
-        images = [os.path.join(c.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
+        images = [os.path.join(s.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
         self.image = pygame.image.load(random.choice(images))
         self.walls = set(walls)
         self.characters = list()  # hero, monster
         self.items = list()
         # self.status = set()  # todo fire, smoke
-        self.rikoshet = pygame.mixer.Sound(os.path.join(c.SOUNDS_DIR, "rikoshet.wav"))  # todo play
+        self.rikoshet = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))  # todo play
 
     def __repr__(self) -> str:
         msg = f"xy:{self.xy[0]},{self.xy[1]} "
@@ -110,3 +110,30 @@ class Cell:
         if not monster:
             return None
         return monster[0]
+
+    def is_hero(self) -> bool:
+        """ True если есть герой на этой клетке """
+        if self.get_hero():
+            return True
+        return False
+
+    def is_monster(self) -> bool:
+        """ True если есть монстр на этой клетке """
+        if self.get_monster():
+            return True
+        return False
+
+    def pop_item(self) -> Optional["Item"]:
+        """ return вещь из клетки карты, удаляет из списка """
+        if not self.items:
+            return
+        item = self.items.pop()
+        item.xy = (-1, -1)
+        item.update_rect()
+        return item
+
+    def append_item(self, item: "Item") -> None:
+        """ кладём вещь на клетку карты """
+        item.xy = self.xy
+        item.update_rect()
+        self.items.append(item)

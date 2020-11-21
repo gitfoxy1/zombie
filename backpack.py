@@ -5,25 +5,27 @@ from typing import Optional
 import pygame
 from pygame import Rect, Surface
 
-import constants as c
+import settings as s
 from text import Text
+
+Game = "Game"
 
 
 class Backpack(Text):
     """ Рюкзак с вещами """
     # noinspection PyUnresolvedReferences
-    game: Optional["Game"] = None  # ссылка на игру
+    game: Optional[Game] = None  # ссылка на игру
     rect: Rect  # прямоугольник окна на экране (пиксели)
     active_items_id: int  # выбранная вещ в рюкзаке
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, game: "Game"):
+    def __init__(self, game: Game):
         super().__init__()
         self.game = game
-        screen_rect = game.screen_rect()
+        screen_rect = game.get_screen_rect()
         self.rect = Rect((screen_rect.x + 90, screen_rect.y + 90),
                          (screen_rect.w - 580, screen_rect.h - 200))
-        self.color = c.RED_DARK
+        self.color = s.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
         self.text_y = self.rect.y + 50
@@ -34,8 +36,8 @@ class Backpack(Text):
     def draw(self, screen: Surface, hero: "Hero") -> None:
         """ рисует окно рюкзака поверх карты """
         # фон прямоуголник
-        pygame.draw.rect(screen, c.BLACK, self.rect)
-        pygame.draw.rect(screen, c.BLUE, self.rect, 5)
+        pygame.draw.rect(screen, s.BLACK, self.rect)
+        pygame.draw.rect(screen, s.BLUE, self.rect, 5)
 
         # заголовок окна рюкзак
         xy = (self.rect.centerx, self.rect.y + 10)
@@ -55,7 +57,7 @@ class Backpack(Text):
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
             elif hero.items[i].kind_0 == "armor":
                 line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
-            elif hero.items[i].kind_0 == "medicines":
+            elif hero.items[i].kind_0 == "medicine":
                 line = f"{line}. {hero.items[i].kind}"
             elif hero.items[i].kind_0 == "backpack":
                 line = f"{line}. {hero.items[i].kind}"

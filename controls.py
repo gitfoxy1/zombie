@@ -1,21 +1,23 @@
 """ Help, назначение клавиш """
 import pygame
 
-import constants as c
+import settings as s
 from text import Text
+
+Game = "Game"
 
 
 class Controls(Text):
     """ Help, назначение клавиш """
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, game: "Game"):
+    def __init__(self, game: Game):
         super().__init__()
         self.game = game
-        screen_rect = game.screen_rect()
+        screen_rect = game.get_screen_rect()
         self.rect = pygame.Rect((screen_rect.x + 90, screen_rect.y + 90),
                                 (screen_rect.w - 580, screen_rect.h - 200))
-        self.color = c.RED_DARK
+        self.color = s.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
         self.text_y = self.rect.y + 50
@@ -25,8 +27,8 @@ class Controls(Text):
     def draw(self, screen):
         """ рисует окно Help поверх карты """
         # фон прямоуголник
-        pygame.draw.rect(screen, c.BLACK, self.rect)
-        pygame.draw.rect(screen, c.GREEN, self.rect, 5)
+        pygame.draw.rect(screen, s.BLACK, self.rect)
+        pygame.draw.rect(screen, s.GREEN, self.rect, 5)
 
         xy = (self.rect.centerx, self.rect.y + 10)
         window_hdr_rect = self.draw_header1_center("Controls", screen, xy)

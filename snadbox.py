@@ -11,7 +11,7 @@ from monster import Monster
 FPS = 60
 pygame.init()
 clock = pygame.time.Clock()
-game = Game(heroes=0, monsters=0, map_id=2)
+game = Game(map_=2, heroes=0, monsters=0)
 
 # добавим монстра
 # random_cell = game.map.random_cell()

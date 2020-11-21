@@ -15,7 +15,7 @@ class Test(unittest.TestCase):
             ход переходит к следующему геро.
         """
         pygame.init()
-        game = Game(2)
+        game = Game(map_=1, heroes=2)
         characters = game.characters.sprites()
         hero1 = characters[0]
         hero2 = characters[1]
@@ -64,12 +64,13 @@ class Test(unittest.TestCase):
             обновляет счетчик кругов и волн монстров
         """
         pygame.init()
-        game = Game(2)
+        game = Game(map_=1, heroes=2)
         for i in range(10):
             waves_counter = (i + 1) // game.rounds_between_monster_wave
             game.update_rounds_wave_counter(True)
             self.assertEqual(game.rounds_counter, i + 1, msg=f"i={i}, game.rounds_counter")
-            self.assertEqual(game.monster_waves_counter, waves_counter, msg=f"i={i}, game.waves_counter")
+            self.assertEqual(game.monster_waves_counter, waves_counter,
+                             msg=f"i={i}, game.waves_counter")
 
 
 if __name__ == "__main__":

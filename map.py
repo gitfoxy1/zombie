@@ -3,20 +3,19 @@ import random
 from typing import Optional, Tuple
 
 import pygame
-from pygame import Surface
 from pygame import Rect
+from pygame import Surface
 
-import constants as c
+import settings as s
 from cell import Cell
-from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, Awp, \
-    Mozambyk, Knife, Bat, Armor_level_1, Armor_level_2, Armor_level_3, Backpack_level_1, \
-    Backpack_level_2, Backpack_level_3, Medikit, Cotton
+
+Game = "Game"
 
 
 class Map:
     """ Карта """
     # noinspection PyUnresolvedReferences
-    game: Optional["Game"] = None  # ссылка на игру
+    game: Optional[Game] = None  # ссылка на игру
     name: str = ""  # название карты
     rect: Optional[Rect] = None
     cell_w: int = 0  # ширина клеток
@@ -28,7 +27,7 @@ class Map:
         return f"{self.name}, {self.cells_x},{self.cells_y}"
 
     # noinspection PyUnresolvedReferences
-    def __init__(self, name: str, ascii_: str, game: "Game"):
+    def __init__(self, name: str, ascii_: str, game: Game):
         """ Карта
         @param name: название карты
         @param ascii_: карта в текстовом формате на основе генератора карт
@@ -44,16 +43,17 @@ class Map:
         cell = self.cells[0]
         self.cell_w = cell.w
         self.cell_h = cell.h
-        screen_rect = self.game.screen_rect()
+        screen_rect = self.game.get_screen_rect()
         self.rect = pygame.Rect((screen_rect.x, screen_rect.y),
                                 (self.cells_x * cell.w, self.cells_y * cell.h))
 
-    def draw(self, screen: Surface) -> None:  # todo добавить рисовку вещей в клетке
+    def draw(self, screen: Surface) -> None:
         """ Рисует карту """
         for cell in self.cells:
             cell_x = cell.xy[0] * cell.w
             cell_y = cell.xy[1] * cell.h
-            pic = pygame.transform.scale(cell.image, (cell.w - self.line_w, cell.h - self.line_w))
+            pic: Surface = pygame.transform.scale(cell.image,
+                                                  (cell.w - self.line_w, cell.h - self.line_w))
             screen.blit(pic, (cell_x, cell_y))
 
         for cell in self.cells:
@@ -62,65 +62,25 @@ class Map:
             if "t" in cell.walls:
                 start = (cell_x, cell_y)
                 end = (cell_x + cell.w, cell_y)
-                pygame.draw.line(screen, c.RED_DARK, start, end, self.wall_w)
+                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
             if "b" in cell.walls:
                 start = (cell_x, cell_y + cell.w)
                 end = (cell_x + cell.w, cell_y + cell.w)
-                pygame.draw.line(screen, c.RED_DARK, start, end, self.wall_w)
+                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
             if "r" in cell.walls:
                 start = (cell_x + cell.w, cell_y)
                 end = (cell_x + cell.w, cell_y + cell.w)
-                pygame.draw.line(screen, c.RED_DARK, start, end, self.wall_w)
+                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
             if "l" in cell.walls:
                 start = (cell_x, cell_y)
                 end = (cell_x, cell_y + cell.w)
-                pygame.draw.line(screen, c.RED_DARK, start, end, self.wall_w)
-
-            # рисует вещь если она лежит на карте
-            if cell.items:
-                for item in cell.items:
-                    item.draw(screen, cell)
+                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
 
     def add_characters(self, characters):  # List[Union[Hero, Monster]]) -> None:
         """помещает персонажей на карту"""
         for character in characters:
             cell = self.get_cell(character.xy)
             cell.characters.append(character)
-
-    def init_items(self) -> None:
-        """помещает вещи на карту"""
-        # сгенерим вещи из списка в заданном количестве
-        obj_counts = [
-            (Digle, random.randrange(3)),
-            (Uzi, random.randrange(3)),
-            (Kalashnikov, random.randrange(3)),
-            (Mastif, random.randrange(3)),
-            (LittleCartridge, random.randrange(7)),
-            (HeavyCartridge, random.randrange(7)),
-            (Fraction, random.randrange(7)),
-            (Awp, random.randrange(3)),
-            (Mozambyk, random.randrange(3)),
-            (Knife, random.randrange(3)),
-            (Bat, random.randrange(3)),
-            (Armor_level_1, random.randrange(1)),
-            (Armor_level_2, random.randrange(1)),
-            (Armor_level_3, random.randrange(1)),
-            (Backpack_level_1, random.randrange(1)),
-            (Backpack_level_2, random.randrange(1)),
-            (Backpack_level_3, random.randrange(1)),
-            (Cotton, random.randrange(7)),
-            (Medikit, random.randrange(7))
-        ]
-
-        items = []  # сгенерированные вещи
-        for obj, count in obj_counts:
-            for _ in range(count):
-                items.append(obj())
-
-        # добавилм вещи на керту
-        for obj in items:
-            cell = random.choice(self.cells)
-            cell.items.append(obj)
 
     def get_cell(self, xy: Tuple[int, int]) -> Optional[Cell]:
         """ return клетку карты по координатам xy """
@@ -139,7 +99,7 @@ class Map:
     def from_ascii(self, ascii_map: str) -> None:
         """ Создаёт карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
         lines = ascii_map.splitlines()  # разбивает тект на сторки
-        lines = [s for s in lines if len(s)]  # даляет пустые строки
+        lines = [i for i in lines if len(i)]  # даляет пустые строки
         lines = lines[1:]  # удаляет первую стоку с адресами клеток "0 1 2 3 4 5"
 
         # удаляет первый столбец с адресами клеток "0 1 2 3 4 5"
@@ -201,7 +161,7 @@ class Map:
     def draw_xy(self, screen: Surface) -> None:
         """ рисует на карте координаты клетки xy """
         font_h = 15
-        font_color = c.BLACK
+        font_color = s.BLACK
         font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
         shift = 3  # сместим текс на 3 пикселя от края ячейки
 

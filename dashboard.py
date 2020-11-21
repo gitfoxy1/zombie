@@ -2,7 +2,7 @@
 import pygame
 from pygame import Rect
 
-import constants as c
+import settings as s
 from map import Map
 
 
@@ -15,7 +15,7 @@ class DashboardLeft:
         self.image_y = self.rect.y + 20
         self.image_w = 150
         self.font = "consolas"
-        self.color = c.RED_DARK
+        self.color = s.RED_DARK
         self.text_h = 20
         self.text_x = self.rect.x + 20
         self.text_y = self.image_y + self.image_w + self.text_h
@@ -24,7 +24,7 @@ class DashboardLeft:
     def draw(self, screen, hero):
         """ рисует панель в левой части экрана """
         # фон
-        pygame.draw.rect(screen, c.BLACK, self.rect)
+        pygame.draw.rect(screen, s.BLACK, self.rect)
 
         # лицо
         pic = pygame.transform.scale(hero.image, (self.image_w, self.image_w))
