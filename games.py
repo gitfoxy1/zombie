@@ -47,7 +47,7 @@ class Game:
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
+    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
 
     def __init__(self, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
@@ -513,7 +513,7 @@ class Game:
         # pygame.draw.rect(self.screen, s.GREEN, self.map.rect, 1)
         # pygame.draw.rect(self.screen, s.RED, self.dashboard_left.rect, 10)
         self.map.draw(self.screen)
-        self.map.draw_xy(self.screen)
+        # self.map.draw_xy(self.screen)
         self.items.draw(self.screen)
         self.characters.draw(self.screen)
         # self.draw_monster_path()
