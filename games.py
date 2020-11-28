@@ -46,8 +46,8 @@ class Game:
     # счётчики
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
-    monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
+    monster_waves_counter: int = 20  # счетчик волн монстров
+    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
 
     def __init__(self, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
@@ -194,9 +194,10 @@ class Game:
         # 6-ая волна монстров
         if self.monster_waves_counter == 6:
             monster9 = Monster.boss_1(xy=(11, 8), game=self)
-            self.monsters.add(monster9)
-            self.characters.add(monster9)
-            self.map.add_characters([monster9])
+            monster7_ = Monster.big(xy=(7, 1), game=self)
+            self.monsters.add(monster9, monster7_)
+            self.characters.add(monster9, monster7_)
+            self.map.add_characters([monster9, monster7_])
 
         # 7-ая волна монстров
         if self.monster_waves_counter == 7:
@@ -212,33 +213,27 @@ class Game:
             monster14 = Monster.fast(xy=(5, 8), game=self)
             monster19 = Monster.fast(xy=(10, 2), game=self)
             monster15 = Monster.big(xy=(3, 9), game=self)
-            monster16 = Monster.little(xy=(2, 6), game=self)
-            monster17 = Monster.little(xy=(12, 2), game=self)
-            self.monsters.add(monster14, monster15, monster16, monster17, monster19)
-            self.characters.add(monster14, monster15, monster16, monster17, monster19)
-            self.map.add_characters([monster14, monster15, monster16, monster17, monster19])
+            self.monsters.add(monster14, monster15, monster19)
+            self.characters.add(monster14, monster15, monster19)
+            self.map.add_characters([monster14, monster15, monster19])
 
         # 9-ая волна монстров
         if self.monster_waves_counter == 9:
             monster24 = Monster.eye(xy=(7, 3), game=self)
             monster23 = Monster.big(xy=(6, 3), game=self)
-            monster22 = Monster.big(xy=(4, 9), game=self)
             monster21 = Monster.little(xy=(4, 6), game=self)
-            monster20 = Monster.little(xy=(2, 9), game=self)
-            self.monsters.add(monster20, monster21, monster22, monster23, monster24)
-            self.characters.add(monster20, monster21, monster22, monster23, monster24)
-            self.map.add_characters([monster20, monster21, monster22, monster23, monster24])
+            self.monsters.add(monster21, monster23, monster24)
+            self.characters.add(monster21, monster23, monster24)
+            self.map.add_characters([monster21, monster23, monster24])
 
         # 10-ая волна монстров
         if self.monster_waves_counter == 10:
             monster25 = Monster.eye(xy=(1, 4), game=self)
             monster29 = Monster.fast(xy=(3, 2), game=self)
-            monster26 = Monster.big(xy=(7, 6), game=self)
-            monster27 = Monster.big(xy=(9, 9), game=self)
-            monster28 = Monster.big(xy=(5, 9), game=self)
-            self.monsters.add(monster25, monster26, monster27, monster28, monster29)
-            self.characters.add(monster25, monster26, monster27, monster28, monster29)
-            self.map.add_characters([monster25, monster26, monster27, monster28, monster29])
+            monster28 = Monster.little(xy=(9, 6), game=self)
+            self.monsters.add(monster25, monster28)
+            self.characters.add(monster25, monster28, monster29)
+            self.map.add_characters([monster25, monster28, monster29])
 
         # 11-ая волна монстров
         if self.monster_waves_counter == 11:
@@ -252,22 +247,22 @@ class Game:
         # 12-ая волна монстров
         if self.monster_waves_counter == 12:
             monster33 = Monster.boss_2(xy=(9, 8), game=self)
-            self.monsters.add(monster33)
-            self.characters.add(monster33)
-            self.map.add_characters([monster33])
+            monster17 = Monster.fast(xy=(3, 2), game=self)
+            monster18 = Monster.big(xy=(6, 3), game=self)
+            self.monsters.add(monster33, monster17, monster18)
+            self.characters.add(monster33, monster17, monster18)
+            self.map.add_characters([monster33, monster17, monster18])
 
         # 13-ая волна монстров
         if self.monster_waves_counter == 13:
             monster34 = Monster.shooting(xy=(10, 2), game=self)
             monster38 = Monster.eye(xy=(4, 1), game=self)
-            monster39 = Monster.eye(xy=(3, 5), game=self)
             monster37 = Monster.fast(xy=(3, 2), game=self)
             monster35 = Monster.little(xy=(12, 2), game=self)
-            monster36 = Monster.little(xy=(6, 1), game=self)
-            self.monsters.add(monster34, monster35, monster36, monster37, monster38, monster39)
-            self.characters.add(monster34, monster35, monster36, monster37, monster38, monster39)
+            self.monsters.add(monster34, monster35, monster37, monster38)
+            self.characters.add(monster34, monster35, monster37, monster38)
             self.map.add_characters(
-                [monster34, monster35, monster36, monster37, monster38, monster39])
+                [monster34, monster35, monster37, monster38])
 
         # 14-ая волна монстров
         if self.monster_waves_counter == 14:
@@ -275,28 +270,206 @@ class Game:
             monster41 = Monster.shooting(xy=(10, 2), game=self)
             monster42 = Monster.eye(xy=(4, 1), game=self)
             monster43 = Monster.eye(xy=(3, 5), game=self)
-            monster44 = Monster.fast(xy=(3, 2), game=self)
-            monster45 = Monster.fast(xy=(3, 2), game=self)
-            monster46 = Monster.big(xy=(5, 9), game=self)
-            self.monsters.add(monster40, monster41, monster42, monster43, monster44, monster45,
-                              monster46)
-            self.characters.add(monster40, monster41, monster42, monster43, monster44, monster45,
-                                monster46)
+            self.monsters.add(monster40, monster41, monster42, monster43)
+            self.characters.add(monster40, monster41, monster42, monster43)
             self.map.add_characters(
-                [monster40, monster41, monster42, monster43, monster44, monster45, monster46])
+                [monster40, monster41, monster42, monster43])
 
         # 15-ая волна монстров
         if self.monster_waves_counter == 15:
             monster52 = Monster.smart(xy=(14, 9), game=self)
-            monster51 = Monster.eye(xy=(7, 5), game=self)
-            monster50 = Monster.eye(xy=(5, 7), game=self)
-            monster49 = Monster.eye(xy=(2, 9), game=self)
-            monster48 = Monster.big(xy=(7, 7), game=self)
+            monster51 = Monster.fast(xy=(7, 5), game=self)
+            monster48 = Monster.little(xy=(7, 7), game=self)
             monster47 = Monster.little(xy=(6, 6), game=self)
-            self.monsters.add(monster47, monster48, monster49, monster50, monster51, monster52)
-            self.characters.add(monster47, monster48, monster49, monster50, monster51, monster52)
+            self.monsters.add(monster47, monster48, monster51, monster52)
+            self.characters.add(monster47, monster48, monster51, monster52)
             self.map.add_characters(
-                [monster47, monster48, monster49, monster50, monster51, monster52])
+                [monster47, monster48, monster51, monster52])
+
+        # 16-ая волна монстров
+        if self.monster_waves_counter == 16:
+            monster53 = Monster.smart(xy=(7, 5), game=self)
+            monster54 = Monster.shooting(xy=(5, 4), game=self)
+            monster55 = Monster.fast(xy=(14, 9), game=self)
+            monster56 = Monster.big(xy=(12, 6), game=self)
+            self.monsters.add(monster56, monster54, monster55, monster53)
+            self.characters.add(monster56, monster54, monster55, monster53)
+            self.map.add_characters(
+                [monster56, monster54, monster55, monster53])
+
+        # 17-ая волна монстров
+        if self.monster_waves_counter == 17:
+            monster57 = Monster.smart(xy=(3, 8), game=self)
+            monster58 = Monster.smart(xy=(11, 4), game=self)
+            monster59 = Monster.eye(xy=(1, 7), game=self)
+            monster60 = Monster.little(xy=(1, 1), game=self)
+            self.monsters.add(monster57, monster58, monster59, monster60)
+            self.characters.add(monster57, monster58, monster59, monster60)
+            self.map.add_characters(
+                [monster57, monster58, monster59, monster60])
+
+        # 18-ая волна монстров
+        if self.monster_waves_counter == 18:
+            monster61 = Monster.boss_3(xy=(6, 6), game=self)
+            monster62 = Monster.shooting(xy=(0, 0), game=self)
+            monster63 = Monster.eye(xy=(7, 2), game=self)
+            monster64 = Monster.little(xy=(4, 9), game=self)
+            self.monsters.add(monster61, monster62, monster63, monster64)
+            self.characters.add(monster61, monster62, monster63, monster64)
+            self.map.add_characters(
+                [monster61, monster62, monster63, monster64])
+
+        # 19-ая волна монстров
+        if self.monster_waves_counter == 19:
+            monster65 = Monster.walking(xy=(3, 1), game=self)
+            monster66 = Monster.shooting(xy=(6, 2), game=self)
+            monster67 = Monster.shooting(xy=(3, 9), game=self)
+            monster68 = Monster.fast(xy=(12, 3), game=self)
+            monster69 = Monster.big(xy=(7, 5), game=self)
+            self.monsters.add(monster65, monster66, monster67, monster68, monster69)
+            self.characters.add(monster65, monster66, monster67, monster68, monster69)
+            self.map.add_characters(
+                [monster65, monster67, monster66, monster68, monster69])
+
+        # 20-ая волна монстров
+        if self.monster_waves_counter == 20:
+            monster70 = Monster.walking(xy=(13, 6), game=self)
+            monster71 = Monster.walking(xy=(14, 7), game=self)
+            monster72 = Monster.smart(xy=(12, 8), game=self)
+            monster73 = Monster.fast(xy=(11, 9), game=self)
+            monster74 = Monster.little(xy=(10, 5), game=self)
+            self.monsters.add(monster70, monster71, monster72, monster73, monster74)
+            self.characters.add(monster70, monster71, monster72, monster73, monster74)
+            self.map.add_characters(
+                [monster70, monster71, monster72, monster73, monster74])
+
+        # 21-ая волна монстров
+        if self.monster_waves_counter == 21:
+            monster75 = Monster.ghost(xy=(13, 6), game=self)
+            monster76 = Monster.smart(xy=(12, 8), game=self)
+            monster77 = Monster.fast(xy=(11, 9), game=self)
+            monster78 = Monster.little(xy=(10, 5), game=self)
+            monster79 = Monster.little(xy=(10, 5), game=self)
+            self.monsters.add(monster75, monster76, monster77, monster78, monster79)
+            self.characters.add(monster75, monster76, monster77, monster78, monster79)
+            self.map.add_characters(
+                [monster75, monster77, monster76, monster78, monster79])
+
+        # 22-ая волна монстров
+        if self.monster_waves_counter == 22:
+            monster80 = Monster.ghost(xy=(3, 2), game=self)
+            monster81 = Monster.walking(xy=(1, 9), game=self)
+            monster82 = Monster.shooting(xy=(4, 2), game=self)
+            monster83 = Monster.eye(xy=(4, 4), game=self)
+            monster84 = Monster.big(xy=(8, 8), game=self)
+            self.monsters.add(monster80, monster81, monster82, monster83, monster84)
+            self.characters.add(monster80, monster81, monster82, monster83, monster84)
+            self.map.add_characters(
+                [monster80, monster81, monster82, monster83, monster84])
+
+        # 23-ая волна монстров
+        if self.monster_waves_counter == 23:
+            monster85 = Monster.ghost(xy=(13, 6), game=self)
+            monster86 = Monster.walking(xy=(13, 6), game=self)
+            monster87 = Monster.shooting(xy=(3, 9), game=self)
+            monster88 = Monster.fast(xy=(11, 9), game=self)
+            monster89 = Monster.little(xy=(10, 5), game=self)
+            self.monsters.add(monster85, monster86, monster87, monster88, monster89)
+            self.characters.add(monster85, monster86, monster87, monster88, monster89)
+            self.map.add_characters(
+                [monster85, monster86, monster87, monster88, monster89])
+
+        # 24-ая волна монстров
+        if self.monster_waves_counter == 24:
+            monster91 = Monster.boss_4(xy=(2, 9), game=self)
+            monster92 = Monster.ghost(xy=(2, 1), game=self)
+            monster93 = Monster.shooting(xy=(5, 2), game=self)
+            monster94 = Monster.eye(xy=(13, 5), game=self)
+            monster90 = Monster.big(xy=(12, 7), game=self)
+            self.monsters.add(monster90, monster91, monster92, monster93, monster94)
+            self.characters.add(monster90, monster91, monster92, monster93, monster94)
+            self.map.add_characters(
+                [monster90, monster91, monster92, monster93, monster94])
+
+        # 25-ая волна монстров
+        if self.monster_waves_counter == 25:
+            monster100 = Monster.bat(xy=(4, 8), game=self)
+            monster96 = Monster.walking(xy=(8, 2), game=self)
+            monster97 = Monster.smart(xy=(3, 7), game=self)
+            monster98 = Monster.fast(xy=(10, 1), game=self)
+            monster99 = Monster.fast(xy=(1, 2), game=self)
+            monster95 = Monster.little(xy=(0, 0), game=self)
+            self.monsters.add(monster95, monster99, monster98, monster97, monster96, monster100)
+            self.characters.add(monster95, monster99, monster98, monster97, monster96, monster100)
+            self.map.add_characters(
+                [monster95, monster99, monster98, monster96, monster97, monster100])
+
+        # 26-ая волна монстров
+        if self.monster_waves_counter == 26:
+            monster101 = Monster.bat(xy=(3, 6), game=self)
+            monster102 = Monster.bat(xy=(13, 3), game=self)
+            monster103 = Monster.ghost(xy=(12, 2), game=self)
+            monster104 = Monster.shooting(xy=(1, 9), game=self)
+            monster105 = Monster.eye(xy=(13, 1), game=self)
+            monster106 = Monster.little(xy=(8, 6), game=self)
+            self.monsters.add(monster101, monster102, monster103, monster104, monster105, monster106)
+            self.characters.add(monster101, monster102, monster103, monster104, monster105, monster106)
+            self.map.add_characters(
+                [monster101, monster102, monster103, monster104, monster105, monster106])
+
+        # 27-ая волна монстров
+        if self.monster_waves_counter == 27:
+            monster112 = Monster.vampier(xy=(1, 4), game=self)
+            monster111 = Monster.walking(xy=(9, 1), game=self)
+            monster110 = Monster.smart(xy=(0, 9), game=self)
+            monster109 = Monster.fast(xy=(14, 9), game=self)
+            monster108 = Monster.big(xy=(13, 2), game=self)
+            monster107 = Monster.little(xy=(2, 2), game=self)
+            self.monsters.add(monster107, monster108, monster109, monster110, monster111, monster112)
+            self.characters.add(monster107, monster108, monster109, monster110, monster111, monster112)
+            self.map.add_characters(
+                [monster107, monster108, monster109, monster110, monster111, monster112])
+
+        # 28-ая волна монстров
+        if self.monster_waves_counter == 28:
+            monster113 = Monster.vampier(xy=(4, 8), game=self)
+            monster114 = Monster.bat(xy=(6, 3), game=self)
+            monster115 = Monster.walking(xy=(3, 2), game=self)
+            monster116 = Monster.shooting(xy=(1, 9), game=self)
+            monster117 = Monster.eye(xy=(10, 2), game=self)
+            monster118 = Monster.little(xy=(12, 5), game=self)
+            self.monsters.add(monster113, monster114, monster115, monster116, monster117, monster118)
+            self.characters.add(monster113, monster114, monster115, monster116, monster117, monster118)
+            self.map.add_characters(
+                [monster113, monster114, monster115, monster116, monster117, monster118])
+
+        # 29-ая волна монстров
+        if self.monster_waves_counter == 29:
+            monster124 = Monster.bat(xy=(4, 8), game=self)
+            monster123 = Monster.bat(xy=(6, 3), game=self)
+            monster122 = Monster.walking(xy=(3, 2), game=self)
+            monster121 = Monster.shooting(xy=(1, 9), game=self)
+            monster120 = Monster.fast(xy=(10, 2), game=self)
+            monster119 = Monster.big(xy=(12, 5), game=self)
+            self.monsters.add(monster119, monster120, monster121, monster122, monster123, monster124)
+            self.characters.add(monster119, monster120, monster121, monster122, monster123, monster124)
+            self.map.add_characters(
+                [monster119, monster120, monster121, monster122, monster123, monster124])
+
+        # 30-ая волна монстров
+        if self.monster_waves_counter == 30:
+            monster130 = Monster.boss_5(xy=(0, 0), game=self)
+            monster129 = Monster.vampier(xy=(0, 0), game=self)
+            monster128 = Monster.ghost(xy=(0, 0), game=self)
+            monster127 = Monster.smart(xy=(0, 0), game=self)
+            monster126 = Monster.eye(xy=(0, 0), game=self)
+            monster125 = Monster.big(xy=(0, 0), game=self)
+            self.monsters.add(monster125, monster126, monster127, monster128, monster129, monster130)
+            self.characters.add(monster125, monster126, monster127, monster128, monster129, monster130)
+            self.map.add_characters(
+                [monster125, monster126, monster127, monster128, monster129, monster130])
+
+
 
     def all_heroes_dead(self) -> bool:
         """ return True если все герои умерли """

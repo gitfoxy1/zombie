@@ -141,6 +141,98 @@ class Monster(Character):
                       game=game)
         return monster
 
+    @classmethod
+    def boss_3(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="boss_3",
+                      image="monster_boss_3.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=14,
+                      damage=2,
+                      iq=11,
+                      game=game)
+        return monster
+
+    @classmethod
+    def walking(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="walking",
+                      image="walking_dead.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=5,
+                      damage=2,
+                      iq=7,
+                      game=game)
+        return monster
+
+    @classmethod
+    def ghost(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="ghost",
+                      image="ghost.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=2,
+                      damage=2,
+                      iq=11,
+                      game=game)
+        return monster
+
+    @classmethod
+    def boss_4(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="boss_4",
+                      image="monster_boss_4.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=16,
+                      damage=1,
+                      iq=13,
+                      game=game)
+        return monster
+
+    @classmethod
+    def bat(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="bat",
+                      image="bat.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=1,
+                      damage=2,
+                      iq=10,
+                      game=game)
+        return monster
+
+
+    @classmethod
+    def vampier(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="vampier",
+                      image="vampier.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=3,
+                      damage=1,
+                      iq=12,
+                      game=game)
+        return monster
+
+    @classmethod
+    def boss_5(cls, xy: Tuple[int, int], game: Game):
+        """ создадим большого монстра """
+        monster = cls(name="boss_5",
+                      image="monster_boss_5.png",
+                      xy=xy,
+                      actions_max=3,
+                      lives=18,
+                      damage=1,
+                      iq=14,
+                      game=game)
+        return monster
+
     def route_to_hero(self, iq: int) -> List[Cell]:
         """ монстр ищет маршрут к герою """
         # найдём клетку в которой находится персонаж
