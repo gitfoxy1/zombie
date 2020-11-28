@@ -4,7 +4,6 @@ import math
 import os
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
 IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
@@ -37,10 +36,27 @@ COLORS = {
 }
 
 # стены клетки: t=top, b=bottom, l=left, r=right
-WALLS = {"t", "b", "l", "r"}
+WALLS = {"up", "down", "left", "right"}
 
-# звук столкновения героя со стеной
-SOUND_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")
+# звуки
+SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
+S_FOOTSTEPS_HERO = os.path.join(SOUNDS_DIR, "footsteps_hero1.wav")
+S_FOOTSTEPS_MONSTER = os.path.join(SOUNDS_DIR, "footsteps_monster2.wav")
+S_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")
+S_PICK_UP = os.path.join(SOUNDS_DIR, "pick_up.wav")
+S_DROP_DOWN = os.path.join(SOUNDS_DIR, "drop_down.wav")
+# guns
+S_GUN_KALASHNIKOV = os.path.join(SOUNDS_DIR, "gun_kalashnikov1.wav")
+SOUNDS = {
+    "U.Z.I.": os.path.join(SOUNDS_DIR, "gun_uzi.wav"),
+    "Kalashnikov": os.path.join(SOUNDS_DIR, "gun_kalashnikov.wav"),
+    "Digle": os.path.join(SOUNDS_DIR, "gun_digle.wav"),
+    "A.W.P": os.path.join(SOUNDS_DIR, "gun_awp.wav"),
+    "Mozambyk": os.path.join(SOUNDS_DIR, "gun_mazombyk.wav"),
+    "Mastif": os.path.join(SOUNDS_DIR, "gun_mastif.wav"),
+    "kick": os.path.join(SOUNDS_DIR, "kick.wav"),
+}
+OH = os.path.join(SOUNDS_DIR, "oh.wav")
 
 # карты в ascii символах сгенерированая при помощи https://notimetoplay.itch.io/ascii-mapper
 # map_ size 15/10 as chars size 32/22

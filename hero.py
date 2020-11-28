@@ -2,9 +2,11 @@
 
 import os
 import random
+from datetime import datetime
 from typing import Optional, Tuple
 
 import pygame
+from pygame.mixer import Sound
 
 import settings as s
 from character import Character
@@ -63,39 +65,56 @@ class Hero(Character):
 
     def move(self, pressed_key: int) -> None:
         """ Передвижение героя по карте """
+        # получаем направление движения
+        direction: Optional[str] = {
+            pygame.K_UP: "up",
+            pygame.K_DOWN: "down",
+            pygame.K_RIGHT: "right",
+            pygame.K_LEFT: "left",
+        }.get(pressed_key)
+        if not direction:
+            return
+        self.action_direction = direction
 
-        # найдём клетку в которой находится персонаж
-        map_ = self.game.map
-        cell_from = self.my_cell()
+        # если стенка есть двигаем героя в сторону стенки до остановки
+        if self.my_cell().has_wall(direction):
+            self._move_to_wall(direction)
+            return
+        # если стенки нет передвигаем героя на новую клетку
+        self._move_to_cell(direction)
 
-        # если стенки нет передвигаем персонажа на новую клетку
-        cell_to = None
-        if pressed_key == pygame.K_UP:
-            if "t" not in cell_from.walls:
-                cell_to = map_.get_cell((self.xy[0], self.xy[1] - 1))
-        elif pressed_key == pygame.K_DOWN:
-            if "b" not in cell_from.walls:
-                cell_to = map_.get_cell((self.xy[0], self.xy[1] + 1))
-        elif pressed_key == pygame.K_RIGHT:
-            if "r" not in cell_from.walls:
-                cell_to = map_.get_cell((self.xy[0] + 1, self.xy[1]))
-        elif pressed_key == pygame.K_LEFT:
-            if "l" not in cell_from.walls:
-                cell_to = map_.get_cell((self.xy[0] - 1, self.xy[1]))
+    def _move_to_wall(self, direction: str) -> None:
+        """ герой двигается в сторону стенки"""
+        self.action_type = "move_to_wall"
+        self.action_direction = direction
+        self.action_start_time = datetime.now()
+        self.action_silent = False
 
-        # инкремент счётчика действий или звук столкновения персонажа со стеной
-        if pressed_key in [pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT]:
-            # инкремент счётчика действий
-            if cell_to:
-                self.move_to_cell(cell_to)
-                self.actions -= 1
-                self.key_pressed = True
+    def _move_to_cell(self, direction: str) -> None:
+        """ герой двигается в сторону клетки"""
+        # найдём клетку в направлении движения
+        xy = self.xy
+        if direction == "up":
+            xy = (self.xy[0], self.xy[1] - 1)
+        elif direction == "down":
+            xy = (self.xy[0], self.xy[1] + 1)
+        elif direction == "right":
+            xy = (self.xy[0] + 1, self.xy[1])
+        elif direction == "left":
+            xy = (self.xy[0] - 1, self.xy[1])
+        cell_to = self.game.map.get_cell(xy)
+        if not cell_to:
+            return
+        # инкремент счётчика действий
+        self.actions -= 1
+        self.move_to_cell(cell_to)
+        self.key_pressed = True
+        self.action_silent = True  # TODO
 
-            # todo repair sounds
-            # звук столкновения персонажа со стеной
-            else:
-                # pygame.mixer.Sound(s.SOUND_PUNCH_TO_WALL).play()
-                pass
+        self.action_type = "move_to_cell"
+        self.action_direction = direction
+        self.action_start_time = datetime.now()
+        self.action_silent = False
 
     def add_carts_to_backpack(self, item: "Cartridge") -> None:
         """ добавляет патроны к рюкзак """
@@ -115,15 +134,14 @@ class Hero(Character):
     def pickup_item(self) -> None:
         """ герой поднемает вещь на карте """
         cell = self.my_cell()
-
         # выходим если вещей нет на клетке
         if not cell.items:
             return
         # выходим если рюкзак полный
         if len(self.items) >= self.items_max:
             return
-
         # поднимает вещь с карты и ложим вещь в рюкзак
+        Sound(s.S_PICK_UP).play()
         item_picked = cell.pop_item()
         self.actions -= 1
         # если это патроны
@@ -134,9 +152,12 @@ class Hero(Character):
             self.items.append(item_picked)
 
     def drop_down_item(self) -> None:
-        """ выбрасывает вещь из рук на карту """
+        """ выбрасываем вещь из рук на карту """
+        # выходим если вещи нет в руках
         if not self.item_in_hands:
             return
+        # выбрасываем вещь
+        Sound(s.S_DROP_DOWN).play()
         item = self.item_in_hands
         cell = self.my_cell()
         cell.append_item(item)
@@ -144,29 +165,30 @@ class Hero(Character):
 
     def wear(self) -> None:
         """ Одевает броню или рюкзак """
-        if self.item_in_hands:
-            if self.item_in_hands.kind_0 == "armor":
-                if not self.armor:
-                    self.armor = self.item_in_hands
-                    self.item_in_hands = None
-                else:
-                    armor = self.armor
-                    self.armor = self.item_in_hands
-                    self.items.append(armor)
-                    self.item_in_hands = None
+        if not self.item_in_hands:
+            return
+        if self.item_in_hands.kind_0 == "armor":
+            if not self.armor:
+                self.armor = self.item_in_hands
+                self.item_in_hands = None
+            else:
+                armor = self.armor
+                self.armor = self.item_in_hands
+                self.items.append(armor)
+                self.item_in_hands = None
 
-            if self.item_in_hands.kind_0 == "backpack":
-                if not self.backpack:
-                    self.backpack = self.item_in_hands
-                    self.item_in_hands = None
-                    self.items_max += self.backpack.capacity
-                else:
-                    backpack = self.backpack
-                    self.items_max -= backpack.capacity
-                    self.backpack = self.item_in_hands
-                    self.items_max += backpack.capacity
-                    self.items.append(backpack)
-                    self.item_in_hands = None
+        elif self.item_in_hands.kind_0 == "backpack":
+            if not self.backpack:
+                self.backpack = self.item_in_hands
+                self.item_in_hands = None
+                self.items_max += self.backpack.capacity
+            else:
+                backpack = self.backpack
+                self.items_max -= backpack.capacity
+                self.backpack = self.item_in_hands
+                self.items_max += backpack.capacity
+                self.items.append(backpack)
+                self.item_in_hands = None
 
     def use(self) -> None:
         """ используем вещь в руках """
@@ -203,6 +225,7 @@ class Hero(Character):
 
             # отнимает жизьни у атакуюмого персонажа
             if cell_attacked.characters:
+                Sound(s.SOUNDS["kick"]).play()
                 # получает последнего персонажа в этой клетке
                 ch_attacked = cell_attacked.characters[-1]
                 ch_attacked.lives -= 1
@@ -225,25 +248,22 @@ class Hero(Character):
                         for i in range(self.item_in_hands.range + 1):
                             if pressed_key == pygame.K_UP:
                                 cells_attacked.append(map_.get_cell((xy[0], xy[1] - i)))
-                                wall = "b"
+                                wall = "down"
                             elif pressed_key == pygame.K_DOWN:
                                 cells_attacked.append(map_.get_cell((xy[0], xy[1] + i)))
-                                wall = "t"
+                                wall = "up"
                             elif pressed_key == pygame.K_LEFT:
                                 cells_attacked.append(map_.get_cell((xy[0] - i, xy[1])))
-                                wall = "r"
+                                wall = "right"
                             elif pressed_key == pygame.K_RIGHT:
                                 cells_attacked.append(map_.get_cell((xy[0] + i, xy[1])))
-                                wall = "l"
+                                wall = "left"
                             if cells_attacked[-1] is None:
                                 cells_attacked.remove(cells_attacked[-1])
                                 break
                         # никого не стреляет в собственной клетке
                         cells_attacked.remove(cells_attacked[0])
-
-                        if self.item_in_hands.sound_shot.get_num_channels() >= 1:
-                            self.item_in_hands.sound_shot.stop()
-                        self.item_in_hands.sound_shot.play()
+                        self.item_in_hands.sound_use.play()
 
                         # летит пуля
                         # попадает в первого попавшевося персонажа или в стенку на линии поражения
@@ -259,10 +279,10 @@ class Hero(Character):
                             for _ in range(self.item_in_hands.fire_speed):
                                 for _ in range(self.item_in_hands.range):
 
-                                    # self.item_in_hands.sound_shot.play()
-                                    # self.item_in_hands.sound_shot.play()
+                                    # self.item_in_hands.sound_use.play()
+                                    # self.item_in_hands.sound_use.play()
                                     # sound
-                                    # pygame.mixer.Sound(self.item_in_hands.sound_shot).play()
+                                    # Sound(self.item_in_hands.sound_use).play()
                                     # проверяет есть ли на пути стенки
 
                                     # вероятность попадания 50%
@@ -284,7 +304,7 @@ class Hero(Character):
                                             ch_attacked.death()
                             # никого, промах
                             if not cells_attacked:
-                                rikoshet = pygame.mixer.Sound(
+                                rikoshet = Sound(
                                     os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))
                                 rikoshet.play()
 

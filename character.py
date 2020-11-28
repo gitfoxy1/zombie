@@ -1,8 +1,10 @@
 """ Персонажы """
 
+from datetime import datetime
 from typing import Optional, Tuple
 
 from pygame import Rect
+from pygame.mixer import Channel, Sound
 
 import settings as s
 from cell import Cell
@@ -28,6 +30,12 @@ class Character(SpriteOnMap):
         self.xy = xy
         self.rect = self.get_rect()  # Sprite.rect
 
+        sound = Sound(s.S_FOOTSTEPS_HERO)
+        sound.set_volume(0.5)
+        self.sound_footsteps = Channel(1)
+        self.sound_footsteps.play(sound, loops=-1)
+        self.sound_footsteps.pause()
+
         self.type = None
         self.name = name
         self.active = False
@@ -35,6 +43,10 @@ class Character(SpriteOnMap):
         self.lives = None
         self.item_in_hands = None  # вещь на руках
 
+        self.action_type = None  # move_to_cell, move_to_wall
+        self.action_direction = None  # top, down, left, light
+        self.action_start_time = datetime.now()  # время начала действия
+        self.action_silent = False  # светофор, True запрещает начинать проигрывать звук действия
         self.actions_max = 3  # максимально количество действий героя за один ход игры
         self.actions = 0  # количество действий на данный момент
 
@@ -42,6 +54,10 @@ class Character(SpriteOnMap):
         line = f"{self.name}, {self.actions}/{self.actions_max}"
         if self.active:
             line += " active"
+            if self.action_type:
+                line += f", {self.action_type}"
+            if self.action_type:
+                line += f"/{self.action_direction}"
         return line
 
     def my_cell(self) -> Cell:
@@ -55,9 +71,11 @@ class Character(SpriteOnMap):
         cell_from = self.game.map.get_cell(self.xy)
 
         # перемещаеме персонаж в другую клетку на карте
+        self.action_type = "move_to_cell"
         self.xy = cell_to.xy
         cell_from.characters.remove(self)  # удаляем из сатрой клетки
         cell_to.characters.append(self)  # добавляем в новую клетку
+        self.sound_footsteps.unpause()  # звук шагов
 
     def get_rect(self) -> Rect:
         """ Sprite.rect на экране (пиксели) в центр клетки """
@@ -70,27 +88,29 @@ class Character(SpriteOnMap):
         rect.y = py + s.CELL_W / 2 - rect.h / 2
         return rect
 
-    def update(self):
+    def update(self) -> None:
         """ update """
+        # двигаемся в свою клетку
+        if self.action_type == "move_to_cell":
+            self._update_move_to_cell()
+        # двигаемся в сторону стенки
+        elif self.action_type == "move_to_wall":
+            self._update_move_to_wall()
+
+    def _default_action(self) -> None:
+        """ значения действия по умолчанию """
+        self.action_type = None
+        self.action_direction = None
+        self.action_start_time = None
+        self.action_silent = False
+
+    def _update_move_to_cell(self) -> None:
+        """ персонаж двигается на свою клетку """
         speed = s.SPEED
         cell = self.my_cell()
-
-        px = cell.rect.centerx
-        py = cell.rect.centery
-        # если в клетке несколько героев, нарисуем их по диогонали todo
-        # shift = 3
-        # if len(cell.characters) >= 1 and cell.characters[0] != self:
-        #     for i, character in enumerate(cell.characters):
-        #         if character != self:
-        #             continue
-        #         if i == 0:
-        #             px = cell.rect.centerx - shift
-        #             py = cell.rect.centery - shift
-        #         elif i == 1:
-        #             px = cell.rect.centerx + shift
-        #             py = cell.rect.centery + shift
-
-        # x
+        px = cell.rect.centerx  # screen pixel x
+        py = cell.rect.centery  # screen pixel y
+        # меняем координаты прямоугольника персонажа по x
         diff_x = abs(self.rect.centerx - px)
         diff_x = min(speed, diff_x)
         if diff_x:
@@ -98,7 +118,7 @@ class Character(SpriteOnMap):
                 self.rect.centerx -= diff_x
             elif self.rect.centerx < px:
                 self.rect.centerx += diff_x
-        # y
+        # меняем координаты прямоугольника персонажа по y
         diff_y = abs(self.rect.centery - py)
         diff_y = min(speed, diff_y)
         if diff_y:
@@ -106,6 +126,41 @@ class Character(SpriteOnMap):
                 self.rect.centery -= diff_y
             elif self.rect.centery < py:
                 self.rect.centery += diff_y
+
+        # если персонаж не на своей клетке, звук шагов
+        if diff_x or diff_y:
+            pass
+            # if not self.action_silent:
+            #     Sound(s.SOUND_FOOTSTEPS_RUN2).play()
+            #     self.action_silent = True
+        # персонаж дошёл до своей клетки
+        else:
+            self._default_action()
+            self.sound_footsteps.pause()
+
+    def _update_move_to_wall(self) -> None:
+        """ персонаж с низкой скоростью двигается в сторону стенки,
+        издаёт звук столкновения со стеной и возвращается на свою клетку """
+        # персонаж ы низкой скоростью двигается в сторону стенки
+        speed = int(s.SPEED * 0.05) or 1
+        if self.action_direction == "up":
+            self.rect.centery -= speed
+        elif self.action_direction == "down":
+            self.rect.centery += speed
+        elif self.action_direction == "right":
+            self.rect.centerx += speed
+        elif self.action_direction == "left":
+            self.rect.centerx -= speed
+
+        # звук столкновения со стеной
+        time_delta = datetime.now() - self.action_start_time
+        seconds = time_delta.seconds + time_delta.microseconds / 1000000
+        if not self.action_silent:
+            Sound(s.S_PUNCH_TO_WALL).play()
+            self.action_silent = True
+        # возвращается на свою клетку
+        if seconds >= 0.1:
+            self.action_type = "move_to_cell"
 
     def death(self) -> None:
         """ Персонаж умирает, удаляем из игры """

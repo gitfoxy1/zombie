@@ -149,11 +149,15 @@ class Monster(Character):
         routes = list()
         for _ in range(iq):
             routes_i = self.random_routes_to_hero(cell)
-            routes_i = sorted(routes_i, key=lambda i: len(i))
-            route = routes_i[0]
-            routes.append(route)
-        routes = sorted(routes, key=lambda i: len(i))
-        route = routes[0]
+            if routes_i:
+                routes_i = sorted(routes_i, key=lambda i: len(i))
+                route = routes_i[0]
+                routes.append(route)
+        if routes:
+            routes = sorted(routes, key=lambda i: len(i))
+            route = routes[0]
+        else:
+            route = [cell]
         return route
 
     def random_routes_to_hero(self, cell: Cell, cells_checked: Set[Cell] = None,
@@ -185,19 +189,19 @@ class Monster(Character):
         cell_next = None
         for direction in directions:
             # возможное направление клетка сверху
-            if direction == "t":
+            if direction == "up":
                 xy = (cell.xy[0], cell.xy[1] - 1)
                 cell_next = self.game.map.get_cell(xy)
             # возможное направление клетка снизу
-            elif direction == "b":
+            elif direction == "down":
                 xy = (cell.xy[0], cell.xy[1] + 1)
                 cell_next = self.game.map.get_cell(xy)
             # возможное направление клетка слева
-            elif direction == "l":
+            elif direction == "left":
                 xy = (cell.xy[0] - 1, cell.xy[1])
                 cell_next = self.game.map.get_cell(xy)
             # возможное направление клетка справа
-            elif direction == "r":
+            elif direction == "right":
                 xy = (cell.xy[0] + 1, cell.xy[1])
                 cell_next = self.game.map.get_cell(xy)
             # пропускает клетку в которой уже были

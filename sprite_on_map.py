@@ -23,7 +23,7 @@ class SpriteOnMap(Sprite):
         image = pygame.transform.scale(image, size)
         self.image: Surface = image  # картинка спрайта
         self.xy: Tuple[int, int] = (-1, -1)  # координаты клетки спрайта на карте
-        self.rect = self.image.get_rect()
+        self.rect: Rect = self.image.get_rect()
         self.update_rect()  # прямоугольник спрайта
 
     def update_rect(self) -> None:

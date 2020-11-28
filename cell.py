@@ -5,6 +5,7 @@ from typing import List, Optional, Set, Tuple, Union
 
 import pygame
 from pygame import Rect, Surface
+from pygame.mixer import Sound
 
 import settings as s
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
@@ -40,7 +41,7 @@ class Cell:
         self.characters = list()  # hero, monster
         self.items = list()
         # self.status = set()  # todo fire, smoke
-        self.rikoshet = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))  # todo play
+        self.rikoshet = Sound(os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))  # todo play
 
     def __repr__(self) -> str:
         msg = f"xy:{self.xy[0]},{self.xy[1]} "
@@ -110,6 +111,12 @@ class Cell:
         if not monster:
             return None
         return monster[0]
+
+    def has_wall(self, direction: str) -> bool:
+        """ True если есть срена в направлении движения """
+        if direction in self.walls:
+            return True
+        return False
 
     def is_hero(self) -> bool:
         """ True если есть герой на этой клетке """

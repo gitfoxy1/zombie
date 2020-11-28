@@ -1,9 +1,8 @@
 """ Вещи """
-import os
 import random
 
-import pygame
 from pygame import Surface
+from pygame.mixer import Sound
 
 import settings as s
 from sprite_on_map import SpriteOnMap
@@ -14,16 +13,15 @@ Game = "Game"
 class Items(SpriteOnMap):
     """ Вещи """
 
-    def __init__(self, image: str):
+    def __init__(self, image: str, kind_0: str, kind: str):
         scale = 0.5
         width = int(s.CELL_W * scale)
         size = (width, width)
         super().__init__(image=image, size=size)
-
-        # тип вещи: Digle, U.Z.I., Kalashnikov, Mastif, Little Cartridge
-        self.kind: str = ""
-        # тип вещи: gun, cart, steelweapon, armor, medicine, backpack
-        self.kind_0: str = ""
+        self.kind = kind  # тип вещи: Digle, U.Z.I., Kalashnikov, Mastif, Little Cartridge
+        self.kind_0 = kind_0  # тип вещи: gun, cart, steelweapon, armor, medicine, backpack
+        sound = s.SOUNDS.get(kind, s.OH)
+        self.sound_use = Sound(sound)
 
     # noinspection PyUnresolvedReferences
     def draw(self, screen: Surface, cell: "Cell"):
@@ -45,98 +43,78 @@ class Items(SpriteOnMap):
 class Guns(Items):
     """ Класс-родитель для оружия """
 
-    def __init__(self, image: str):
-        super().__init__(image)
+    def __init__(self, image: str, kind: str):
+        super().__init__(image=image, kind_0="gun", kind=kind)
         self.damage = None
         self.cartridge_kind = None
         self.fire_speed = None
         self.range = None
-        self.kind_0 = "gun"
-        self.sound_shot = None
 
 
 class Digle(Guns):
     """ пистолет Digle """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Digle"
+        super().__init__(image="giftbox.png", kind="Digle")
         self.damage = 2
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 1
         self.range = 3
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "gun_digle.wav"))
 
 
 class Uzi(Guns):
     """автомат U.Z.I."""
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "U.Z.I."
+        super().__init__(image="giftbox.png", kind="U.Z.I.")
         self.damage = 1
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 3
         self.range = 3
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "gun_U_Z_I.wav"))
 
 
 class Kalashnikov(Guns):
     """автомат Kalashnikov"""
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Kalashnikov"
+        super().__init__(image="giftbox.png", kind="Kalashnikov")
         self.damage = 1
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 5
         self.range = 3
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "01_gun kalashnikov1.wav"))
 
 
 class Mastif(Guns):
-    """Mastif"""
+    """дробовик Mastif"""
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Mastif"
+        super().__init__(image="giftbox.png", kind="Mastif")
         self.damage = 3
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
         self.range = 2
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "gun_Mastif.wav"))
 
 
 class Mozambyk(Guns):
-    """Mozambyk"""
+    """дробовик Mozambyk"""
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Mozambyk"
+        super().__init__(image="giftbox.png", kind="Mozambyk")
         self.damage = 2
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
         self.range = 2
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "gun_mazombyk.wav"))
 
 
 class Awp(Guns):
-    """A.W.P"""
+    """снайперская винтовка A.W.P"""
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "A.W.P"
+        super().__init__(image="giftbox.png", kind="A.W.P")
         self.damage = 3
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 1
         self.range = 4
-        self.sound_shot = pygame.mixer.Sound(os.path.join(s.SOUNDS_DIR, "gun_A.W.P.wav"))
 
 
 # =====  CARTRIDGE  ==========================================================
@@ -144,20 +122,17 @@ class Awp(Guns):
 class Cartridge(Items):
     """ Класс-родитель для патронов """
 
-    def __init__(self, image: str):
-        super().__init__(image)
+    def __init__(self, image: str, kind: str):
+        super().__init__(image=image, kind_0="cart", kind=kind)
         self.type = None
         self.count = None
-        self.kind_0 = "cart"
 
 
 class LittleCartridge(Cartridge):
     """ лёгкие патроны """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Little Cartridge"
+        super().__init__(image="giftbox.png", kind="Little Cartridge")
         self.count = 20
         self.count_max = self.count * 3
 
@@ -166,9 +141,7 @@ class HeavyCartridge(Cartridge):
     """ тяжёлые патроны """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Heavy Cartridge"
+        super().__init__(image="giftbox.png", kind="Heavy Cartridge")
         self.count = 10
         self.count_max = self.count * 3
 
@@ -177,9 +150,7 @@ class Fraction(Cartridge):
     """ патроны """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Fraction"
+        super().__init__(image="giftbox.png", kind="Fraction")
         self.count = 8
         self.count_max = self.count * 3
 
@@ -189,19 +160,16 @@ class Fraction(Cartridge):
 class SteelWeapon(Items):
     """ Класс-родитель для оружия """
 
-    def __init__(self, image: str):
-        super().__init__(image)
+    def __init__(self, image: str, kind):
+        super().__init__(image=image, kind_0="steelweapon", kind=kind)
         self.damage = None
-        self.kind_0 = "steelweapon"
 
 
 class Knife(SteelWeapon):
     """ ножик """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Knife"
+        super().__init__(image="giftbox.png", kind="Knife")
         self.damage = 3
         self.strength = 5
 
@@ -210,9 +178,7 @@ class Bat(SteelWeapon):
     """ Bat """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Bat"
+        super().__init__(image="giftbox.png", kind="Bat")
         self.damage = 2
         self.strength = 10
 
@@ -222,9 +188,8 @@ class Bat(SteelWeapon):
 class Armor(Items):
     """ Класс-родитель для брони """
 
-    def __init__(self, image: str):
-        super().__init__(image)
-        self.kind_0 = "armor"
+    def __init__(self, image: str, kind: str):
+        super().__init__(image=image, kind_0="armor", kind=kind)
         self.strength = 0  # стойкость брони
 
 
@@ -232,9 +197,7 @@ class Armor1(Armor):
     """ броня """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "Armor level 1"
+        super().__init__(image="giftbox.png", kind="Armor level 1")
         self.strength = 2
 
 
@@ -242,9 +205,7 @@ class Armor2(Armor):
     """ броня """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "armor_level_2"
+        super().__init__(image="giftbox.png", kind="armor_level_2")
         self.strength = 3
 
 
@@ -252,9 +213,7 @@ class Armor3(Armor):
     """ броня """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "armor_level_3"
+        super().__init__(image="giftbox.png", kind="armor_level_3")
         self.strength = 4
 
 
@@ -263,9 +222,8 @@ class Armor3(Armor):
 class Backpack0(Items):
     """ Класс-родитель для рюкзак """
 
-    def __init__(self, image: str):
-        super().__init__(image)
-        self.kind_0 = "backpack"
+    def __init__(self, image: str, kind: str):
+        super().__init__(image=image, kind_0="backpack", kind=kind)
         self.capacity = 0  # вместимость рюкзака
 
 
@@ -273,9 +231,7 @@ class Backpack1(Backpack0):
     """ рюкзак """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "backpack_level_1"
+        super().__init__(image="giftbox.png", kind="backpack_level_1")
         self.capacity = 1
 
 
@@ -283,9 +239,7 @@ class Backpack2(Backpack0):
     """ рюкзак """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "backpack_level_2"
+        super().__init__(image="giftbox.png", kind="backpack_level_2")
         self.capacity = 2
 
 
@@ -293,9 +247,7 @@ class Backpack3(Backpack0):
     """ рюкзак """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
-        self.kind = "backpack_level_3"
+        super().__init__(image="giftbox.png", kind="backpack_level_3")
         self.capacity = 3
 
 
@@ -304,35 +256,28 @@ class Backpack3(Backpack0):
 class Medicine(Items):
     """ Класс-родитель для лекарств """
 
-    def __init__(self, image: str):
-        super().__init__(image)
+    def __init__(self, image: str, kind: str):
+        super().__init__(image=image, kind_0="medicine", kind=kind)
         self.heal = None
         self.heal_target = None
-        self.kind_0 = "medicine"
 
 
 class Medikit(Medicine):
     """ лекарство """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
+        super().__init__(image="giftbox.png", kind="Medikit")
         self.heal = 3
         self.heal_target = "health"
-        self.kind_0 = "medicine"
-        self.kind = "Medikit"
 
 
 class Cotton(Medicine):
     """ нитки """
 
     def __init__(self):
-        image = "giftbox.png"
-        super().__init__(image)
+        super().__init__(image="giftbox.png", kind="Cotton")
         self.heal = 1
         self.heal_target = "armor"
-        self.kind_0 = "medicine"
-        self.kind = "Cotton"
 
 
 # =====  FUNCTIONS  ==========================================================

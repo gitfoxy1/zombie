@@ -59,19 +59,19 @@ class Map:
         for cell in self.cells:
             cell_x = cell.xy[0] * cell.w
             cell_y = cell.xy[1] * cell.h
-            if "t" in cell.walls:
+            if "up" in cell.walls:
                 start = (cell_x, cell_y)
                 end = (cell_x + cell.w, cell_y)
                 pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "b" in cell.walls:
+            if "down" in cell.walls:
                 start = (cell_x, cell_y + cell.w)
                 end = (cell_x + cell.w, cell_y + cell.w)
                 pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "r" in cell.walls:
+            if "right" in cell.walls:
                 start = (cell_x + cell.w, cell_y)
                 end = (cell_x + cell.w, cell_y + cell.w)
                 pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "l" in cell.walls:
+            if "left" in cell.walls:
                 start = (cell_x, cell_y)
                 end = (cell_x, cell_y + cell.w)
                 pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
@@ -138,10 +138,10 @@ class Map:
                             y = row_id // 2
                             cell = self.get_cell((x, y))  # клетка
                             if cell:  # Если клетка найдена, добавляет верхнюю стену
-                                cell.walls.add("t")
+                                cell.walls.add("up")
                             cell_up = self.get_cell((x, y - 1))  # клетка сверху
                             if cell_up:  # Если клетка сверху найдена, добавляет там нижнюю стену
-                                cell_up.walls.add("b")
+                                cell_up.walls.add("down")
 
             else:  # нечётные ряды, это левые и правые стены
                 for coll_id, char in enumerate(line):
@@ -151,10 +151,10 @@ class Map:
                             y = row_id // 2
                             cell = self.get_cell((x, y))  # клетка
                             if cell:  # Если клетка найдена, добавляет левую стену
-                                cell.walls.add("l")
+                                cell.walls.add("left")
                             cell_left = self.get_cell((x - 1, y))  # клетка сверху
                             if cell_left:  # Если клетка сверху найдена, добавляет там нижнюю стену
-                                cell_left.walls.add("r")
+                                cell_left.walls.add("right")
                     else:  # нечётные столбцы
                         pass  # центр клетки
 
