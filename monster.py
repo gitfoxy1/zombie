@@ -351,7 +351,7 @@ class Monster(Character):
         cell = self.my_cell()
         hero = cell.get_hero()
         if hero:
-            Sound(s.S_USE["kick"]).play()
+            Sound(s.S_DAMAGE["kick"]).play()
             hero.do_damage(self.damage)
             self.actions -= 1
             return

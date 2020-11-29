@@ -47,7 +47,8 @@ class Hero(Character):
         self.items_max = 3 + self.backpack_points
         if self.armor:
             self.armor_points = self.armor.strength
-        self.lives = 10
+        self.lives_max = 10
+        self.lives = self.lives_max
         self.damage = 1
         self.sound_damage = Sound(s.S_DAMAGE["kick"])
 
@@ -200,16 +201,20 @@ class Hero(Character):
 
     def use(self) -> None:
         """ используем вещь в руках """
-        if self.item_in_hands:
-            if self.item_in_hands.kind == "medikit":
-                self.lives += self.item_in_hands.heal
+        item = self.item_in_hands
+        if not item:
+            return
+        if item.kind == "Medikit":
+            self.lives += item.heal
+            self.lives = min([self.lives, self.lives_max])
+            self.item_in_hands = None
+            self.game.items.remove(item)
+            return
+        if item.kind == "Cotton":
+            if self.armor:
+                self.armor.strength += item.heal
+                self.game.items.remove(item)
                 self.item_in_hands = None
-                if self.lives >= 10:
-                    self.lives = 10
-            if self.item_in_hands.kind == "Cotton":
-                if self.armor:
-                    self.armor.strength += self.item_in_hands.heal
-                    self.item_in_hands = None
 
     def attack(self, pressed_key) -> None:
         """ атакует персонажа на соседней клетке """

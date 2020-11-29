@@ -183,8 +183,8 @@ class Character(SpriteOnMap):
         if self.armor:
             if self.armor > 0:
                 self.armor -= damage
-            else:
-                self.lives -= damage
+        else:
+            self.lives -= damage
         if self.lives <= 0:
             self.death()
 
