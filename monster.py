@@ -38,7 +38,7 @@ class Monster(Character):
         self.sound_damage = Sound(s.S_DAMAGE["kick_monster1"])
 
         sound = Sound(s.S_FOOTSTEPS_MONSTER)
-        sound.set_volume(0.2)
+        sound.set_volume(0.5)
         self.sound_footsteps = Channel(2)
         self.sound_footsteps.play(sound, loops=-1)
         self.sound_footsteps.pause()

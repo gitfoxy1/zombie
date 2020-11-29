@@ -120,7 +120,7 @@ class Map:
             elif direction == "left":
                 xy_i = (xy[0] - i, xy[1])
             elif direction == "right":
-                xy_i = (xy[0] - i, xy[1])
+                xy_i = (xy[0] + i, xy[1])
             cell = self.get_cell(xy_i)
             if cell:
                 cells.append(cell)

@@ -62,7 +62,7 @@ class Digle(Guns):
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 1
         self.range = 3
-        self.hit_probability = 1
+        self.hit_probability = 0.8
 
 
 class Uzi(Guns):
@@ -74,7 +74,7 @@ class Uzi(Guns):
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 3
         self.range = 3
-        self.hit_probability = 0.7
+        self.hit_probability = 0.6
 
 
 class Kalashnikov(Guns):
@@ -86,7 +86,7 @@ class Kalashnikov(Guns):
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 5
         self.range = 3
-        self.hit_probability = 0.9
+        self.hit_probability = 0.5
 
 
 class Mastif(Guns):
@@ -98,7 +98,7 @@ class Mastif(Guns):
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
         self.range = 1
-        self.hit_probability = 1
+        self.hit_probability = 0.9
 
 
 class Mozambyk(Guns):
@@ -110,7 +110,7 @@ class Mozambyk(Guns):
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
         self.range = 2
-        self.hit_probability = 0.7
+        self.hit_probability = 0.9
 
 
 class Awp(Guns):
@@ -122,7 +122,7 @@ class Awp(Guns):
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 1
         self.range = 5
-        self.hit_probability = 1
+        self.hit_probability = 0.9
 
 
 # =====  CARTRIDGE  ==========================================================
@@ -304,13 +304,13 @@ def items_generator(count: int) -> list:
 
     # вещи которые должны быть на карте обязательно
     items_mandatory = [
-        # random.choice([Digle, Uzi]), LittleCartridge,  # Little Gun
-        # random.choice([Kalashnikov, Awp]), HeavyCartridge,  # Heavy Gun
-        # random.choice([Mozambyk, Mastif]), Fraction,  # Fraction Gun
-        # random.choice([Knife, Bat]),  # Steel Weapon
-        # random.choice([Armor1, Armor2, Armor3]),  # Armor
-        # random.choice([Backpack1, Backpack2, Backpack3]),  # Backpack
-        # random.choice([Medikit, Cotton])  # Medicine
+        random.choice([Digle, Uzi]), LittleCartridge,  # Little Gun
+        random.choice([Kalashnikov, Awp]), HeavyCartridge,  # Heavy Gun
+        random.choice([Mozambyk, Mastif]), Fraction,  # Fraction Gun
+        random.choice([Knife, Bat]),  # Steel Weapon
+        random.choice([Armor1, Armor2, Armor3]),  # Armor
+        random.choice([Backpack1, Backpack2, Backpack3]),  # Backpack
+        random.choice([Medikit, Cotton])  # Medicine
     ]
     for item in items_mandatory:
         items.append(item())
@@ -318,11 +318,11 @@ def items_generator(count: int) -> list:
     # дополнительные вещи
     while len(items) < count:
         items_extra = [
-            # [Digle for _ in range(random.randrange(1, 3))],
-            # [Uzi for _ in range(random.randrange(1, 3))],
-            # [LittleCartridge for _ in range(random.randrange(1, 3))],
-            # [Bat for _ in range(random.randrange(1, 3))],
-            [Knife for _ in range(random.randrange(1, 3))],
+            [HeavyCartridge for _ in range(random.randrange(1, 2))],
+            [LittleCartridge for _ in range(random.randrange(1, 2))],
+            [Fraction for _ in range(random.randrange(1, 2))],
+            [Medikit for _ in range(random.randrange(1, 2))],
+            [Cotton for _ in range(random.randrange(1, 2))],
         ]
         items_extra = [i for l in items_extra for i in l]
         item_extra = random.choice(items_extra)

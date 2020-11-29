@@ -51,6 +51,7 @@ class Character(SpriteOnMap):
         self.action_silent = False  # светофор, True запрещает начинать проигрывать звук действия
         self.actions_max = 3  # максимально количество действий героя за один ход игры
         self.actions = 0  # количество действий на данный момент
+        self.armor = None
 
     def __repr__(self) -> str:
         line = f"{self.name}, {self.actions}/{self.actions_max}"
@@ -179,7 +180,12 @@ class Character(SpriteOnMap):
 
     def do_damage(self, damage: int) -> None:
         """ Персонаж получает урон """
-        self.lives -= damage
+        if self.type == 'hero':
+            if self.armor:
+                if self.armor > 0:
+                    self.armor -= damage
+                else:
+                    self.lives -= damage
         if self.lives <= 0:
             self.death()
 

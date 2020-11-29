@@ -14,10 +14,10 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
-game = Game(map_="MAP1", heroes=1, monsters=1, items=20)
+game = Game(map_="MAP1", heroes=1, monsters=0, items=20)
 
 
-INTRO = False  # если INTRO = False, начинается игра
+INTRO = True  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 

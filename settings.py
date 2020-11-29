@@ -9,7 +9,7 @@ IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
 
 PI = math.pi
 
-SPEED = 30
+SPEED = 10
 
 # размер клетки
 CELL_W = 100
@@ -76,30 +76,7 @@ OH = os.path.join(SOUNDS_DIR, "oh.wav")
 
 # карты в ascii символах сгенерированая при помощи https://notimetoplay.itch.io/ascii-mapper
 # map_ size 15/10 as chars size 32/22
-MAP_WITH_ALL_WALLS = """
-  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 
- ooooooooooooooooooooooooooooooo
-0o.o.o.o.o.o.o.o.o.o.o.o.o.o.o.o
- ooooooooooooooooooooooooooooooo
-1o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-2o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-3o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-4o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-5o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-6o.o.o.o.o.o. . . . . .o.o.o.o.o
- ooooooooooo. . . . . .ooooooooo
-7o.o. . . . . . . . . . . . .o.o
- ooo. . . . . . . . . . . . .ooo
-8o.o. . . . . . . . . . . . .o.o
- ooo. . . . . . . . . . . . .ooo
-9o.o. . . . . . . . . . . . .o.o
- ooooooooooooooooooooooooooooooo
-"""
+
 MAP_1 = """
   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 
  ooooooooooooooooooooooooooooooo

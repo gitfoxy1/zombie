@@ -149,7 +149,6 @@ class Game:
         items = items[:count]
         items_group = Group()
         items_group.add(items)
-        print(count)
         items_group.draw(self.screen)
         # карта появляется из темноты
         rect = self.get_screen_rect()
