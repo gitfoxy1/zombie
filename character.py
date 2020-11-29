@@ -31,16 +31,18 @@ class Character(SpriteOnMap):
         self.rect = self.get_rect()  # Sprite.rect
 
         sound = Sound(s.S_FOOTSTEPS_HERO)
-        sound.set_volume(0.5)
+        sound.set_volume(0.2)
         self.sound_footsteps = Channel(1)
         self.sound_footsteps.play(sound, loops=-1)
         self.sound_footsteps.pause()
+        self.sound_damage = Sound(s.S_DAMAGE["kick"])
 
-        self.type = None
+        self.type = ""
         self.name = name
         self.active = False
         self.items = []
-        self.lives = None
+        self.lives = 0
+        self.damage = 0
         self.item_in_hands = None  # вещь на руках
 
         self.action_type = None  # move_to_cell, move_to_wall
@@ -175,7 +177,7 @@ class Character(SpriteOnMap):
         self.game.monsters.remove(self)
         self.game.characters.remove(self)
 
-    def damage(self, damage: int) -> None:
+    def do_damage(self, damage: int) -> None:
         """ Персонаж получает урон """
         self.lives -= damage
         if self.lives <= 0:

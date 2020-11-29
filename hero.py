@@ -6,12 +6,14 @@ from datetime import datetime
 from typing import Optional, Tuple
 
 import pygame
-from pygame.mixer import Sound
+from pygame.mixer import Channel, Sound
 
 import settings as s
 from character import Character
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
     Awp, Medikit, Knife, Armor1, Cotton, Backpack1
+
+import functions as f
 
 Game = "Game"
 
@@ -46,6 +48,8 @@ class Hero(Character):
         if self.armor:
             self.armor_points = self.armor.strength
         self.lives = 10 + self.armor_points
+        self.damage = 1
+        self.sound_damage = Sound(s.S_DAMAGE["kick"])
 
     @classmethod
     def cheater(cls, xy: Tuple[int, int], game) -> "Hero":
@@ -66,12 +70,7 @@ class Hero(Character):
     def move(self, pressed_key: int) -> None:
         """ Передвижение героя по карте """
         # получаем направление движения
-        direction: Optional[str] = {
-            pygame.K_UP: "up",
-            pygame.K_DOWN: "down",
-            pygame.K_RIGHT: "right",
-            pygame.K_LEFT: "left",
-        }.get(pressed_key)
+        direction = f.get_direction(pressed_key)
         if not direction:
             return
         self.action_direction = direction
@@ -93,15 +92,24 @@ class Hero(Character):
     def _move_to_cell(self, direction: str) -> None:
         """ герой двигается в сторону клетки"""
         # найдём клетку в направлении движения
-        xy = self.xy
-        if direction == "up":
-            xy = (self.xy[0], self.xy[1] - 1)
-        elif direction == "down":
-            xy = (self.xy[0], self.xy[1] + 1)
-        elif direction == "right":
-            xy = (self.xy[0] + 1, self.xy[1])
-        elif direction == "left":
-            xy = (self.xy[0] - 1, self.xy[1])
+        xy = dict(
+            up=(self.xy[0], self.xy[1] - 1),
+            down=(self.xy[0], self.xy[1] + 1),
+            right=(self.xy[0] + 1, self.xy[1]),
+            left=(self.xy[0] - 1, self.xy[1]),
+        ).get(direction, self.xy)
+
+        # найдём клетку в направлении движения
+        # xy = self.xy
+        # if direction == "up":
+        #     xy = (self.xy[0], self.xy[1] - 1)
+        # elif direction == "down":
+        #     xy = (self.xy[0], self.xy[1] + 1)
+        # elif direction == "right":
+        #     xy = (self.xy[0] + 1, self.xy[1])
+        # elif direction == "left":
+        #     xy = (self.xy[0] - 1, self.xy[1])
+
         cell_to = self.game.map.get_cell(xy)
         if not cell_to:
             return
@@ -205,138 +213,77 @@ class Hero(Character):
 
     def attack(self, pressed_key) -> None:
         """ атакует персонажа на соседней клетке """
+        direction = f.get_direction(pressed_key)
         map_ = self.game.map
-        xy = self.xy
-        wall = None
+        my_cell = self.my_cell()
+        weapon = self.item_in_hands
+        self.actions -= 1
 
-        # рукапашный бой
-        if self.item_in_hands is None:
-            # находим атакуемую клетку
-            if pressed_key == pygame.K_UP:
-                cell_attacked = map_.get_cell((xy[0], xy[1] - 1))
-            elif pressed_key == pygame.K_DOWN:
-                cell_attacked = map_.get_cell((xy[0], xy[1] + 1))
-            elif pressed_key == pygame.K_LEFT:
-                cell_attacked = map_.get_cell((xy[0] - 1, xy[1]))
-            elif pressed_key == pygame.K_RIGHT:
-                cell_attacked = map_.get_cell((xy[0] + 1, xy[1]))
-            else:
-                cell_attacked = None
+        # рукапашный бой, атакуем свою клетку
+        if not weapon or weapon.kind_0 not in ["gun", "steelweapon"]:
+            self.sound_damage.play()
+            cell_attacked = self.my_cell()
+            ch_attacked = cell_attacked.get_character_without(self)
+            if ch_attacked:
+                ch_attacked.do_damage(1)
+            return
 
-            # отнимает жизьни у атакуюмого персонажа
-            if cell_attacked.characters:
-                Sound(s.SOUNDS["kick"]).play()
-                # получает последнего персонажа в этой клетке
-                ch_attacked = cell_attacked.characters[-1]
-                ch_attacked.lives -= 1
-                self.actions -= 1
-                if ch_attacked.lives <= 0:
-                    ch_attacked.death()
+        # огнестрел
+        if weapon.kind_0 == "gun":
+            bullets = self._bullets_from_backpack(weapon)
+            if not bullets:
+                # TODO sound
+                return
+            # выстрелы
+            for bullet in range(bullets):
+                weapon.sound_use.play()
+                # вероятность промаха
+                if random.uniform(0, 1) > weapon.hit_probability:
+                    # TODO sound
+                    continue
+                # атакуемые клетки
+                cells_attacked = map_.get_direction_cells(my_cell, direction, weapon.range)
+                # пуля попадает в первого попавшевося персонажа или в стенку
+                for cell_i in cells_attacked:
+                    if direction in cell_i.walls:
+                        # cell_i.rikoshet.play()  # TODO sound
+                        break
+                    ch_attacked = cell_i.get_character()
+                    if ch_attacked:
+                        ch_attacked.do_damage(weapon.damage)
+            return
 
-        # gun
-        elif self.item_in_hands:
-            if self.item_in_hands.kind_0 == "gun":
-                for item in self.items:
-                    # ищет патроны нужного типа в рюкзаке
-                    if item.kind == self.item_in_hands.cartridge_kind:
-                        item.count -= self.item_in_hands.fire_speed
-                        if item.count <= 0:
-                            self.items.remove(item)
+        # холодное оружие
+        if weapon.kind_0 == "steelweapon":
+            cell_attacked = map_.get_direction_cell(my_cell, direction)
+            ch_attacked = cell_attacked.get_character()
+            if ch_attacked:
+                # оружие теряет прочность
+                weapon.reduce_strength()
+                if weapon.strength > 0:
+                    weapon.sound_use.play()
+                    ch_attacked.do_damage(weapon.damage)
+                else:
+                    weapon.sound_breaking.play()
+                    self.item_in_hands = None
 
-                        # находим атакуемые клетки на линии поражения range и дабовляет их в лист
-                        cells_attacked = []
-                        for i in range(self.item_in_hands.range + 1):
-                            if pressed_key == pygame.K_UP:
-                                cells_attacked.append(map_.get_cell((xy[0], xy[1] - i)))
-                                wall = "down"
-                            elif pressed_key == pygame.K_DOWN:
-                                cells_attacked.append(map_.get_cell((xy[0], xy[1] + i)))
-                                wall = "up"
-                            elif pressed_key == pygame.K_LEFT:
-                                cells_attacked.append(map_.get_cell((xy[0] - i, xy[1])))
-                                wall = "right"
-                            elif pressed_key == pygame.K_RIGHT:
-                                cells_attacked.append(map_.get_cell((xy[0] + i, xy[1])))
-                                wall = "left"
-                            if cells_attacked[-1] is None:
-                                cells_attacked.remove(cells_attacked[-1])
-                                break
-                        # никого не стреляет в собственной клетке
-                        cells_attacked.remove(cells_attacked[0])
-                        self.item_in_hands.sound_use.play()
 
-                        # летит пуля
-                        # попадает в первого попавшевося персонажа или в стенку на линии поражения
-                        is_bullet_flies = True
-                        for cell_i in cells_attacked:
-                            if not is_bullet_flies:
-                                break
-                            if wall in cell_i.walls:  # todo исправить
-                                cell_i.rikoshet.play()
-                                break
 
-                            # time.sleep(1)  # todo sound pause in every cell, like song distance
-                            for _ in range(self.item_in_hands.fire_speed):
-                                for _ in range(self.item_in_hands.range):
 
-                                    # self.item_in_hands.sound_use.play()
-                                    # self.item_in_hands.sound_use.play()
-                                    # sound
-                                    # Sound(self.item_in_hands.sound_use).play()
-                                    # проверяет есть ли на пути стенки
+            return
 
-                                    # вероятность попадания 50%
-                                    if random.randrange(100) < 70:
-                                        # if wall in cell_i.walls:
-                                        #     cell_i.rikoshet.play()
-                                        #     break
-                                        continue
 
-                                    # проверяет есть ли на клетки персонаж
-                                    if cell_i and cell_i.characters:
-                                        # получает последнего персонажа в этой клетке
-                                        ch_attacked = cell_i.characters[-1]
-                                        # наносм персонажу определённый урон
-                                        ch_attacked.lives -= self.item_in_hands.damage
-                                        is_bullet_flies = False
-                                        # если мы убили персонажа то меняет active_id
-                                        if ch_attacked.lives <= 0:
-                                            ch_attacked.death()
-                            # никого, промах
-                            if not cells_attacked:
-                                rikoshet = Sound(
-                                    os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))
-                                rikoshet.play()
-
-                            self.actions -= 1
-
-            #
-            # elif self.item_in_hands.kind_0 == "grenade":  # todo grenade
-            #     pass
-            elif self.item_in_hands.kind_0 == "steelweapon":
-                cell_attacked = None  # атакуемая клетка
-                if pressed_key == pygame.K_UP:
-                    cell_attacked = map_.get_cell((xy[0], xy[1] - 1))
-                elif pressed_key == pygame.K_DOWN:
-                    cell_attacked = map_.get_cell((xy[0], xy[1] + 1))
-                elif pressed_key == pygame.K_LEFT:
-                    cell_attacked = map_.get_cell((xy[0] - 1, xy[1]))
-                elif pressed_key == pygame.K_RIGHT:
-                    cell_attacked = map_.get_cell((xy[0] + 1, xy[1]))
-
-                # отнимает жизьни у атакуюмого персонажа
-                if cell_attacked.characters:
-                    # получает последнего персонажа в этой клетке
-                    ch_attacked = cell_attacked.characters[-1]
-                    ch_attacked.lives -= self.item_in_hands.damage
-                    if ch_attacked.lives <= 0:
-                        ch_attacked.death()
-                    if random.randrange(100) < 50:
-                        self.item_in_hands.strength -= 1
-                    else:
-                        self.item_in_hands.strength -= 2
-                    if self.item_in_hands.strength <= 0:
-                        self.item_in_hands = None
-                    self.actions -= 1
-                    if ch_attacked.lives == 0:
-                        ch_attacked.death()
+    def _bullets_from_backpack(self, weapon: "Guns") -> int:
+        """ return патроны из рюкзака для данного типа оружия """
+        bullets = 0
+        for item in self.items:
+            if item.kind != weapon.cartridge_kind:
+                continue
+            # уменьшаем количество птронов в слоте рюкзака на количество выстрелов
+            bullets = weapon.fire_speed
+            if item.count < weapon.fire_speed:
+                bullets = item.count
+            item.count -= bullets
+            if item.count <= 0:
+                self.items.remove(item)
+        return bullets

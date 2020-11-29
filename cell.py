@@ -92,25 +92,35 @@ class Cell:
         return screen_x, screen_y
 
     def get_character(self) -> Optional["Character"]:
-        """ return первого персонажа в этой клетке """
-        character = [o for o in self.characters]
-        if not character:
+        """ return последнего/верхнего персонажа в этой клетке """
+        characters = [o for o in self.characters]
+        if not characters:
             return None
-        return character[0]
+        return characters[-1]
+
+    def get_character_without(self, without_character: "Character") -> Optional["Character"]:
+        """ return последнего/верхнего персонажа в этой клетке, без without_character """
+        characters = [o for o in self.characters]
+        if not characters:
+            return None
+        characters = [o for o in characters if o != without_character]
+        if not characters:
+            return None
+        return characters[-1]
 
     def get_hero(self) -> Optional["Hero"]:
-        """ return первого героя в этой клетке """
+        """ return последнего/верхнего героя в этой клетке """
         hero = [o for o in self.characters if o.type == "hero"]
         if not hero:
             return None
-        return hero[0]
+        return hero[-1]
 
     def get_monster(self) -> Optional["Monster"]:
-        """ return первого монстра в этой клетке """
+        """ return последнего/верхнего монстра в этой клетке """
         monster = [o for o in self.characters if o.type == "monster"]
         if not monster:
             return None
-        return monster[0]
+        return monster[-1]
 
     def has_wall(self, direction: str) -> bool:
         """ True если есть срена в направлении движения """

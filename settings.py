@@ -2,6 +2,7 @@
 
 import math
 import os
+import random
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
@@ -40,21 +41,36 @@ WALLS = {"up", "down", "left", "right"}
 
 # звуки
 SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
-S_FOOTSTEPS_HERO = os.path.join(SOUNDS_DIR, "footsteps_hero1.wav")
-S_FOOTSTEPS_MONSTER = os.path.join(SOUNDS_DIR, "footsteps_monster2.wav")
+S_BACKGROUND = os.path.join(SOUNDS_DIR, "background.wav")
+S_GAME_OVER = os.path.join(SOUNDS_DIR, "game_over.wav")
+S_FOOTSTEPS_HERO = os.path.join(SOUNDS_DIR, "footsteps_hero.wav")
+S_FOOTSTEPS_MONSTER = os.path.join(SOUNDS_DIR, "footsteps_monster0.wav")
 S_PUNCH_TO_WALL = os.path.join(SOUNDS_DIR, "punch_to_wall.wav")
 S_PICK_UP = os.path.join(SOUNDS_DIR, "pick_up.wav")
 S_DROP_DOWN = os.path.join(SOUNDS_DIR, "drop_down.wav")
 # guns
 S_GUN_KALASHNIKOV = os.path.join(SOUNDS_DIR, "gun_kalashnikov1.wav")
-SOUNDS = {
+S_USE = {
     "U.Z.I.": os.path.join(SOUNDS_DIR, "gun_uzi.wav"),
     "Kalashnikov": os.path.join(SOUNDS_DIR, "gun_kalashnikov.wav"),
     "Digle": os.path.join(SOUNDS_DIR, "gun_digle.wav"),
     "A.W.P": os.path.join(SOUNDS_DIR, "gun_awp.wav"),
     "Mozambyk": os.path.join(SOUNDS_DIR, "gun_mazombyk.wav"),
     "Mastif": os.path.join(SOUNDS_DIR, "gun_mastif.wav"),
-    "kick": os.path.join(SOUNDS_DIR, "kick.wav"),
+    "Knife": random.choice([os.path.join(SOUNDS_DIR, "knife1.wav"),
+                            os.path.join(SOUNDS_DIR, "knife1.wav")]),
+    "Bat": os.path.join(SOUNDS_DIR, "bat.wav"),
+}
+S_DAMAGE = {
+    "kick": random.choice([os.path.join(SOUNDS_DIR, "kick1.wav"),
+                           os.path.join(SOUNDS_DIR, "kick2.wav")]),
+    "kick_monster1": os.path.join(SOUNDS_DIR, "kick_monster1.wav"),
+    "kick_monster2": os.path.join(SOUNDS_DIR, "kick_monster2.wav"),
+    "kick_monster3": os.path.join(SOUNDS_DIR, "kick_monster3.wav"),
+}
+S_BREAKING = {
+    "Knife": os.path.join(SOUNDS_DIR, "knife_breaking.wav"),
+    "Bat": os.path.join(SOUNDS_DIR, "bat_breaking.wav"),
 }
 OH = os.path.join(SOUNDS_DIR, "oh.wav")
 

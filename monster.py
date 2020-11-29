@@ -2,6 +2,7 @@
 
 import random
 from typing import List, Set, Tuple, Union
+from pygame.mixer import Channel, Sound
 
 import settings as s
 from character import Character
@@ -34,6 +35,13 @@ class Monster(Character):
         self.lives = lives
         self.damage = damage
         self.iq = iq
+        self.sound_damage = Sound(s.S_DAMAGE["kick_monster1"])
+
+        sound = Sound(s.S_FOOTSTEPS_MONSTER)
+        sound.set_volume(0.2)
+        self.sound_footsteps = Channel(2)
+        self.sound_footsteps.play(sound, loops=-1)
+        self.sound_footsteps.pause()
 
     # noinspection PyUnresolvedReferences
     @classmethod
@@ -343,14 +351,16 @@ class Monster(Character):
         cell = self.my_cell()
         hero = cell.get_hero()
         if hero:
-            hero.damage(self.damage)
+            Sound(s.S_USE["kick"]).play()
+            hero.do_damage(self.damage)
             self.actions -= 1
             return
         # монстр атакует соседнюю клетку, если на ней стоит герой
-        if self.route and len(self.route) >= 1:
+        if self.route and len(self.route) >= 2:
             cell = self.route[1]
             hero = cell.get_hero()
             if hero:
-                hero.damage(self.damage)
+                self.sound_damage.play()
+                hero.do_damage(self.damage)
                 self.actions -= 1
                 return

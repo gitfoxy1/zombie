@@ -1,20 +1,37 @@
 """ game zombie """
-# pylint: disable=no-member
-
 import pygame
 
 import functions as f
 from games import Game
 
-FPS = 60
-pygame.mixer.pre_init(44100, -16, 1, 512)
-pygame.init()
-# screen = pygame.display.set_mode([100, 100])
-clock = pygame.time.Clock()
-game = Game(map_="MAP1", heroes=1, monsters=0, items=20)
+import settings as s
 
-RUN = True  # если run = False, тогда выходим из игры
-GAME_OVER = False
+FPS = 60
+pygame.init()
+pygame.mixer.pre_init(44100, -16, 1, 512)
+pygame.mixer.music.load(s.S_BACKGROUND)
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(loops=-1)
+
+clock = pygame.time.Clock()
+game = Game(map_="MAP1", heroes=1, monsters=1, items=20)
+
+
+INTRO = False  # если INTRO = False, начинается игра
+RUN = True  # если RUN = False, выходим из игры
+GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
+
+while INTRO:
+    game.characters.update()
+    game.items.update()
+    INTRO = game.intro()
+    for event in pygame.event.get():
+        if f.exit_game(event):
+            INTRO = False
+            RUN = False
+    pygame.display.update()
+    clock.tick(FPS)
+
 while RUN:
     # update
     game.characters.update()
@@ -32,8 +49,8 @@ while RUN:
         elif active_character.type == "monster":
             game.monster_actions()
 
-    for event in pygame.event.get():  # проверяет любые нажатые кнопки
-        if f.exit_game(event):  # Вйти из игры если нажат знак QUIT или кнопка ESCAPE
+    for event in pygame.event.get():
+        if f.exit_game(event):
             RUN = False
 
     # GAME_OVER
@@ -43,7 +60,7 @@ while RUN:
     # отрисовка экрана
     game.draw()
     if GAME_OVER:
-        game.draw_game_over()
+        game.game_over()
     pygame.display.update()
     clock.tick(FPS)
 

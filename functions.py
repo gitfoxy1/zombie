@@ -18,3 +18,14 @@ def exit_game(event):
             exit_ = True
 
     return exit_
+
+
+def get_direction(pressed_key: int) -> str:
+    """ return направление, в зависимости от нажатой кнопки """
+    direction = {
+        pygame.K_UP: "up",
+        pygame.K_DOWN: "down",
+        pygame.K_RIGHT: "right",
+        pygame.K_LEFT: "left",
+    }.get(pressed_key, "")
+    return direction

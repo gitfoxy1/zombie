@@ -1,6 +1,6 @@
 """ Карта """
 import random
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import pygame
 from pygame import Rect
@@ -85,9 +85,49 @@ class Map:
     def get_cell(self, xy: Tuple[int, int]) -> Optional[Cell]:
         """ return клетку карты по координатам xy """
         cells = [i for i in self.cells if i.xy == xy]
-        if cells:
-            return cells[0]
-        return None
+        if not cells:
+            return None
+        return cells[0]
+
+    def get_direction_cell(self, cell: Cell, direction: str) -> Optional[Cell]:
+        """ return следующую клетку в направлении direction """
+        if not cell:
+            return None
+        xy = cell.xy
+        xy_direction = dict(
+            up=(xy[0], xy[1] - 1),
+            down=(xy[0], xy[1] + 1),
+            left=(xy[0] - 1, xy[1]),
+            right=(xy[0] + 1, xy[1]),
+        ).get(direction)
+        cell_direction = self.get_cell(xy_direction)
+        return cell_direction
+
+    def get_direction_cells(self, cell_from: Cell, direction: str, distance: int) -> List[Cell]:
+        """ return клетки на линии поражения direction c дальностью distance """
+        xy = cell_from.xy
+        cells = list()
+        xy_i = None
+        for i in range(distance + 1):
+            # пропускаем свою клетку, она не в зоне поражения огнестрельного оружия
+            if not i:
+                continue
+            # клетки в направлении поражения
+            if direction == "up":
+                xy_i = (xy[0], xy[1] - i)
+            elif direction == "down":
+                xy_i = (xy[0], xy[1] + i)
+            elif direction == "left":
+                xy_i = (xy[0] - i, xy[1])
+            elif direction == "right":
+                xy_i = (xy[0] - i, xy[1])
+            cell = self.get_cell(xy_i)
+            if cell:
+                cells.append(cell)
+            # дальше стенки срелять нельзя
+            if direction in cell.walls:
+                break
+        return cells
 
     def random_cell(self) -> Cell:
         """ return случайную клетку на карте """

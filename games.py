@@ -1,6 +1,7 @@
 """ игра """
 import os
 import random
+from datetime import datetime
 from typing import Optional, NamedTuple, Union
 
 import pygame
@@ -15,6 +16,7 @@ from hero import Hero
 from items import items_generator
 from map import Map
 from monster import Monster
+from pygame.mixer import Sound, Channel
 
 CharacterHM = Union[Hero, Monster]
 
@@ -46,13 +48,15 @@ class Game:
     # счётчики
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
-    monster_waves_counter: int = 20  # счетчик волн монстров
-    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
+    monster_waves_counter: int = 0  # счетчик волн монстров
+    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
+    is_game_over = False  # TODO
 
     def __init__(self, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
+        self.start_time = datetime.now()
         self.screen = self._init_screen()
         self.characters: Group = Group()
         self.heroes: Group = Group()
@@ -115,7 +119,7 @@ class Game:
         """ Создаёт группу из монстров, добавляет на карту, в список спрайтов """
         self.monsters = Group()
         for i, attrs in enumerate([
-            dict(xy=(2, 1), game=self),
+            dict(xy=(13, 7), game=self),
             dict(xy=(2, 2), game=self),
             dict(xy=(2, 3), game=self),
             dict(xy=(2, 4), game=self),
@@ -127,6 +131,35 @@ class Game:
             self.characters.add(monster)  # добавим монстра в спрайты персонажей
             cell = self.map.get_cell(attrs["xy"])  # добавим монстра на карту
             cell.characters.append(monster)
+
+    def intro(self) -> bool:
+        """ заставка перед игрой, карта появляется из темноты
+         return True пока полностью не появится """
+        # прозрачность
+        time_delta = datetime.now() - self.start_time
+        seconds = time_delta.seconds + time_delta.microseconds / 1000000
+        alpha_max = (256 + 100)
+        alpha = int(alpha_max - seconds * 30)  # прозрачность > 256 = black
+        # рисуем карту
+        self.screen.fill(s.BLACK)
+        self.map.draw(self.screen)
+        # дропаем вещи на карту
+        items = self.items.sprites()
+        count = int(len(items) * (1 - alpha / alpha_max))
+        items = items[:count]
+        items_group = Group()
+        items_group.add(items)
+        print(count)
+        items_group.draw(self.screen)
+        # карта появляется из темноты
+        rect = self.get_screen_rect()
+        surface = pygame.Surface(rect.bottomright)
+        surface.set_alpha(alpha)
+        surface.fill(s.BLACK)
+        self.screen.blit(surface, rect.topleft)
+        if alpha <= 0:
+            return False
+        return True
 
     def _start_turn(self):
         """ перый персонаж в списке спрайтов начинает игру (становится активный) """
@@ -714,7 +747,7 @@ class Game:
         #     sleep(0.01)
         # sleep(1)
 
-    def draw_game_over(self) -> None:
+    def game_over(self) -> None:
         """ рисуем надпись GameOver """
         font = pygame.font.SysFont("consolas", 100)
         text = font.render("Game Over", True, s.RED)
@@ -729,3 +762,11 @@ class Game:
 
         self.screen.blit(background, background_rect.topleft)
         self.screen.blit(text, text_rect.topleft)
+
+        # ch2 = Channel(2)
+        # Channel(2).play(Sound(s.S_GAME_OVER))
+        # import time
+        # time.sleep(3)
+        if not self.is_game_over:
+            Channel(2).play(Sound(s.S_GAME_OVER))
+            self.is_game_over = True

@@ -43,7 +43,7 @@ while RUN:
     # отрисовка экрана
     game.draw()
     if GAME_OVER:
-        game.draw_game_over()
+        game.game_over()
     pygame.display.update()
     clock.tick(FPS)
 

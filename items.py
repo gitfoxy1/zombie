@@ -20,8 +20,9 @@ class Items(SpriteOnMap):
         super().__init__(image=image, size=size)
         self.kind = kind  # тип вещи: Digle, U.Z.I., Kalashnikov, Mastif, Little Cartridge
         self.kind_0 = kind_0  # тип вещи: gun, cart, steelweapon, armor, medicine, backpack
-        sound = s.SOUNDS.get(kind, s.OH)
+        sound = s.S_USE.get(kind, s.OH)  # TODO
         self.sound_use = Sound(sound)
+        self.sound_breaking = Sound(sound)
 
     # noinspection PyUnresolvedReferences
     def draw(self, screen: Surface, cell: "Cell"):
@@ -45,10 +46,11 @@ class Guns(Items):
 
     def __init__(self, image: str, kind: str):
         super().__init__(image=image, kind_0="gun", kind=kind)
-        self.damage = None
-        self.cartridge_kind = None
-        self.fire_speed = None
-        self.range = None
+        self.damage = 0  # урон
+        self.cartridge_kind = ""  # совместимые патроны
+        self.fire_speed = 1  # скорострельность
+        self.range = 0  # дальность выстрела
+        self.hit_probability = 1  # вероятность попадания
 
 
 class Digle(Guns):
@@ -60,6 +62,7 @@ class Digle(Guns):
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 1
         self.range = 3
+        self.hit_probability = 1
 
 
 class Uzi(Guns):
@@ -71,6 +74,7 @@ class Uzi(Guns):
         self.cartridge_kind = "Little Cartridge"
         self.fire_speed = 3
         self.range = 3
+        self.hit_probability = 0.7
 
 
 class Kalashnikov(Guns):
@@ -82,6 +86,7 @@ class Kalashnikov(Guns):
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 5
         self.range = 3
+        self.hit_probability = 0.9
 
 
 class Mastif(Guns):
@@ -89,10 +94,11 @@ class Mastif(Guns):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="Mastif")
-        self.damage = 3
+        self.damage = 4
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
-        self.range = 2
+        self.range = 1
+        self.hit_probability = 1
 
 
 class Mozambyk(Guns):
@@ -100,10 +106,11 @@ class Mozambyk(Guns):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="Mozambyk")
-        self.damage = 2
+        self.damage = 3
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
         self.range = 2
+        self.hit_probability = 0.7
 
 
 class Awp(Guns):
@@ -111,10 +118,11 @@ class Awp(Guns):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="A.W.P")
-        self.damage = 3
+        self.damage = 4
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 1
-        self.range = 4
+        self.range = 5
+        self.hit_probability = 1
 
 
 # =====  CARTRIDGE  ==========================================================
@@ -124,8 +132,9 @@ class Cartridge(Items):
 
     def __init__(self, image: str, kind: str):
         super().__init__(image=image, kind_0="cart", kind=kind)
-        self.type = None
-        self.count = None
+        self.type = ""
+        self.count = 0
+        self.count_max = 0
 
 
 class LittleCartridge(Cartridge):
@@ -133,7 +142,7 @@ class LittleCartridge(Cartridge):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="Little Cartridge")
-        self.count = 20
+        self.count = 10
         self.count_max = self.count * 3
 
 
@@ -151,18 +160,25 @@ class Fraction(Cartridge):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="Fraction")
-        self.count = 8
+        self.count = 5
         self.count_max = self.count * 3
 
 
 # =====  STEEL WEAPON  ==========================================================
 
 class SteelWeapon(Items):
-    """ Класс-родитель для оружия """
+    """ Класс-родитель для холодного оружия """
 
     def __init__(self, image: str, kind):
         super().__init__(image=image, kind_0="steelweapon", kind=kind)
-        self.damage = None
+        self.damage = 0
+        self.strength = 0
+        self.sound_breaking = Sound(s.S_BREAKING[kind])
+
+    def reduce_strength(self) -> None:
+        """ оружие теряет прочность """
+        damage = 1 if random.randrange(100) < 50 else 2
+        self.strength -= damage
 
 
 class Knife(SteelWeapon):
@@ -224,7 +240,7 @@ class Backpack0(Items):
 
     def __init__(self, image: str, kind: str):
         super().__init__(image=image, kind_0="backpack", kind=kind)
-        self.capacity = 0  # вместимость рюкзака
+        self.capacity = 0  # дополнительная вместимость рюкзака
 
 
 class Backpack1(Backpack0):
@@ -258,8 +274,8 @@ class Medicine(Items):
 
     def __init__(self, image: str, kind: str):
         super().__init__(image=image, kind_0="medicine", kind=kind)
-        self.heal = None
-        self.heal_target = None
+        self.heal = 0
+        self.heal_target = ""
 
 
 class Medikit(Medicine):
@@ -267,7 +283,7 @@ class Medikit(Medicine):
 
     def __init__(self):
         super().__init__(image="giftbox.png", kind="Medikit")
-        self.heal = 3
+        self.heal = 5
         self.heal_target = "health"
 
 
@@ -288,13 +304,13 @@ def items_generator(count: int) -> list:
 
     # вещи которые должны быть на карте обязательно
     items_mandatory = [
-        random.choice([Digle, Uzi]), LittleCartridge,  # Little Gun
-        random.choice([Kalashnikov, Awp]), HeavyCartridge,  # Heavy Gun
-        random.choice([Mozambyk, Mastif]), Fraction,  # Fraction Gun
-        random.choice([Knife, Bat]),  # Steel Weapon
-        random.choice([Armor1, Armor2, Armor3]),  # Armor
-        random.choice([Backpack1, Backpack2, Backpack3]),  # Backpack
-        random.choice([Medikit, Cotton])  # Medicine
+        # random.choice([Digle, Uzi]), LittleCartridge,  # Little Gun
+        # random.choice([Kalashnikov, Awp]), HeavyCartridge,  # Heavy Gun
+        # random.choice([Mozambyk, Mastif]), Fraction,  # Fraction Gun
+        # random.choice([Knife, Bat]),  # Steel Weapon
+        # random.choice([Armor1, Armor2, Armor3]),  # Armor
+        # random.choice([Backpack1, Backpack2, Backpack3]),  # Backpack
+        # random.choice([Medikit, Cotton])  # Medicine
     ]
     for item in items_mandatory:
         items.append(item())
@@ -302,9 +318,11 @@ def items_generator(count: int) -> list:
     # дополнительные вещи
     while len(items) < count:
         items_extra = [
-            [Digle for _ in range(random.randrange(1, 3))],
-            [Uzi for _ in range(random.randrange(1, 3))],
-            [LittleCartridge for _ in range(random.randrange(1, 3))],
+            # [Digle for _ in range(random.randrange(1, 3))],
+            # [Uzi for _ in range(random.randrange(1, 3))],
+            # [LittleCartridge for _ in range(random.randrange(1, 3))],
+            # [Bat for _ in range(random.randrange(1, 3))],
+            [Knife for _ in range(random.randrange(1, 3))],
         ]
         items_extra = [i for l in items_extra for i in l]
         item_extra = random.choice(items_extra)
