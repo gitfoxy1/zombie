@@ -180,12 +180,11 @@ class Character(SpriteOnMap):
 
     def do_damage(self, damage: int) -> None:
         """ Персонаж получает урон """
-        if self.type == 'hero':
-            if self.armor:
-                if self.armor > 0:
-                    self.armor -= damage
-                else:
-                    self.lives -= damage
+        if self.armor:
+            if self.armor > 0:
+                self.armor -= damage
+            else:
+                self.lives -= damage
         if self.lives <= 0:
             self.death()
 
