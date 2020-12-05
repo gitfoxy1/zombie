@@ -2,9 +2,8 @@
 import pygame
 
 import functions as f
-from games import Game
-
 import settings as s
+from game import Game
 
 FPS = 60
 pygame.init()
@@ -14,10 +13,9 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
-game = Game(map_="MAP1", heroes=1, monsters=0, items=20)
+game = Game(map_="map", heroes=1, monsters=0, items=20)
 
-
-INTRO = True  # если INTRO = False, начинается игра
+INTRO = False  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 
@@ -34,20 +32,16 @@ while INTRO:
 
 while RUN:
     # update
-    game.characters.update()
-    game.items.update()
-    if game.is_characters_in_cell():
+    game.update_sprites()
+    if not game.is_motion():
         # обновляет счётчики, если у героя закончился действия, то ход переходит к следующему герою
         counters = game.update_counters()
         # добавляет монстров каждую волну
         if counters.wave:
-            game._init_monsters_wave()
-
-        active_character = game.get_active_character()
-        if active_character.type == "hero":
-            game.hero_actions()
-        elif active_character.type == "monster":
-            game.monster_actions()
+            pass
+            # game._init_monsters_wave()
+        game.hero_actions()
+        game.monster_actions()
 
     for event in pygame.event.get():
         if f.exit_game(event):

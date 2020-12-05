@@ -1,52 +1,39 @@
 """ клетка карты """
-import os
 import random
 from typing import List, Optional, Set, Tuple, Union
-
-import pygame
-from pygame import Rect, Surface
-from pygame.mixer import Sound
 
 import settings as s
 from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
     Awp, Mozambyk, Knife, Bat
+from sprite_on_map import SpriteOnMap
+
+Game = "Game"
 
 
 # noinspection PyUnresolvedReferences
-class Cell:
+class Cell(SpriteOnMap):
     """ клетка карты """
-    xy: Tuple[int, int]  # координаты клетки на карте/map
-    w: int  # ширина клетки на экране (пиксели) по оси x
-    h: int  # высота клетки на экране (пиксели) по оси y
-    rect: Optional[Rect] = None  # прямоугольник  клетки на экране (пиксели)
-    image: Surface  # картинка клетки
-    walls: Set[str]  # стены вокруг клетки: t=top, b=bottom, l=left, r=right
-    # noinspection PyUnresolvedReferences
+
     characters: List[Union["Hero", "Monster"]]  # персонажи которые стоят на этой клетке
     items: List[Union[Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif,
                       Awp, Mozambyk, Knife, Bat]]  # предметы которые лежат на этой клетке
     status: Set[str]  # состояние клетки: в дыму, в огне
 
-    def __init__(self, xy: Tuple[int, int], walls: set):
-        self.xy = xy
-        self.w = s.CELL_W
-        self.h = self.w
-        px = self.xy[0] * self.w
-        py = self.xy[1] * self.h
-        self.rect = pygame.Rect((px, py), (self.w, self.h))
-        # картинки рандом 1..6
-        images = [os.path.join(s.IMAGES_DIR, f"map_cell_{i}.png") for i in range(1, 7)]
-        self.image = pygame.image.load(random.choice(images))
-        self.walls = set(walls)
+    def __init__(self, xy: Tuple[int, int], walls: set, game: Game):
+        image = random.choice(s.I_CELLS)  # картинки рандом 1..6
+        super().__init__(image=image, size=(100, 100), game=game)
+        self.xy = xy  # координаты клетки на карте/map
+        self.update_rect()
+        self.walls: set = walls  # стены вокруг клетки: t=top, b=bottom, l=left, r=right
         self.characters = list()  # hero, monster
         self.items = list()
-        # self.status = set()  # todo fire, smoke
-        self.rikoshet = Sound(os.path.join(s.SOUNDS_DIR, "rikoshet.wav"))  # todo play
 
     def __repr__(self) -> str:
-        msg = f"xy:{self.xy[0]},{self.xy[1]} "
-        characters = [str(o) for o in self.characters]
-        msg += ", ".join(characters)
+        msg = f"xy:{self.xy[0]},{self.xy[1]}"
+        characters = [o.name for o in self.characters]
+        if characters:
+            characters_ = ",".join(characters)
+            msg += f" characters: {characters_}"
         return msg
 
     def top_left(self, shift: float = 0) -> Tuple[int, int]:
@@ -146,11 +133,11 @@ class Cell:
             return
         item = self.items.pop()
         item.xy = (-1, -1)
-        item.update_rect()
+        item.get_rect()
         return item
 
     def append_item(self, item: "Item") -> None:
         """ кладём вещь на клетку карты """
         item.xy = self.xy
-        item.update_rect()
+        item.get_rect()
         self.items.append(item)

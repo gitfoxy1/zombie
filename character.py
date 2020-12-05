@@ -1,13 +1,14 @@
 """ Персонажы """
 
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from pygame import Rect
 from pygame.mixer import Channel, Sound
 
 import settings as s
 from cell import Cell
+from items import Items
 from sprite_on_map import SpriteOnMap
 
 Game = "Game"
@@ -15,42 +16,36 @@ Game = "Game"
 
 class Character(SpriteOnMap):
     """ Персонаж, класс-родитель для героя и монстра """
-    # noinspection PyUnresolvedReferences
-    type: Optional[str] = ""  # тип персонажа: "hero", "monster"
-    name: str = ""  # имя персонажа
-    active: bool = False  # True= персонаж активный, может действовать; False= не активный, ждёт
 
-    def __init__(self, name: str, image: str, xy: Tuple[int, int], game: Game):
-        self.game: Game = game  # ссылка на игру
-
+    def __init__(self, image: str, xy: Tuple[int, int], game: Game):
         scale = 0.9
         width = int(s.CELL_W * scale)
         size = (width, width)
-        super().__init__(image, size)
+        super().__init__(image, size, game)
         self.xy = xy
-        self.rect = self.get_rect()  # Sprite.rect
+        self.rect: Rect = self.get_rect()  # Sprite.rect
 
         sound = Sound(s.S_FOOTSTEPS_HERO)
         sound.set_volume(0.2)
         self.sound_footsteps = Channel(1)
         self.sound_footsteps.play(sound, loops=-1)
         self.sound_footsteps.pause()
-        self.sound_damage = Sound(s.S_DAMAGE["kick"])
+        self.sound_damage: Sound = Sound(s.S_DAMAGE["kick"])
 
-        self.type = ""
-        self.name = name
-        self.active = False
-        self.items = []
-        self.lives = 0
-        self.damage = 0
-        self.item_in_hands = None  # вещь на руках
+        self.type: str = ""  # тип персонажа: "hero", "monster"
+        self.name: str = ""  # имя персонажа: "hero1", ...
+        self.active: bool = False  # True= персонаж активный, может действовать; False= не активный, ждёт
+        self.items: List[Items] = []
+        self.lives: int = 0
+        self.damage: int = 0
+        self.item_in_hands: Optional[Items] = None  # вещь на руках
 
-        self.action_type = None  # move_to_cell, move_to_wall
-        self.action_direction = None  # top, down, left, light
+        self.action_type: str = ""  # move_to_cell, move_to_wall
+        self.action_direction: str = ""  # top, down, left, light
         self.action_start_time = datetime.now()  # время начала действия
-        self.action_silent = False  # светофор, True запрещает начинать проигрывать звук действия
-        self.actions_max = 3  # максимально количество действий героя за один ход игры
-        self.actions = 0  # количество действий на данный момент
+        self.action_silent: bool = False  # светофор, True запрещает начинать проигрывать звук действия
+        self.actions_max: int = 0  # максимально количество действий героя за один ход игры
+        self.actions: int = 0  # количество действий на данный момент
         self.armor = None
 
     def __repr__(self) -> str:
@@ -79,17 +74,6 @@ class Character(SpriteOnMap):
         cell_from.characters.remove(self)  # удаляем из сатрой клетки
         cell_to.characters.append(self)  # добавляем в новую клетку
         self.sound_footsteps.unpause()  # звук шагов
-
-    def get_rect(self) -> Rect:
-        """ Sprite.rect на экране (пиксели) в центр клетки """
-        rect: Rect = self.image.get_rect()
-        # координаты клетки на экрана в пикселях
-        px = s.CELL_W * self.xy[0]
-        py = s.CELL_W * self.xy[1]
-        # координаты героя на экрана, центр героя в центре клетки
-        rect.x = px + s.CELL_W / 2 - rect.w / 2
-        rect.y = py + s.CELL_W / 2 - rect.h / 2
-        return rect
 
     def update(self) -> None:
         """ update """
@@ -130,14 +114,8 @@ class Character(SpriteOnMap):
             elif self.rect.centery < py:
                 self.rect.centery += diff_y
 
-        # если персонаж не на своей клетке, звук шагов
-        if diff_x or diff_y:
-            pass
-            # if not self.action_silent:
-            #     Sound(s.SOUND_FOOTSTEPS_RUN2).play()
-            #     self.action_silent = True
         # персонаж дошёл до своей клетки
-        else:
+        if not (diff_x or diff_y):
             self._default_action()
             self.sound_footsteps.pause()
 

@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 import pygame
 from pygame import Rect
 from pygame import Surface
+from pygame.sprite import Sprite
 
 import settings as s
 from cell import Cell
@@ -12,19 +13,11 @@ from cell import Cell
 Game = "Game"
 
 
-class Map:
+class Map(Sprite):
     """ Карта """
-    # noinspection PyUnresolvedReferences
-    game: Optional[Game] = None  # ссылка на игру
-    name: str = ""  # название карты
-    rect: Optional[Rect] = None
-    cell_w: int = 0  # ширина клеток
-    cell_h: int = 0  # высота клеток
+    cells: List[Cell] = list()
     cells_x: int = 0  # количество клеток по горизонтали
     cells_y: int = 0  # количество клеток по вертикали
-
-    def __repr__(self):
-        return f"{self.name}, {self.cells_x},{self.cells_y}"
 
     # noinspection PyUnresolvedReferences
     def __init__(self, name: str, ascii_: str, game: Game):
@@ -33,48 +26,50 @@ class Map:
         @param ascii_: карта в текстовом формате на основе генератора карт
         @param map: прямоугольник экрана
         """
-        self.game = game
-        self.name = name
+        super().__init__()
+        self.game = game  # ссылка на игру
+        self.name = name  # название карты
         self.wall_w = 7  # толщина стенки
         self.wall_char = "o"  # символ стенки в генераторе-карт
         self.line_w = 2  # толщина разделительной линии между клетками
-        self.cells = []
-        self.from_ascii(ascii_)
-        cell = self.cells[0]
-        self.cell_w = cell.w
-        self.cell_h = cell.h
-        screen_rect = self.game.get_screen_rect()
-        self.rect = pygame.Rect((screen_rect.x, screen_rect.y),
-                                (self.cells_x * cell.w, self.cells_y * cell.h))
+        self.cells, self.cells_x, self.cells_y = self.from_ascii(ascii_)
+        map_size = (self.cells_x * s.CELL_W, self.cells_y * s.CELL_W)
+        self.size: Rect = pygame.Rect((0, 0), map_size)
+        map_rect = (s.SCREEN_CELLS_W * s.CELL_W, s.SCREEN_CELLS_H * s.CELL_W)
+        self.rect: Rect = pygame.Rect((0, 0), map_rect)
+        self.image: Surface = pygame.image.load(s.I_MAP[name])
 
-    def draw(self, screen: Surface) -> None:
-        """ Рисует карту """
-        for cell in self.cells:
-            cell_x = cell.xy[0] * cell.w
-            cell_y = cell.xy[1] * cell.h
-            pic: Surface = pygame.transform.scale(cell.image,
-                                                  (cell.w - self.line_w, cell.h - self.line_w))
-            screen.blit(pic, (cell_x, cell_y))
+    def __repr__(self):
+        return f"{self.name}, {self.cells_x},{self.cells_y}"
 
-        for cell in self.cells:
-            cell_x = cell.xy[0] * cell.w
-            cell_y = cell.xy[1] * cell.h
-            if "up" in cell.walls:
-                start = (cell_x, cell_y)
-                end = (cell_x + cell.w, cell_y)
-                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "down" in cell.walls:
-                start = (cell_x, cell_y + cell.w)
-                end = (cell_x + cell.w, cell_y + cell.w)
-                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "right" in cell.walls:
-                start = (cell_x + cell.w, cell_y)
-                end = (cell_x + cell.w, cell_y + cell.w)
-                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
-            if "left" in cell.walls:
-                start = (cell_x, cell_y)
-                end = (cell_x, cell_y + cell.w)
-                pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
+    # def draw_cells(self, screen: Surface) -> None:
+    #     """ Рисует карту """
+    #     for cell in self.cells:
+    #         cell_x = cell.xy[0] * cell.w
+    #         cell_y = cell.xy[1] * cell.h
+    #         pic: Surface = pygame.transform.scale(cell.image,
+    #                                               (cell.w - self.line_w, cell.h - self.line_w))
+    #         screen.blit(pic, (cell_x, cell_y))
+    #
+    #     for cell in self.cells:
+    #         cell_x = cell.xy[0] * cell.w
+    #         cell_y = cell.xy[1] * cell.h
+    #         if "up" in cell.walls:
+    #             start = (cell_x, cell_y)
+    #             end = (cell_x + cell.w, cell_y)
+    #             pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
+    #         if "down" in cell.walls:
+    #             start = (cell_x, cell_y + cell.w)
+    #             end = (cell_x + cell.w, cell_y + cell.w)
+    #             pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
+    #         if "right" in cell.walls:
+    #             start = (cell_x + cell.w, cell_y)
+    #             end = (cell_x + cell.w, cell_y + cell.w)
+    #             pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
+    #         if "left" in cell.walls:
+    #             start = (cell_x, cell_y)
+    #             end = (cell_x, cell_y + cell.w)
+    #             pygame.draw.line(screen, s.RED_DARK, start, end, self.wall_w)
 
     def add_characters(self, characters):  # List[Union[Hero, Monster]]) -> None:
         """помещает персонажей на карту"""
@@ -89,19 +84,17 @@ class Map:
             return None
         return cells[0]
 
-    def get_direction_cell(self, cell: Cell, direction: str) -> Optional[Cell]:
-        """ return следующую клетку в направлении direction """
-        if not cell:
-            return None
-        xy = cell.xy
-        xy_direction = dict(
-            up=(xy[0], xy[1] - 1),
-            down=(xy[0], xy[1] + 1),
-            left=(xy[0] - 1, xy[1]),
-            right=(xy[0] + 1, xy[1]),
+    def get_direction_cell(self, cell_from: Cell, direction: str) -> Optional[Cell]:
+        """ return следующую клетку из cell_from в направлении direction """
+        xy_from = cell_from.xy
+        xy_to = dict(
+            up=(xy_from[0], xy_from[1] - 1),
+            down=(xy_from[0], xy_from[1] + 1),
+            left=(xy_from[0] - 1, xy_from[1]),
+            right=(xy_from[0] + 1, xy_from[1]),
         ).get(direction)
-        cell_direction = self.get_cell(xy_direction)
-        return cell_direction
+        cell_to = self.get_cell(xy_to)
+        return cell_to
 
     def get_direction_cells(self, cell_from: Cell, direction: str, distance: int) -> List[Cell]:
         """ return клетки на линии поражения direction c дальностью distance """
@@ -136,7 +129,7 @@ class Map:
         random_cell = self.get_cell((random_x, random_y))
         return random_cell
 
-    def from_ascii(self, ascii_map: str) -> None:
+    def from_ascii(self, ascii_map: str) -> Tuple[List[Cell], int, int]:
         """ Создаёт карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
         lines = ascii_map.splitlines()  # разбивает тект на сторки
         lines = [i for i in lines if len(i)]  # даляет пустые строки
@@ -158,15 +151,15 @@ class Map:
         coll_count = list(coll_count)[0] // 2  # число рядов на карте, в двое меньше чем символов
         # в строке
         row_count = len(lines) // 2  # число рядов на карте, в двое меньше чем строк
-        self.cells_x = coll_count
-        self.cells_y = row_count
+        cells_x = coll_count
+        cells_y = row_count
 
         # создадим карту без стен
-        self.cells = []
-        for y in range(self.cells_y):
-            for x in range(self.cells_x):
-                cell = Cell((x, y), set())  # клетка карты без стен
-                self.cells.append(cell)  # добавляет клетку в карту
+        cells = []
+        for y in range(cells_y):
+            for x in range(cells_x):
+                cell = Cell(xy=(x, y), walls=set(), game=self.game)  # клетка карты без стен
+                cells.append(cell)  # добавляет клетку в карту
 
         # добавляет стены в клетки
         for row_id, line in enumerate(lines):
@@ -197,6 +190,7 @@ class Map:
                                 cell_left.walls.add("right")
                     else:  # нечётные столбцы
                         pass  # центр клетки
+        return cells, cells_x, cells_y
 
     def draw_xy(self, screen: Surface) -> None:
         """ рисует на карте координаты клетки xy """

@@ -1,14 +1,14 @@
-""" Test games.py """
+""" Test game.py """
 
 import unittest
 
 import pygame
 
-from games import Game
+from game import Game
 
 
 class Test(unittest.TestCase):
-    """ Test games.py """
+    """ Test game.py """
 
     def test_positive__update_active_character(self):
         """ Game.update_active_character()

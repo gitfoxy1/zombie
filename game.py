@@ -1,22 +1,20 @@
 """ игра """
-import os
 import random
 from datetime import datetime
-from typing import Optional, NamedTuple, Union
+from typing import Optional, NamedTuple, Tuple, Union
 
 import pygame
-from pygame import Rect, Surface
+from pygame.mixer import Sound, Channel
 from pygame.sprite import Group
 
 import settings as s
 from backpack import Backpack
 from controls import Controls
-from dashboard import DashboardLeft
+from dashboard import Dashboard
 from hero import Hero
 from items import items_generator
 from map import Map
 from monster import Monster
-from pygame.mixer import Sound, Channel
 
 CharacterHM = Union[Hero, Monster]
 
@@ -35,14 +33,6 @@ class Game:
      turn - Ход. За один ход, персонаж делает заданное количество действий.
      action - Действиею Переход на соседнюю клетку, атака.
      """
-    screen: Optional[Surface] = None
-    map: Optional[Map] = None  # карта
-    heroes: Optional[Group] = None  # спрайты с героями
-    monsters: Optional[Group] = None  # спрайты с монстрами
-    characters: Optional[Group] = None  # спрайты с героями и монстрами
-    items: Optional[Group] = None  # спрайты с вещами
-    dashboard_left: Optional[DashboardLeft] = None  # приборная панель
-    backpack: Optional[Backpack] = None  # рюкзак
     kb_mode: str = "map"  # keyboard mode, map/attack/backpack
     kb_locked: bool = False  # нажата любая кнопка
     # счётчики
@@ -50,7 +40,9 @@ class Game:
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
     rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
-    is_game_over = False  # TODO
+    is_world_motion = False  # происходит сдвиг игрового мира
+    is_game_over = False
+    world_shift = (0, 0)
 
     def __init__(self, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
@@ -58,66 +50,61 @@ class Game:
         """
         self.start_time = datetime.now()
         self.screen = self._init_screen()
-        self.characters: Group = Group()
-        self.heroes: Group = Group()
-        self.monsters: Group = Group()
-        self.map = self._init_map(map_)
-        self._init_heroes(heroes)
-        self._init_monsters(monsters)
-        self._init_items(items)
-        self._start_turn()
+        # map
+        self.map: Map = self._init_map(map_)  # карта
+        self.maps: Group = Group(self.map)
+        # sprites
+        self.characters: Group = Group()  # спрайты с героями и монстрами
+        self.heroes: Group = self._init_heroes(heroes)  # спрайты с героями
+        self.monsters: Group = self._init_monsters(monsters)  # спрайты с монстрами
+        self.items: Group = self._init_items(items)  # спрайты с вещами
 
-        self.dashboard_left = DashboardLeft(self.get_screen_rect(), self.map)
-        self.backpack = Backpack(self)
-        self.controls = Controls(self)
-        self.max_x = 14
-        self.max_y = 9
+        self._start_turn()
+        self.dashboard = Dashboard(self)  # приборная панель
+        self.backpack: Backpack = Backpack(self)  # рюкзак
+        self.controls: Controls = Controls(self)  # help
 
     @staticmethod
-    def _init_screen() -> Surface:
+    def _init_screen():
         """ Создаёт экран игры """
-        os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
-        screen = pygame.display.set_mode()
+        # os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+        # screen = pygame.display.set_mode()
+        screen = pygame.display.set_mode((s.SCREEN_CELLS_W * s.CELL_W + s.DASHBOARD_W, s.SCREEN_CELLS_H * s.CELL_W))
+        # screen_map = pygame.display.set_mode((s.MAP_X, s.MAP_Y))
+        # screen_bd = pygame.display.set_mode((s.DASHBOARD_W, s.MAP_Y))
         return screen
-
-    def get_screen_rect(self) -> Rect:
-        """ return прямоугольник экрана """
-        screen_w, screen_h = self.screen.get_size()
-        screen_rect = Rect(0, 0, screen_w, screen_h)
-        return screen_rect
 
     def _init_map(self, name: str = None) -> Map:
         """ Создаёт карту """
-        if name == "SANDBOX_NO_WALLS":
-            map_ = Map(name="SANDBOX_NO_WALLS", ascii_=s.MAP_SANDBOX_NO_WALLS, game=self)
-        elif name == "MAP1":
-            map_ = Map(name="MAP1", ascii_=s.MAP_1, game=self)
+        if name == "map":
+            map_ = Map(name=name, ascii_=s.MAP_1, game=self)
         elif name == "SANDBOX":
             map_ = Map(name="SANDBOX", ascii_=s.MAP_SANDBOX, game=self)
         else:
             map_ = Map(name="SANDBOX_NO_WALLS", ascii_=s.MAP_SANDBOX_NO_WALLS, game=self)
         return map_
 
-    def _init_heroes(self, count: int) -> None:
+    def _init_heroes(self, count: int) -> Group:
         """ Создаёт группу из героев, добавляет на карту, в список спрайтов """
-        self.heroes = Group()
+        heroes = Group()
         for i, attrs in enumerate([
-            dict(name="hero_1", image="hero1.png", xy=(12, 9), game=self),
-            dict(name="hero_2", image="hero2.png", xy=(1, 2), game=self),
-            dict(name="hero_3", image="hero3.png", xy=(1, 3), game=self),
-            dict(name="hero_4", image="hero4.png", xy=(1, 4), game=self),
+            dict(name="hero1", image="hero1.png", xy=(12, 8), game=self),
+            dict(name="hero2", image="hero2.png", xy=(1, 2), game=self),
+            dict(name="hero3", image="hero3.png", xy=(1, 3), game=self),
+            dict(name="hero4", image="hero4.png", xy=(1, 4), game=self),
         ]):
             if i >= count:
                 break
             hero = Hero(**attrs)  # создадим героя
-            self.heroes.add(hero)  # добавим героя в спрайты героев
+            heroes.add(hero)  # добавим героя в спрайты героев
             self.characters.add(hero)  # добавим героя в спрайты персонажей
             cell = self.map.get_cell(attrs["xy"])  # добавим героя на карту
             cell.characters.append(hero)
+        return heroes
 
-    def _init_monsters(self, count: int) -> None:
+    def _init_monsters(self, count: int) -> Group:
         """ Создаёт группу из монстров, добавляет на карту, в список спрайтов """
-        self.monsters = Group()
+        monsters = Group()
         for i, attrs in enumerate([
             dict(xy=(13, 7), game=self),
             dict(xy=(2, 2), game=self),
@@ -127,10 +114,25 @@ class Game:
             if i >= count:
                 break
             monster = Monster.little(**attrs)  # создадим монстра
-            self.monsters.add(monster)  # добавим монстра в спрайты монстрв
+            monsters.add(monster)  # добавим монстра в спрайты монстрв
             self.characters.add(monster)  # добавим монстра в спрайты персонажей
             cell = self.map.get_cell(attrs["xy"])  # добавим монстра на карту
             cell.characters.append(monster)
+        return monsters
+
+    def _init_items(self, count: int) -> Group:
+        """ Создаёт и помещает вещи на карту """
+        # сгенерим вещи в нужном количестве и добавим в спрйты и на карту
+        items = Group()
+        items_ = items_generator(count=count, game=self)
+        for item in items_:
+            items.add(item)
+            # добавим вещи на карту
+            cell = random.choice(self.map.cells)
+            cell.items.append(item)
+            item.xy = cell.xy
+            item.update_rect()  # Sprite.rect
+        return items
 
     def intro(self) -> bool:
         """ заставка перед игрой, карта появляется из темноты
@@ -142,7 +144,7 @@ class Game:
         alpha = int(alpha_max - seconds * 30)  # прозрачность > 256 = black
         # рисуем карту
         self.screen.fill(s.BLACK)
-        self.map.draw(self.screen)
+        self.maps.draw(self.screen)
         # дропаем вещи на карту
         items = self.items.sprites()
         count = int(len(items) * (1 - alpha / alpha_max))
@@ -151,11 +153,11 @@ class Game:
         items_group.add(items)
         items_group.draw(self.screen)
         # карта появляется из темноты
-        rect = self.get_screen_rect()
-        surface = pygame.Surface(rect.bottomright)
+        screen_rect = self.screen.get_rect()
+        surface = pygame.Surface(screen_rect.bottomright)
         surface.set_alpha(alpha)
         surface.fill(s.BLACK)
-        self.screen.blit(surface, rect.topleft)
+        self.screen.blit(surface, screen_rect.topleft)
         if alpha <= 0:
             return False
         return True
@@ -166,19 +168,6 @@ class Game:
         if characters:
             character = characters[0]
             character.start_turn()
-
-    def _init_items(self, count: int) -> None:
-        """ Создаёт и помещает вещи на карту """
-        # сгенерим вещи в нужном количестве и добавим в спрйты и на карту
-        self.items = Group()
-        items = items_generator(count=count)
-        for item in items:
-            self.items.add(item)
-            # добавим вещи на карту
-            cell = random.choice(self.map.cells)
-            item.xy = cell.xy
-            item.update_rect()  # Sprite.rect
-            cell.items.append(item)
 
     def _init_monsters_wave(self) -> None:
         """ Создаёт волну монстров. Добавляет монстров в группу спрайтов. """
@@ -501,8 +490,6 @@ class Game:
             self.map.add_characters(
                 [monster125, monster126, monster127, monster128, monster129, monster130])
 
-
-
     def all_heroes_dead(self) -> bool:
         """ return True если все герои умерли """
         characters = self.characters.sprites()
@@ -511,13 +498,13 @@ class Game:
             return False
         return True
 
-    def get_active_character(self) -> CharacterHM:
+    def get_active_character(self) -> Optional[CharacterHM]:
         """ возвращает активного персонажа """
         characters = self.characters.sprites()
         for character in characters:
             if character.active:
                 return character
-        raise ValueError("нет активного персонажа")
+        return None
 
     def get_active_hero(self) -> Optional[Hero]:
         """ возвращает активного героя """
@@ -547,12 +534,20 @@ class Game:
                 return characters[0]
         raise ValueError("нет активного персонажа")
 
-    def is_characters_in_cell(self) -> bool:
-        for character in self.characters:
-            cell = self.map.get_cell(character.xy)
+    def is_motion(self) -> bool:
+        """ True  - если хоть обин персонаж в движении
+            False - если все персонажи закончили движение и стоят в своих клетках
+        """
+        if self.is_world_motion:
+            return True
+        characters = self.characters.sprites()
+        if not characters:
+            return False
+        for character in characters:
+            cell = character.my_cell()
             if character.rect.center != cell.rect.center:
-                return False
-        return True
+                return True
+        return False
 
     def update_counters(self) -> Counters:
         """ Меняет активного персонажа и обновляет счётчики.
@@ -715,18 +710,21 @@ class Game:
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
         self.screen.fill(s.BLACK)
-        # pygame.draw.rect(self.screen, s.GREEN, self.map.rect, 1)
-        # pygame.draw.rect(self.screen, s.RED, self.dashboard_left.rect, 10)
-        self.map.draw(self.screen)
+        # draw debug
+        # self.map.draw_cells(self.screen)
         # self.map.draw_xy(self.screen)
+
+        self.maps.draw(self.screen)
         self.items.draw(self.screen)
         self.characters.draw(self.screen)
+        # draw debug
         # self.draw_monster_path()
-        character = self.get_active_character()
-        self.dashboard_left.draw(self.screen, character)
 
+        # draw dashboard, backpack, controls window
+        self.dashboard.draw()
+        active_character = self.get_active_character()
         if self.kb_mode == "backpack":
-            self.backpack.draw(self.screen, character)
+            self.backpack.draw(self.screen, active_character)
         if self.kb_mode == "controls":
             self.controls.draw(self.screen)
 
@@ -769,3 +767,92 @@ class Game:
         if not self.is_game_over:
             Channel(2).play(Sound(s.S_GAME_OVER))
             self.is_game_over = True
+
+    def update_sprites(self) -> None:
+        """ обновим передвигающиеся спрайты на экране """
+        self.shifting_world()
+        self.items.update()
+        self.characters.update()
+
+    def shifting_world(self):
+        """" Выполняем сдвиг игрового мира, персонаж в центре """
+        # https://platform.kodland.org/en/task_2489/
+        hero = self.get_active_hero()
+        if not hero:
+            return
+        direction = self.out_of_map_screen(hero)
+        if not direction:
+            self.is_world_motion = False
+            return
+
+        # смещаем мир
+        speed = s.SPEED
+        self.is_world_motion = True
+        bg_rect = self.maps.sprites()[0].rect
+        shift_x, shift_y = self.shift_world_direction(direction)
+        diff_x = bg_rect.x - shift_x
+        if diff_x > 0:
+            diff_x = min(speed, diff_x)
+        elif diff_x < 0:
+            diff_x = max(-speed, diff_x)
+        diff_y = bg_rect.y - shift_y
+        if diff_y > 0:
+            diff_y = min(speed, diff_y)
+        elif diff_y < 0:
+            diff_y = max(-speed, diff_y)
+        # движение мира закончилось
+        if not (diff_x or diff_y):
+            return
+        # движение мира, смещаем спрайты
+        bg_rect.topleft = (shift_x, shift_y)
+        for cell in self.map.cells:
+            cell.update_rect()
+        for item in self.items:
+            item.update_rect()
+        for character in self.characters:
+            character.update_rect()
+
+    def out_of_map_screen(self, sprite) -> str:
+        """ return direction если спрайт вышел за пределы экрана """
+        map_rect = self.map.rect
+        if sprite.rect.centerx < 0:
+            return "left"
+        if sprite.rect.centery < 0:
+            return "top"
+        if sprite.rect.centerx > map_rect.width:
+            return "right"
+        if sprite.rect.centery > map_rect.height:
+            return "down"
+        return ""
+
+    def shift_world_direction(self, direction: str) -> Tuple[int, int]:
+        """ Выполняем сдвиг игрового мира в направлении """
+        hero = self.get_active_hero()
+        cell = hero.my_cell()
+        cell_r = cell.rect
+        map_rect = self.map.rect
+        map_size = self.map.size
+        shift = [0, 0]
+        if direction == "top":
+            shift[0] = self.world_shift[0]
+            shift[1] = -((cell.xy[1] + 1) * s.CELL_W - map_rect.height)
+        elif direction == "down":
+            shift[0] = self.world_shift[0]
+            shift[1] = -(cell.xy[1] * s.CELL_W)
+        elif direction == "right":
+            shift[0] = -(cell.xy[0] * s.CELL_W)
+            shift[1] = self.world_shift[1]
+        elif direction == "left":
+            shift[0] = -((cell.xy[0] + 1) * s.CELL_W - map_rect.width)
+            shift[1] = self.world_shift[1]
+        if map_size.width - cell_r.x < map_rect.width:
+            shift[0] = map_rect.width - map_size.width
+        if shift[0] > 0:
+            shift[0] = 0
+        if map_size.height - cell_r.y < map_rect.height:
+            shift[1] = map_rect.height - map_size.height
+        if shift[1] > 0:
+            shift[1] = 0
+
+        self.world_shift = tuple(shift)
+        return tuple(shift)

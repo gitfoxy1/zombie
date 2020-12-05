@@ -14,7 +14,7 @@ class Controls(Text):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game
-        screen_rect = game.get_screen_rect()
+        screen_rect = game.screen.get_rect()
         self.rect = pygame.Rect((screen_rect.x + 90, screen_rect.y + 90),
                                 (screen_rect.w - 580, screen_rect.h - 200))
         self.color = s.RED_DARK

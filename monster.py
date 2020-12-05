@@ -2,6 +2,7 @@
 
 import random
 from typing import List, Set, Tuple, Union
+
 from pygame.mixer import Channel, Sound
 
 import settings as s
@@ -28,20 +29,20 @@ class Monster(Character):
         @param damage: урон за одно действие
         @param game: ссылка на объект game
         """
-        super().__init__(name, image, xy, game)
-        self.type = "monster"
-        self.actions_max = actions_max  # максимально количество действий монстра за один ход игры
-        self.actions = 0  # количество действий на данный момент
-        self.lives = lives
-        self.damage = damage
-        self.iq = iq
-        self.sound_damage = Sound(s.S_DAMAGE["kick_monster1"])
+        super().__init__(image, xy, game)
+        self.type: str = "monster"
+        self.name: str = name
+        self.actions_max: int = actions_max  # максимально количество действий монстра за один ход игры
+        self.lives: int = lives
+        self.damage: int = damage
+        self.iq: int = iq
 
         sound = Sound(s.S_FOOTSTEPS_MONSTER)
         sound.set_volume(0.5)
         self.sound_footsteps = Channel(2)
         self.sound_footsteps.play(sound, loops=-1)
         self.sound_footsteps.pause()
+        self.sound_damage: Sound = Sound(s.S_DAMAGE["kick_monster1"])
 
     # noinspection PyUnresolvedReferences
     @classmethod
@@ -213,7 +214,6 @@ class Monster(Character):
                       iq=10,
                       game=game)
         return monster
-
 
     @classmethod
     def vampier(cls, xy: Tuple[int, int], game: Game):

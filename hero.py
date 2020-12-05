@@ -1,19 +1,15 @@
 """ Персонаж герой """
 
-import os
 import random
 from datetime import datetime
 from typing import Optional, Tuple
 
-import pygame
-from pygame.mixer import Channel, Sound
-
-import settings as s
-from character import Character
-from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
-    Awp, Medikit, Knife, Armor1, Cotton, Backpack1
+from pygame.mixer import Sound
 
 import functions as f
+import settings as s
+from character import Character
+from items import Items, Armor1, Backpack1
 
 Game = "Game"
 
@@ -35,38 +31,35 @@ class Hero(Character):
         @param xy: координаты героя на карте/map
         @param game: ссылка на игру
         """
-        super().__init__(name, image, xy, game)
-        self.type = "hero"
-        self.items = []
+        super().__init__(image, xy, game)
+        self.type: str = "hero"
+        self.name: str = name
+        self.items: List[Items] = []
         self.armor = None
-        self.armor_points = 0
+        self.armor_points: int = 0
         self.backpack = None
-        self.backpack_points = 0
-        if self.backpack:
-            self.backpack_points = self.backpack.apacity
-        self.items_max = 3 + self.backpack_points
-        if self.armor:
-            self.armor_points = self.armor.strength
-        self.lives_max = 10
-        self.lives = self.lives_max
-        self.damage = 1
-        self.sound_damage = Sound(s.S_DAMAGE["kick"])
+        self.backpack_points: int = 0
+        self.items_max: int = 3
+        self.actions_max: int = 3
+        self.lives_max: int = 10
+        self.lives: int = self.lives_max
+        self.damage: int = 1
 
-    @classmethod
-    def cheater(cls, xy: Tuple[int, int], game) -> "Hero":
-        """ делает читера (герой с сверх способностями)
-        @param xy: координаты читера на карте/map
-        @param game: ссылка на игру
-        @return: герой
-        """
-        cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
-        cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
-                         LittleCartridge(), Awp(), Mastif(), Knife(), Armor1(), Medikit(),
-                         Cotton(), Backpack1()]
-        cheater.item_in_hands = Digle()
-        cheater.items_max = 1000
-        cheater.actions = 10000
-        return cheater
+    # @classmethod
+    # def cheater(cls, xy: Tuple[int, int], game) -> "Hero":
+    #     """ делает читера (герой с сверх способностями)
+    #     @param xy: координаты читера на карте/map
+    #     @param game: ссылка на игру
+    #     @return: герой
+    #     """
+    #     cheater = cls(name="cheater", image="cheater.png", xy=xy, game=game)
+    #     cheater.items = [Digle(), Uzi(), Kalashnikov(), HeavyCartridge(), Fraction(),
+    #                      LittleCartridge(), Awp(), Mastif(), Knife(), Armor1(), Medikit(),
+    #                      Cotton(), Backpack1()]
+    #     cheater.item_in_hands = Digle()
+    #     cheater.items_max = 1000
+    #     cheater.actions = 10000
+    #     return cheater
 
     def move(self, pressed_key: int) -> None:
         """ Передвижение героя по карте """
@@ -93,34 +86,13 @@ class Hero(Character):
     def _move_to_cell(self, direction: str) -> None:
         """ герой двигается в сторону клетки"""
         # найдём клетку в направлении движения
-        xy = dict(
-            up=(self.xy[0], self.xy[1] - 1),
-            down=(self.xy[0], self.xy[1] + 1),
-            right=(self.xy[0] + 1, self.xy[1]),
-            left=(self.xy[0] - 1, self.xy[1]),
-        ).get(direction, self.xy)
-
-        # найдём клетку в направлении движения
-        # xy = self.xy
-        # if direction == "up":
-        #     xy = (self.xy[0], self.xy[1] - 1)
-        # elif direction == "down":
-        #     xy = (self.xy[0], self.xy[1] + 1)
-        # elif direction == "right":
-        #     xy = (self.xy[0] + 1, self.xy[1])
-        # elif direction == "left":
-        #     xy = (self.xy[0] - 1, self.xy[1])
-
-        cell_to = self.game.map.get_cell(xy)
+        cell_to = self.game.map.get_direction_cell(self.my_cell(), direction)
         if not cell_to:
             return
         # инкремент счётчика действий
         self.actions -= 1
         self.move_to_cell(cell_to)
         self.key_pressed = True
-        self.action_silent = True  # TODO
-
-        self.action_type = "move_to_cell"
         self.action_direction = direction
         self.action_start_time = datetime.now()
         self.action_silent = False
@@ -237,21 +209,21 @@ class Hero(Character):
         if weapon.kind_0 == "gun":
             bullets = self._bullets_from_backpack(weapon)
             if not bullets:
-                # TODO sound
+                # todo sound
                 return
             # выстрелы
             for bullet in range(bullets):
                 weapon.sound_use.play()
                 # вероятность промаха
                 if random.uniform(0, 1) > weapon.hit_probability:
-                    # TODO sound
+                    # todo sound
                     continue
                 # атакуемые клетки
                 cells_attacked = map_.get_direction_cells(my_cell, direction, weapon.range)
                 # пуля попадает в первого попавшевося персонажа или в стенку
                 for cell_i in cells_attacked:
                     if direction in cell_i.walls:
-                        # cell_i.rikoshet.play()  # TODO sound
+                        # cell_i.rikoshet.play()  # todo sound
                         break
                     ch_attacked = cell_i.get_character()
                     if ch_attacked:
@@ -271,12 +243,7 @@ class Hero(Character):
                 else:
                     weapon.sound_breaking.play()
                     self.item_in_hands = None
-
-
-
-
             return
-
 
     def _bullets_from_backpack(self, weapon: "Guns") -> int:
         """ return патроны из рюкзака для данного типа оружия """

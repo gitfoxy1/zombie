@@ -1,20 +1,13 @@
 """ константы """
 
-import math
 import os
 import random
 
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
-
-PI = math.pi
-
+SCREEN_CELLS_W = 5
+SCREEN_CELLS_H = 5
+CELL_W = 100  # размер клетки
+DASHBOARD_W = 300
 SPEED = 10
-
-# размер клетки
-CELL_W = 100
-CELL_COUNT_X_MAX = 15
-CELL_COUNT_Y_MAX = 10
 
 # цвета
 BLACK = (0, 0, 0)
@@ -38,6 +31,21 @@ COLORS = {
 
 # стены клетки: t=top, b=bottom, l=left, r=right
 WALLS = {"up", "down", "left", "right"}
+
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+# картинки
+IMAGES_DIR = os.path.join(PROJECT_DIR, "images")
+I_MAP = {
+    "map": os.path.join(IMAGES_DIR, "map.png"),
+}
+I_CELLS = [
+    os.path.join(IMAGES_DIR, f"map_cell_1.png"),
+    os.path.join(IMAGES_DIR, f"map_cell_2.png"),
+    os.path.join(IMAGES_DIR, f"map_cell_3.png"),
+    os.path.join(IMAGES_DIR, f"map_cell_4.png"),
+    os.path.join(IMAGES_DIR, f"map_cell_5.png"),
+    os.path.join(IMAGES_DIR, f"map_cell_6.png"),
+]
 
 # звуки
 SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
