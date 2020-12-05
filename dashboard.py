@@ -31,12 +31,16 @@ class Dashboard:
         character = self.game.get_active_character()
         if not character:
             return
+        in_hands_image = None
         # фон
         pygame.draw.rect(screen, s.BLACK, self.rect)
 
         # лицо
         pic = pygame.transform.scale(character.image, (self.image_w, self.image_w))
         screen.blit(pic, (self.image_x, self.image_y))
+        if character.item_in_hands:
+            pic_ = pygame.transform.scale(character.item_in_hands.image2, (self.image_w, self.image_w))
+            screen.blit(pic_, (self.image_x, self.image_y))
 
         # текст
         rows1 = [
