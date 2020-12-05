@@ -17,7 +17,6 @@ class SpriteOnMap(Sprite):
 
     def __init__(self, image: str, size: Tuple[int, int]):
         super().__init__()
-
         image = os.path.join(s.IMAGES_DIR, image)
         image = pygame.image.load(image)
         image = pygame.transform.scale(image, size)

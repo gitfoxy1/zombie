@@ -44,7 +44,7 @@ class Hero(Character):
         self.backpack_points = 0
         if self.backpack:
             self.backpack_points = self.backpack.apacity
-        self.items_max = 3 + self.backpack_points
+        self.items_max = 30 + self.backpack_points
         if self.armor:
             self.armor_points = self.armor.strength
         self.lives_max = 10
@@ -250,12 +250,12 @@ class Hero(Character):
                 cells_attacked = map_.get_direction_cells(my_cell, direction, weapon.range)
                 # пуля попадает в первого попавшевося персонажа или в стенку
                 for cell_i in cells_attacked:
-                    if direction in cell_i.walls:
-                        # cell_i.rikoshet.play()  # TODO sound
-                        break
                     ch_attacked = cell_i.get_character()
                     if ch_attacked:
                         ch_attacked.do_damage(weapon.damage)
+                    if direction in cell_i.walls:
+                        # cell_i.rikoshet.play()  # TODO sound
+                        break
             return
 
         # холодное оружие

@@ -23,12 +23,17 @@ class DashboardLeft:
 
     def draw(self, screen, hero):
         """ рисует панель в левой части экрана """
+        in_hands_image = None
         # фон
+
         pygame.draw.rect(screen, s.BLACK, self.rect)
 
         # лицо
         pic = pygame.transform.scale(hero.image, (self.image_w, self.image_w))
         screen.blit(pic, (self.image_x, self.image_y))
+        if hero.item_in_hands:
+            pic_ = pygame.transform.scale(hero.item_in_hands.image2, (self.image_w, self.image_w))
+            screen.blit(pic_, (self.image_x, self.image_y))
 
         # текст
         rows1 = [
@@ -43,6 +48,7 @@ class DashboardLeft:
             in_hands = hero.item_in_hands
             if in_hands:
                 in_hands = hero.item_in_hands.kind
+                in_hands_image = hero.item_in_hands.image
             armor = hero.armor
             strength = 0
             if armor:

@@ -49,7 +49,7 @@ class Game:
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
+    rounds_between_monster_wave: int = 5000  # количество кругов между волнами монстров
     is_game_over = False  # TODO
 
     def __init__(self, map_: str, heroes: int, monsters: int, items: int):
@@ -103,9 +103,9 @@ class Game:
         self.heroes = Group()
         for i, attrs in enumerate([
             dict(name="hero_1", image="hero1.png", xy=(12, 9), game=self),
-            dict(name="hero_2", image="hero2.png", xy=(1, 2), game=self),
-            dict(name="hero_3", image="hero3.png", xy=(1, 3), game=self),
-            dict(name="hero_4", image="hero4.png", xy=(1, 4), game=self),
+            dict(name="hero_2", image="hero2.png", xy=(11, 9), game=self),
+            dict(name="hero_3", image="hero3.png", xy=(12, 8), game=self),
+            dict(name="hero_4", image="hero4.png", xy=(11, 8), game=self),
         ]):
             if i >= count:
                 break
