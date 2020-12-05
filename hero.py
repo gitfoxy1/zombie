@@ -2,28 +2,22 @@
 
 import random
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 from pygame.mixer import Sound
 
 import functions as f
 import settings as s
 from character import Character
-from items import Items, Armor1, Backpack1
+from items import Items, Armor, Backpack0
 
 Game = "Game"
 
 
 class Hero(Character):
     """ Герой """
-    items: list = []  # вещи в рюкзаке
-    armor: Optional[Armor1] = None  # броня
-    armor_points: int = 0  # броня
-    backpack: Optional[Backpack1] = None  # рюкзак вещи
-    backpack_points: int = 0  # расширение рюкзака
     key_pressed: int = 0  # нажатая клавиша
 
-    # noinspection PyUnresolvedReferences
     def __init__(self, name: str, image: str, xy: Tuple[int, int], game: Game):
         """ делает героя
         @param name: имя героя
@@ -34,16 +28,16 @@ class Hero(Character):
         super().__init__(image, xy, game)
         self.type: str = "hero"
         self.name: str = name
-        self.items: List[Items] = []
-        self.armor = None
-        self.armor_points: int = 0
-        self.backpack = None
-        self.backpack_points: int = 0
+        self.items: List[Items] = []  # вещи в рюкзаке
         self.items_max: int = 3
         self.actions_max: int = 3
         self.lives_max: int = 10
         self.lives: int = self.lives_max
         self.damage: int = 1
+        self.armor: Optional[Armor] = None  # броня
+        self.armor_points: int = 0  # броня
+        self.backpack: Optional[Backpack0] = None  # рюкзак вещь
+        self.backpack_points: int = 0  # расширение рюкзака
 
     # @classmethod
     # def cheater(cls, xy: Tuple[int, int], game) -> "Hero":

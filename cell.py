@@ -3,7 +3,7 @@ import random
 from typing import List, Optional, Set, Tuple, Union
 
 import settings as s
-from items import Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif, \
+from items import Digle, Uzi, Kalashnikov, Cartridge, HeavyCartridge, Fraction, Mastif, \
     Awp, Mozambyk, Knife, Bat
 from sprite_on_map import SpriteOnMap
 
@@ -15,7 +15,7 @@ class Cell(SpriteOnMap):
     """ клетка карты """
 
     characters: List[Union["Hero", "Monster"]]  # персонажи которые стоят на этой клетке
-    items: List[Union[Digle, Uzi, Kalashnikov, LittleCartridge, HeavyCartridge, Fraction, Mastif,
+    items: List[Union[Digle, Uzi, Kalashnikov, Cartridge, HeavyCartridge, Fraction, Mastif,
                       Awp, Mozambyk, Knife, Bat]]  # предметы которые лежат на этой клетке
     status: Set[str]  # состояние клетки: в дыму, в огне
 

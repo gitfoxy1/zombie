@@ -39,7 +39,7 @@ class Game:
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
+    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров  # TODO
     is_world_motion = False  # происходит сдвиг игрового мира
     is_game_over = False
     world_shift = (0, 0)

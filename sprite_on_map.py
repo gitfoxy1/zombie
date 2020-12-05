@@ -18,8 +18,7 @@ class SpriteOnMap(Sprite):
     def __init__(self, image: str, size: Tuple[int, int], game: Game):
         super().__init__()
         self.game: Game = game  # ссылка на игру
-        image: str = os.path.join(s.IMAGES_DIR, image)
-        surface: Surface = pygame.image.load(image)
+        surface: Surface = pygame.image.load(os.path.join(s.IMAGES_DIR, image))
         self.image: Surface = pygame.transform.scale(surface, size)  # картинка спрайта
         self.xy: Tuple[int, int] = (-1, -1)  # координаты клетки с этим спрайтом на карте
         self.rect: Rect = self.get_rect()  # прямоугольник спрайта
