@@ -24,7 +24,7 @@ class Cell(SpriteOnMap):
         super().__init__(image=image, size=(100, 100), game=game)
         self.xy = xy  # координаты клетки на карте/map
         self.update_rect()
-        self.walls: set = walls  # стены вокруг клетки: t=top, b=bottom, l=left, r=right
+        self.walls: set = set(walls)  # стены вокруг клетки: t=top, b=bottom, l=left, r=right
         self.characters = list()  # hero, monster
         self.items = list()
 
@@ -133,11 +133,11 @@ class Cell(SpriteOnMap):
             return
         item = self.items.pop()
         item.xy = (-1, -1)
-        item.get_rect()
+        item.update_rect()
         return item
 
     def append_item(self, item: "Item") -> None:
         """ кладём вещь на клетку карты """
         item.xy = self.xy
-        item.get_rect()
+        item.update_rect()
         self.items.append(item)

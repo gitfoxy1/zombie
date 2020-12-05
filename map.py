@@ -132,7 +132,7 @@ class Map(Sprite):
     def from_ascii(self, ascii_map: str) -> Tuple[List[Cell], int, int]:
         """ Создаёт карту на основе генератора карт https://notimetoplay.itch.io/ascii-mapper """
         lines = ascii_map.splitlines()  # разбивает тект на сторки
-        lines = [i for i in lines if len(i)]  # даляет пустые строки
+        lines = [i for i in lines if len(i)]  # удаляет пустые строки
         lines = lines[1:]  # удаляет первую стоку с адресами клеток "0 1 2 3 4 5"
 
         # удаляет первый столбец с адресами клеток "0 1 2 3 4 5"
@@ -155,11 +155,11 @@ class Map(Sprite):
         cells_y = row_count
 
         # создадим карту без стен
-        cells = []
+        self.cells = []
         for y in range(cells_y):
             for x in range(cells_x):
                 cell = Cell(xy=(x, y), walls=set(), game=self.game)  # клетка карты без стен
-                cells.append(cell)  # добавляет клетку в карту
+                self.cells.append(cell)  # добавляет клетку в карту
 
         # добавляет стены в клетки
         for row_id, line in enumerate(lines):
@@ -190,7 +190,7 @@ class Map(Sprite):
                                 cell_left.walls.add("right")
                     else:  # нечётные столбцы
                         pass  # центр клетки
-        return cells, cells_x, cells_y
+        return self.cells, cells_x, cells_y
 
     def draw_xy(self, screen: Surface) -> None:
         """ рисует на карте координаты клетки xy """

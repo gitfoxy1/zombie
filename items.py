@@ -16,8 +16,6 @@ class Items(SpriteOnMap):
     """ Вещи """
 
     def __init__(self, image: str, image2: str, kind_0: str, kind: str, game: Game):
-        scale = 0.5
-        width = int(s.CELL_W * scale)
         size = (90, 90)
         super().__init__(image=image, size=size, game=game)
 
@@ -29,20 +27,6 @@ class Items(SpriteOnMap):
         sound = s.S_USE.get(kind, s.OH)  # todo sounds
         self.sound_use = Sound(sound)
         self.sound_breaking = Sound(sound)
-
-    # # noinspection PyUnresolvedReferences
-    # def draw(self, screen: Surface, cell: "Cell"):
-    #     """ Рисует персонажа на карте """
-    #
-    #     cell_x = s.CELL_W * cell.xy[0]  # координаты клетки на экрана
-    #     cell_y = s.CELL_W * cell.xy[1]
-    #     # font = pygame.font.SysFont("Times", 75)
-    #     # text = font.render(self.image, True, s.BLACK)
-    #     rect = self.get_rect()
-    #     rect.centerx = cell_x + s.CELL_W // 2
-    #     rect.centery = cell_y + s.CELL_W // 2
-    #     screen.blit(self.image, (rect.x, rect.y))
-    #     # pygame.draw.rect(screen, s.BLUE, rect, 1)  # test
 
 
 # =====  GUNS  ==========================================================
@@ -89,7 +73,7 @@ class Kalashnikov(Guns):
     """автомат Kalashnikov"""
 
     def __init__(self, game: Game):
-        super().__init__(image="kalashnikov.png",image2="kalashnikov_in_hands.png", kind="Kalashnikov", game=game)
+        super().__init__(image="kalashnikov.png", image2="kalashnikov_in_hands.png", kind="Kalashnikov", game=game)
         self.damage = 1
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 5
@@ -137,6 +121,7 @@ class Awp(Guns):
         self.image_in_hands = "awp.png"
 
 # =====  CARTRIDGE  ==========================================================
+
 
 class Cartridge(Items):
     """ Класс-родитель для патронов """
@@ -199,7 +184,7 @@ class Knife(SteelWeapon):
     """ ножик """
 
     def __init__(self, game: Game):
-        super().__init__(image="knife.png", image2="awp_in_hands.png", kind="Knife", game=game)
+        super().__init__(image="knife.png", kind="Knife", game=game)
         self.damage = 3
         self.strength = 5
         self.image_in_hands = "knife.png"
@@ -215,14 +200,13 @@ class Bat(SteelWeapon):
         self.image_in_hands = "bat_.png"
 
 
-
 # =====  ARMOR  ==========================================================
 
 class Armor(Items):
     """ Класс-родитель для брони """
 
     def __init__(self, image: str, kind: str, game: Game):
-        super().__init__(image=image, kind_0="armor",image2="U.Z.I_in_hands.png", kind=kind, game=game)
+        super().__init__(image=image, kind_0="armor", image2="U.Z.I_in_hands.png", kind=kind, game=game)
         self.strength = 0  # стойкость брони
 
 
@@ -235,7 +219,6 @@ class Armor1(Armor):
         self.image_in_hands = "armor_1.png"
 
 
-
 class Armor2(Armor):
     """ броня """
 
@@ -243,7 +226,6 @@ class Armor2(Armor):
         super().__init__(image="armor_2.png", kind="armor_level_2", game=game)
         self.strength = 3
         self.image_in_hands = "armor_2.png"
-
 
 
 class Armor3(Armor):
@@ -255,14 +237,13 @@ class Armor3(Armor):
         self.image_in_hands = "armor_3.png"
 
 
-
 # =====  BACKPACK_  ==========================================================
 
 class Backpack0(Items):
     """ Класс-родитель для рюкзак """
 
     def __init__(self, image: str, kind: str, game: Game):
-        super().__init__(image=image, kind_0="backpack",image2="U.Z.I_in_hands.png", kind=kind, game=game)
+        super().__init__(image=image, kind_0="backpack", image2="U.Z.I_in_hands.png", kind=kind, game=game)
         self.capacity = 0  # дополнительная вместимость рюкзака
 
 
@@ -275,7 +256,6 @@ class Backpack1(Backpack0):
         self.image_in_hands = "bacpack_1.png"
 
 
-
 class Backpack2(Backpack0):
     """ рюкзак """
 
@@ -283,7 +263,6 @@ class Backpack2(Backpack0):
         super().__init__(image="bacpack_2.png", kind="backpack_level_2", game=game)
         self.capacity = 2
         self.image_in_hands = "bacpack_2.png"
-
 
 
 class Backpack3(Backpack0):
@@ -295,17 +274,15 @@ class Backpack3(Backpack0):
         self.image_in_hands = "bacpack_3.png"
 
 
-
 # =====  MEDICINE  ==========================================================
 
 class Medicine(Items):
     """ Класс-родитель для лекарств """
 
     def __init__(self, image: str, kind: str, game: Game):
-        super().__init__(image=image, kind_0="medicine",image2="U.Z.I_in_hands.png", kind=kind, game=game)
+        super().__init__(image=image, kind_0="medicine", image2="U.Z.I_in_hands.png", kind=kind, game=game)
         self.heal = 0
         self.heal_target = ""
-
 
 
 class Medikit(Medicine):
@@ -318,7 +295,6 @@ class Medikit(Medicine):
         self.image_in_hands = "medikit.png"
 
 
-
 class Cotton(Medicine):
     """ нитки """
 
@@ -327,7 +303,6 @@ class Cotton(Medicine):
         self.heal = 1
         self.heal_target = "armor"
         self.image_in_hands = "coath.png"
-
 
 
 # =====  FUNCTIONS  ==========================================================
@@ -365,7 +340,7 @@ def items_generator(count: int, game: Game) -> list:
             [Medikit for _ in range(random.randrange(1, 3))],
             [Cotton for _ in range(random.randrange(1, 3))],
         ]
-        items_extra = [i for l in items_extra for i in l]
+        items_extra = [i for i_l in items_extra for i in i_l]
         item_extra = random.choice(items_extra)
         item = item_extra(game=game)
         items.append(item)
