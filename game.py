@@ -39,7 +39,7 @@ class Game:
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров  # TODO
+    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
     is_world_motion = False  # происходит сдвиг игрового мира
     is_game_over = False
     world_shift = (0, 0)
@@ -69,7 +69,8 @@ class Game:
         """ Создаёт экран игры """
         # os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
         # screen = pygame.display.set_mode()
-        screen = pygame.display.set_mode((s.SCREEN_CELLS_W * s.CELL_W + s.DASHBOARD_W, s.SCREEN_CELLS_H * s.CELL_W))
+        dashboard_w = 300
+        screen = pygame.display.set_mode((s.SCREEN_SIZE[0] * s.CELL_W + s.DASHBOARD_W, s.SCREEN_SIZE[1] * s.CELL_W))
         # screen_map = pygame.display.set_mode((s.MAP_X, s.MAP_Y))
         # screen_bd = pygame.display.set_mode((s.DASHBOARD_W, s.MAP_Y))
         return screen

@@ -3,8 +3,7 @@
 import os
 import random
 
-SCREEN_CELLS_W = 8
-SCREEN_CELLS_H = 8
+SCREEN_SIZE = (3, 3)
 CELL_W = 100  # размер клетки
 DASHBOARD_W = 300
 SPEED = 10
