@@ -35,7 +35,11 @@ class Map(Sprite):
         self.cells, self.cells_x, self.cells_y = self.from_ascii(ascii_)
         map_size = (self.cells_x * s.CELL_W, self.cells_y * s.CELL_W)
         self.size: Rect = pygame.Rect((0, 0), map_size)
-        map_rect = (s.SCREEN_SIZE[0] * s.CELL_W, s.SCREEN_SIZE[1] * s.CELL_W)
+        if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:
+            map_rect = (s.SCREEN_SIZE[0] - s.DASHBOARD_W, s.SCREEN_SIZE[1])
+        else:
+            screen_rect = self.game.screen.get_rect()
+            map_rect = (screen_rect.width - s.DASHBOARD_W, screen_rect.height)
         self.rect: Rect = pygame.Rect((0, 0), map_rect)
         self.image: Surface = pygame.image.load(s.I_MAP[name])
 

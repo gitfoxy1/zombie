@@ -3,9 +3,11 @@
 import os
 import random
 
-SCREEN_SIZE = (3, 3)
-CELL_W = 100  # размер клетки
 DASHBOARD_W = 300
+SCREEN_SIZE = (500 + DASHBOARD_W, 500)  # окно
+SCREEN_SIZE = (0, 0)  # полноэкранный режим
+CELL_W = 100  # размер клетки
+
 SPEED = 10
 
 # цвета

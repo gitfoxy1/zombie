@@ -22,8 +22,8 @@ class Backpack(Text):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game
+        shift = 90
         screen_r = game.screen.get_rect()
-        shift = 80
         self.rect = Rect((shift, shift), (screen_r.w - shift * 2, screen_r.h - shift * 2))
         self.color = s.RED_DARK
         self.text_h = 30

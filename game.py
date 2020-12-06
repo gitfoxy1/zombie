@@ -1,4 +1,5 @@
 """ игра """
+import os
 import random
 from datetime import datetime
 from typing import Optional, NamedTuple, Tuple, Union
@@ -67,12 +68,11 @@ class Game:
     @staticmethod
     def _init_screen():
         """ Создаёт экран игры """
-        # os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
-        # screen = pygame.display.set_mode()
-        dashboard_w = 300
-        screen = pygame.display.set_mode((s.SCREEN_SIZE[0] * s.CELL_W + s.DASHBOARD_W, s.SCREEN_SIZE[1] * s.CELL_W))
-        # screen_map = pygame.display.set_mode((s.MAP_X, s.MAP_Y))
-        # screen_bd = pygame.display.set_mode((s.DASHBOARD_W, s.MAP_Y))
+        if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:
+            screen = pygame.display.set_mode((s.SCREEN_SIZE[0], s.SCREEN_SIZE[1]))
+        else:
+            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+            screen = pygame.display.set_mode()
         return screen
 
     def _init_map(self, name: str = None) -> Map:
@@ -777,11 +777,10 @@ class Game:
 
     def shifting_world(self):
         """" Выполняем сдвиг игрового мира, персонаж в центре """
-        # https://platform.kodland.org/en/task_2489/
         hero = self.get_active_hero()
         if not hero:
             return
-        direction = self.out_of_map_screen(hero)
+        direction = self.sprite_center_out_of_screen(hero)
         if not direction:
             self.is_world_motion = False
             return
@@ -789,14 +788,20 @@ class Game:
         # смещаем мир
         speed = s.SPEED
         self.is_world_motion = True
-        bg_rect = self.maps.sprites()[0].rect
+        map_rect = self.map.rect
         shift_x, shift_y = self.shift_world_direction(direction)
-        diff_x = bg_rect.x - shift_x
+
+        map_rect_x = map_rect.x  # TODO
+        map_rect_y = map_rect.y
+        world_shift_x = self.world_shift[0]
+        world_shift_y = self.world_shift[1]
+
+        diff_x = map_rect.x - shift_x
         if diff_x > 0:
             diff_x = min(speed, diff_x)
         elif diff_x < 0:
             diff_x = max(-speed, diff_x)
-        diff_y = bg_rect.y - shift_y
+        diff_y = map_rect.y - shift_y
         if diff_y > 0:
             diff_y = min(speed, diff_y)
         elif diff_y < 0:
@@ -805,7 +810,8 @@ class Game:
         if not (diff_x or diff_y):
             return
         # движение мира, смещаем спрайты
-        bg_rect.topleft = (shift_x, shift_y)
+        self.world_shift = (shift_x, shift_y)
+        map_rect.topleft = (shift_x, shift_y)
         for cell in self.map.cells:
             cell.update_rect()
         for item in self.items:
@@ -813,7 +819,7 @@ class Game:
         for character in self.characters:
             character.update_rect()
 
-    def out_of_map_screen(self, sprite) -> str:
+    def sprite_center_out_of_screen(self, sprite) -> str:
         """ return direction если спрайт вышел за пределы экрана """
         map_rect = self.map.rect
         if sprite.rect.centerx < 0:
@@ -827,7 +833,7 @@ class Game:
         return ""
 
     def shift_world_direction(self, direction: str) -> Tuple[int, int]:
-        """ Выполняем сдвиг игрового мира в направлении """
+        """ return x,y сдвига игрового мира в направлении direction """
         hero = self.get_active_hero()
         cell = hero.my_cell()
         cell_r = cell.rect
@@ -854,6 +860,4 @@ class Game:
             shift[1] = map_rect.height - map_size.height
         if shift[1] > 0:
             shift[1] = 0
-
-        self.world_shift = tuple(shift)
         return tuple(shift)

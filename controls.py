@@ -3,6 +3,7 @@ import pygame
 
 import settings as s
 from text import Text
+from pygame import Rect
 
 Game = "Game"
 
@@ -14,9 +15,9 @@ class Controls(Text):
     def __init__(self, game: Game):
         super().__init__()
         self.game = game
-        screen_rect = game.screen.get_rect()
-        self.rect = pygame.Rect((screen_rect.x + 90, screen_rect.y + 90),
-                                (screen_rect.w - 580, screen_rect.h - 200))
+        shift = 90
+        screen_r = game.screen.get_rect()
+        self.rect = Rect((shift, shift), (screen_r.w - shift * 2, screen_r.h - shift * 2))
         self.color = s.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
