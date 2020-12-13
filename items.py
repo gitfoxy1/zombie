@@ -27,7 +27,6 @@ class Items(SpriteOnMap):
         self.sound_breaking = Sound(sound)
 
 
-
 # =====  GUNS  ==========================================================
 
 class Guns(Items):

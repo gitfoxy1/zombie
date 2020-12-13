@@ -13,11 +13,11 @@ class Controls(Text):
 
     # noinspection PyUnresolvedReferences
     def __init__(self, game: Game):
-        super().__init__()
+        super().__init__(game.screen)
         self.game = game
         shift = 90
-        screen_r = game.screen.get_rect()
-        self.rect = Rect((shift, shift), (screen_r.w - shift * 2, screen_r.h - shift * 2))
+        window_r = game.screen.get_rect()
+        self.rect = Rect((shift, shift), (window_r.w - shift * 2, window_r.h - shift * 2))
         self.color = s.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
@@ -25,16 +25,16 @@ class Controls(Text):
         self.style = pygame.font.SysFont(self.font, self.text_h)
         self.active_items_id = 0
 
-    def draw(self, screen):
+    def draw(self):
         """ рисует окно Help поверх карты """
         # фон прямоуголник
-        pygame.draw.rect(screen, s.BLACK, self.rect)
-        pygame.draw.rect(screen, s.GREEN, self.rect, 5)
+        pygame.draw.rect(self.screen, s.BLACK, self.rect)
+        pygame.draw.rect(self.screen, s.RED_DARK, self.rect, 5)
 
         xy = (self.rect.centerx, self.rect.y + 10)
-        window_hdr_rect = self.draw_header1_center("Controls", screen, xy)
+        window_hdr_rect = self.draw_header1_center("Controls", xy)
         xy = (self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
-        items_hdr_rect = self.draw_header2_left("", screen, xy)
+        items_hdr_rect = self.draw_header2_left("", xy)
 
         pattern = "{:<4}{:<25}{}"
         text = [
@@ -55,4 +55,4 @@ class Controls(Text):
             '',
             "goodluck!!!! :D"
         ]
-        self.draw_list(text, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
+        self.draw_list(text, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)

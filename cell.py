@@ -1,6 +1,7 @@
 """ клетка карты """
 import random
 from typing import List, Optional, Set, Tuple, Union
+from pygame import Rect
 
 import settings as s
 from items import Digle, Uzi, Kalashnikov, Cartridge, HeavyCartridge, Fraction, Mastif, \
@@ -38,8 +39,8 @@ class Cell(SpriteOnMap):
 
     def top_left(self, shift: float = 0) -> Tuple[int, int]:
         """ return координаты экрана, верхний левый угол """
-        screen_x = int(self.xy[0] * self.w)
-        screen_y = int(self.xy[1] * self.h)
+        screen_x = int(self.xy[0] * self.rect.width)
+        screen_y = int(self.xy[1] * self.rect.height)
         if shift:
             screen_x += shift
             screen_y += shift
@@ -47,26 +48,26 @@ class Cell(SpriteOnMap):
 
     def top_right(self, shift: float = 0) -> Tuple[int, int]:
         """ return координаты экрана, верхний правый угол """
-        screen_x = int(self.xy[0] * self.w + self.w)
-        screen_y = int(self.xy[1] * self.h)
+        screen_x = int(self.xy[0] * self.rect.width + self.rect.width)
+        screen_y = int(self.xy[1] * self.rect.height)
         if shift:
             screen_x -= shift
             screen_y += shift
         return screen_x, screen_y
 
-    def bottom_left(self, shift: float = 0) -> Tuple[int, int]:
+    def bottom_left(self, rect: Rect, shift: float = 0) -> Tuple[int, int]:
         """ return координаты экрана, нижний левый угол """
-        screen_x = int(self.xy[0] * self.w)
-        screen_y = int(self.xy[1] * self.h + self.h)
+        screen_x = int(self.xy[0] * self.rect.width)
+        screen_y = int(self.xy[1] * self.rect.height + self.rect.height) - rect.height
         if shift:
             screen_x += shift
             screen_y -= shift
         return screen_x, screen_y
 
-    def bottom_right(self, shift: float = 0) -> Tuple[int, int]:
+    def bottom_right(self, rect: Rect, shift: float = 0) -> Tuple[int, int]:
         """ return координаты экрана, нижний правый угол """
-        screen_x = int(self.xy[0] * self.w + self.w)
-        screen_y = int(self.xy[1] * self.h + self.h)
+        screen_x = int(self.xy[0] * self.rect.width + self.rect.width) - rect.width
+        screen_y = int(self.xy[1] * self.rect.height + self.rect.height) - rect.height
         if shift:
             screen_x -= shift
             screen_y -= shift
@@ -74,8 +75,8 @@ class Cell(SpriteOnMap):
 
     def center(self) -> Tuple[int, int]:
         """ return координаты экрана, центр """
-        screen_x = int(self.xy[0] * self.w + round(self.w / 2, 0))
-        screen_y = int(self.xy[1] * self.h + round(self.h / 2, 0))
+        screen_x = int(self.xy[0] * self.rect.width + round(self.rect.width / 2, 0))
+        screen_y = int(self.xy[1] * self.rect.height + round(self.rect.height / 2, 0))
         return screen_x, screen_y
 
     def get_character(self) -> Optional["Character"]:

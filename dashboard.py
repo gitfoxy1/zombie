@@ -31,7 +31,6 @@ class Dashboard:
         character = self.game.get_active_character()
         if not character:
             return
-        in_hands_image = None
         # фон
         pygame.draw.rect(screen, s.BLACK, self.rect)
 

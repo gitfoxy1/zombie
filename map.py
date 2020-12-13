@@ -196,22 +196,3 @@ class Map(Sprite):
                         pass  # центр клетки
         return self.cells, cells_x, cells_y
 
-    def draw_xy(self, screen: Surface) -> None:
-        """ рисует на карте координаты клетки xy """
-        font_h = 15
-        font_color = s.BLACK
-        font = pygame.font.SysFont(pygame.font.get_default_font(), font_h)
-        shift = 3  # сместим текс на 3 пикселя от края ячейки
-
-        for cell in self.cells:
-            # координаты клетки (x, y): top, left
-            render = font.render(f"{cell.xy[0]},{cell.xy[1]}", True, font_color)
-            xy1 = cell.top_left(shift)
-            screen.blit(render, xy1)
-
-            # координаты экрана (пиксели): bottom, right
-            render = font.render(f"{cell.rect.right},{cell.rect.bottom}", True, font_color)
-            rect2 = render.get_rect()
-            xy2 = cell.bottom_right(shift)
-            xy2 = (xy2[0] - rect2.w, xy2[1] - rect2.h)
-            screen.blit(render, xy2)

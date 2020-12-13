@@ -5,10 +5,12 @@ from datetime import datetime
 from typing import Optional, NamedTuple, Tuple, Union
 
 import pygame
+from pygame import Surface
 from pygame.mixer import Sound, Channel
 from pygame.sprite import Group
 
 import settings as s
+
 from backpack import Backpack
 from controls import Controls
 from dashboard import Dashboard
@@ -66,7 +68,7 @@ class Game:
         self.controls: Controls = Controls(self)  # help
 
     @staticmethod
-    def _init_screen():
+    def _init_screen() -> Surface:
         """ Создаёт экран игры """
         if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:  # окно
             screen = pygame.display.set_mode((s.SCREEN_SIZE[0], s.SCREEN_SIZE[1]))
@@ -86,38 +88,39 @@ class Game:
         return map_
 
     def _init_heroes(self, count: int) -> Group:
-        """ Создаёт группу из героев, добавляет на карту, в список спрайтов """
+        """ Создаёт группу из героев, добавляет на карту, в список спрайтов
+        если count=0, спросит количество героев """
+        if not count:
+            count = 1
         heroes = Group()
-        for i, attrs in enumerate([
+        attrs = [
             dict(name="hero1", image="hero1.png", xy=(12, 8), game=self),
             dict(name="hero2", image="hero2.png", xy=(1, 2), game=self),
             dict(name="hero3", image="hero3.png", xy=(1, 3), game=self),
             dict(name="hero4", image="hero4.png", xy=(1, 4), game=self),
-        ]):
-            if i >= count:
-                break
-            hero = Hero(**attrs)  # создадим героя
+        ][:count]
+        for attr in attrs:
+            hero = Hero(**attr)  # создадим героя
             heroes.add(hero)  # добавим героя в спрайты героев
             self.characters.add(hero)  # добавим героя в спрайты персонажей
-            cell = self.map.get_cell(attrs["xy"])  # добавим героя на карту
+            cell = self.map.get_cell(attr["xy"])  # добавим героя на карту
             cell.characters.append(hero)
         return heroes
 
     def _init_monsters(self, count: int) -> Group:
         """ Создаёт группу из монстров, добавляет на карту, в список спрайтов """
         monsters = Group()
-        for i, attrs in enumerate([
+        attrs = [
             dict(xy=(13, 7), game=self),
-            dict(xy=(2, 2), game=self),
-            dict(xy=(2, 3), game=self),
+            dict(xy=(13, 7), game=self),
+            dict(xy=(13, 7), game=self),
             dict(xy=(2, 4), game=self),
-        ]):
-            if i >= count:
-                break
-            monster = Monster.little(**attrs)  # создадим монстра
+        ][:count]
+        for attr in attrs:
+            monster = Monster.little(**attr)  # создадим монстра
             monsters.add(monster)  # добавим монстра в спрайты монстрв
             self.characters.add(monster)  # добавим монстра в спрайты персонажей
-            cell = self.map.get_cell(attrs["xy"])  # добавим монстра на карту
+            cell = self.map.get_cell(attr["xy"])  # добавим монстра на карту
             cell.characters.append(monster)
         return monsters
 
@@ -711,23 +714,64 @@ class Game:
     def draw(self) -> None:
         """ Рисует карту, героев, мрнстров """
         self.screen.fill(s.BLACK)
-        # draw debug
-        # self.map.draw_cells(self.screen)
-        # self.map.draw_xy(self.screen)
-
         self.maps.draw(self.screen)
+        if s.DEBUG:
+            # self.map.draw_cells(self.screen)
+            self.draw_cells_xy()
+
         self.items.draw(self.screen)
         self.characters.draw(self.screen)
-        # draw debug
-        # self.draw_monster_path()
+        self.draw_items_in_hands()
+        self.draw_characters_count_in_cell()
+        if s.DEBUG:
+            self.draw_monster_path()
 
         # draw dashboard, backpack, controls window
         self.dashboard.draw()
-        active_character = self.get_active_character()
         if self.kb_mode == "backpack":
-            self.backpack.draw(self.screen, active_character)
+            self.backpack.draw()
         if self.kb_mode == "controls":
-            self.controls.draw(self.screen)
+            self.controls.draw()
+
+    def draw_items_in_hands(self):
+        """ Рисует вещь в руках героя """
+        hero = self.get_active_hero()
+        if hero and hero.item_in_hands:
+            pic_ = pygame.transform.scale(hero.item_in_hands.image2, (hero.rect.w, hero.rect.h))
+            self.screen.blit(pic_, hero.rect.topleft)
+
+    def draw_characters_count_in_cell(self) -> None:
+        """ Рисует количество персонажей в клетке"""
+        height = 30
+        color = s.BLACK
+        font = pygame.font.SysFont(pygame.font.get_default_font(), height)
+        shift = 5  # сместим текс на есколько пикселей от края клетки
+
+        for cell in self.map.cells:
+            count = len(cell.characters)
+            if count >= 2:
+                render = font.render(str(count), True, color)
+                rect = render.get_rect()
+                self.screen.blit(render, cell.bottom_right(rect, shift))
+
+    def draw_cells_xy(self) -> None:
+        """ рисует на карте координаты клетки xy """
+        height = 15
+        color = s.BLACK
+        font = pygame.font.SysFont(pygame.font.get_default_font(), height)
+        shift = 3  # сместим текс на есколько пикселей от края клетки
+
+        for cell in self.map.cells:
+            # координаты клетки (x, y): top, left
+            render = font.render(f"{cell.xy[0]},{cell.xy[1]}", True, color)
+            xy1 = cell.top_left(shift)
+            self.screen.blit(render, xy1)
+
+            # координаты экрана (пиксели): bottom, right
+            render = font.render(f"{cell.rect.right},{cell.rect.bottom}", True, color)
+            rect2 = render.get_rect()
+            xy2 = cell.bottom_right(rect2, shift)
+            self.screen.blit(render, xy2)
 
     def draw_monster_path(self) -> None:
         """ рисует на карте путь монстра """
@@ -742,8 +786,6 @@ class Game:
             cell_to = monster.route[i_to]
             pygame.draw.line(self.screen, s.RED, cell_from.center(), cell_to.center(), 10)
             pygame.display.update()
-        #     sleep(0.01)
-        # sleep(1)
 
     def game_over(self) -> None:
         """ рисуем надпись GameOver """
@@ -790,11 +832,6 @@ class Game:
         self.is_world_motion = True
         map_rect = self.map.rect
         shift_x, shift_y = self.shift_world_direction(direction)
-
-        map_rect_x = map_rect.x  # TODO
-        map_rect_y = map_rect.y
-        world_shift_x = self.world_shift[0]
-        world_shift_y = self.world_shift[1]
 
         diff_x = map_rect.x - shift_x
         if diff_x > 0:

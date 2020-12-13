@@ -3,8 +3,11 @@
 import os
 import random
 
+DEBUG = True
+DEBUG = False
+
 DASHBOARD_W = 300
-SCREEN_SIZE = (500 + DASHBOARD_W, 500)  # окно
+SCREEN_SIZE = (800 + DASHBOARD_W, 800)  # окно
 # SCREEN_SIZE = (0, 0)  # полноэкранный режим
 CELL_W = 100  # размер клетки
 

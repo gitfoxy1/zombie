@@ -5,6 +5,10 @@ import functions as f
 import settings as s
 from game import Game
 
+from start_menu import StartMenu
+
+# TODO knife attack to blank item need sound ou
+
 FPS = 60
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 1, 512)
@@ -13,7 +17,14 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
-game = Game(map_="map", heroes=1, monsters=0, items=20)
+
+while not PLAYERS:
+    menu = StartMenu()
+    menu.display.update()
+    clock.tick(FPS)
+
+
+game = Game(map_="map", heroes=PLAYERS, monsters=0, items=20)
 
 INTRO = False  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
@@ -38,7 +49,8 @@ while RUN:
         counters = game.update_counters()
         # добавляет монстров каждую волну
         if counters.wave:
-            game._init_monsters_wave()
+            pass
+            # game._init_monsters_wave()
         game.hero_actions()
         game.monster_actions()
 

@@ -1,12 +1,15 @@
 """ Рюкзак """
 
-from typing import Optional
+from typing import List, Optional
 
 import pygame
 from pygame import Rect, Surface
 
 import settings as s
 from text import Text
+
+from hero import Hero
+from items import Cartridge
 
 Game = "Game"
 
@@ -17,14 +20,14 @@ class Backpack(Text):
     game: Optional[Game] = None  # ссылка на игру
     rect: Rect  # прямоугольник окна на экране (пиксели)
     active_items_id: int  # выбранная вещ в рюкзаке
+    hero: Optional[Hero] = None  # ссылка на активного героя
 
-    # noinspection PyUnresolvedReferences
     def __init__(self, game: Game):
-        super().__init__()
+        super().__init__(game.screen)
         self.game = game
         shift = 90
-        screen_r = game.screen.get_rect()
-        self.rect = Rect((shift, shift), (screen_r.w - shift * 2, screen_r.h - shift * 2))
+        window_r = game.map.rect
+        self.rect = Rect((shift, shift), (window_r.w - shift * 2, window_r.h - shift * 2))
         self.color = s.RED_DARK
         self.text_h = 30
         self.text_x = self.rect.x + 20
@@ -32,42 +35,39 @@ class Backpack(Text):
         self.style = pygame.font.SysFont(self.font, self.text_h)
         self.active_items_id = 0
 
-    # noinspection PyUnresolvedReferences
-    def draw(self, screen: Surface, hero: "Hero") -> None:
+    def draw(self) -> None:
         """ рисует окно рюкзака поверх карты """
+        screen = self.game.screen
+        self.hero = self.game.get_active_character()
         # фон прямоуголник
         pygame.draw.rect(screen, s.BLACK, self.rect)
-        pygame.draw.rect(screen, s.BLUE, self.rect, 5)
+        pygame.draw.rect(screen, s.RED_DARK, self.rect, 5)
 
         # заголовок окна рюкзак
-        xy = (self.rect.centerx, self.rect.y + 10)
-        window_hdr_rect = self.draw_header1_center("BACKPACK", screen, xy)
+        shift = 10
+        xy = (self.rect.centerx, self.rect.y + shift)
+        window_hdr_rect = self.draw_header1_center("BACKPACK", xy)
         # заголовок вещей
-        xy = (self.rect.x + 10, window_hdr_rect.y + window_hdr_rect.h + 10)
-        items_hdr_rect = self.draw_header2_left("ITEMS:", screen, xy)
-        # текст
-        lines = []
-        for i in range(len(hero.items)):
-            line = i
-            if hero.items[i].kind_0 == "cart":  # если патроны
-                line = f"{line}. {hero.items[i].kind}: {hero.items[i].count}"
-            elif hero.items[i].kind_0 == "gun":
-                line = f"{line}. {hero.items[i].kind}"
-            elif hero.items[i].kind_0 == "steelweapon":
-                line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
-            elif hero.items[i].kind_0 == "armor":
-                line = f"{line}. {hero.items[i].kind}: {hero.items[i].strength}"
-            elif hero.items[i].kind_0 == "medicine":
-                line = f"{line}. {hero.items[i].kind}"
-            elif hero.items[i].kind_0 == "backpack":
-                line = f"{line}. {hero.items[i].kind}"
-            else:
-                # todo удалить когда будут все виды оружия
-                raise NotImplementedError(f"neizvestnij predmet: {hero.items[i]}")
+        xy = (self.rect.x + shift, window_hdr_rect.y + window_hdr_rect.h + shift)
+        hdr_rect = self.draw_header2_left("ITEMS:", xy)
+        # список вещей
+        items_lines = []
+        for i in range(len(self.hero.items)):
+            item = self.hero.items[i]
+            kind = item.kind
+            line = "  "
             if self.active_items_id == i:
-                line += "     <"
-            lines.append(line)
-        self.draw_list(lines, screen, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)
+                line = "> "
+            line += f"{i}. {kind}"
+            kind_0 = self.hero.items[i].kind_0
+            if kind_0 == "cart":  # если патроны
+                line += f": {item.count}"
+            elif kind_0 in ["armor", "steelweapon"]:
+                line += f": {item.strength}"
+            line_x = hdr_rect.x
+            line_y = hdr_rect.y + hdr_rect.h + shift + self.size * i
+            items_lines.append(line)
+            self.draw_line(line, line_x, line_y)
 
     def select_item(self, pressed_key: int) -> None:
         """ кнопками UP/DOWN вибирает предмет в рюкзаке """
@@ -84,6 +84,8 @@ class Backpack(Text):
     def item_to_hands(self) -> None:
         """ берём вещь в руки из рюкзака """
         hero = self.game.get_active_hero()
+        if not hero.items:
+            return
         item_in_hands = hero.item_in_hands
         item_in_backpack = hero.items[self.active_items_id]
         hero.item_in_hands = item_in_backpack

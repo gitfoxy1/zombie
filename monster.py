@@ -1,6 +1,8 @@
 """ Персонажы """
 
 import random
+import pygame
+from time import sleep
 from typing import List, Set, Tuple, Union
 
 from pygame.mixer import Channel, Sound
@@ -307,10 +309,11 @@ class Monster(Character):
             # пропускает клетку в которой уже были
             if cell_next in cells_checked:
                 continue
-            # # draw  # todo debug
-            # pygame.draw.line(self.game.screen, s.BLUE, cell.center(), cell_next.center(), 10)
-            # pygame.display.update()
-            # sleep(0.01)
+            # draw поиск пути к герою
+            if s.DEBUG:
+                pygame.draw.line(self.game.screen, s.BLUE, cell.center(), cell_next.center(), 10)
+                pygame.display.update()
+                sleep(0.005)
 
             # рекурсивный поиск героя в следующей клетке
             route_to_hero = self.random_routes_to_hero(cell_next, cells_checked, [])
