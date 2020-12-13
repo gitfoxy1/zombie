@@ -68,10 +68,10 @@ class Game:
     @staticmethod
     def _init_screen():
         """ Создаёт экран игры """
-        if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:
+        if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:  # окно
             screen = pygame.display.set_mode((s.SCREEN_SIZE[0], s.SCREEN_SIZE[1]))
         else:
-            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"  # полноэкранный режим
             screen = pygame.display.set_mode()
         return screen
 

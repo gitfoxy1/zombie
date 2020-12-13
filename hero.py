@@ -142,6 +142,7 @@ class Hero(Character):
         """ Одевает броню или рюкзак """
         if not self.item_in_hands:
             return
+        self.item_in_hands.sound_use.play()
         if self.item_in_hands.kind_0 == "armor":
             if not self.armor:
                 self.armor = self.item_in_hands
@@ -153,6 +154,7 @@ class Hero(Character):
                 self.item_in_hands = None
 
         elif self.item_in_hands.kind_0 == "backpack":
+            self.item_in_hands.sound_use.play()
             if not self.backpack:
                 self.backpack = self.item_in_hands
                 self.item_in_hands = None
@@ -174,11 +176,14 @@ class Hero(Character):
             self.lives += item.heal
             self.lives = min([self.lives, self.lives_max])
             self.item_in_hands = None
+            item.sound_use.play()
             self.game.items.remove(item)
+
             return
         if item.kind == "Cotton":
             if self.armor:
                 self.armor.strength += item.heal
+                item.sound_use.play()
                 self.game.items.remove(item)
                 self.item_in_hands = None
 

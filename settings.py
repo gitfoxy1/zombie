@@ -5,7 +5,7 @@ import random
 
 DASHBOARD_W = 300
 SCREEN_SIZE = (500 + DASHBOARD_W, 500)  # окно
-SCREEN_SIZE = (0, 0)  # полноэкранный режим
+# SCREEN_SIZE = (0, 0)  # полноэкранный режим
 CELL_W = 100  # размер клетки
 
 SPEED = 10
@@ -69,6 +69,15 @@ S_USE = {
     "Knife": random.choice([os.path.join(SOUNDS_DIR, "knife1.wav"),
                             os.path.join(SOUNDS_DIR, "knife1.wav")]),
     "Bat": os.path.join(SOUNDS_DIR, "bat.wav"),
+    "Medikit": os.path.join(SOUNDS_DIR, "use_medikit.wav"),
+    "Cotton": os.path.join(SOUNDS_DIR, "use_coath.wav"),
+    "backpack1": os.path.join(SOUNDS_DIR, "wear_backpack_1.wav"),
+    "backpack2": os.path.join(SOUNDS_DIR, "wear_backpack_2.wav"),
+    "backpack3": os.path.join(SOUNDS_DIR, "wear_backpack_3.wav"),
+    "armor_level_1": os.path.join(SOUNDS_DIR, "wear_armor_1.wav"),
+    "armor_level_2": os.path.join(SOUNDS_DIR, "wear_armor_2.wav"),
+    "armor_level_3": os.path.join(SOUNDS_DIR, "wear_armor_3.wav"),
+
 }
 S_DAMAGE = {
     "kick": random.choice([os.path.join(SOUNDS_DIR, "kick1.wav"),
