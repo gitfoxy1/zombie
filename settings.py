@@ -7,14 +7,17 @@ DEBUG = True
 DEBUG = False
 
 DASHBOARD_W = 300
-SCREEN_SIZE = (800 + DASHBOARD_W, 800)  # окно
+SCREEN_SIZE = (900 + DASHBOARD_W, 900)  # окно
 # SCREEN_SIZE = (0, 0)  # полноэкранный режим
 CELL_W = 100  # размер клетки
+if SCREEN_SIZE[1] > SCREEN_SIZE[0]:
+    SCREEN_SIZE = (SCREEN_SIZE[1], SCREEN_SIZE[1])
 
 SPEED = 10
 
 # цвета
 BLACK = (0, 0, 0)
+BROUN = (104, 50, 9)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 RED_DARK = (129, 18, 18)
@@ -43,14 +46,14 @@ I_MAP = {
     "map": os.path.join(IMAGES_DIR, "map.png"),
 }
 I_CELLS = [
-    os.path.join(IMAGES_DIR, f"map_cell_1.png"),
-    os.path.join(IMAGES_DIR, f"map_cell_2.png"),
-    os.path.join(IMAGES_DIR, f"map_cell_3.png"),
-    os.path.join(IMAGES_DIR, f"map_cell_4.png"),
-    os.path.join(IMAGES_DIR, f"map_cell_5.png"),
-    os.path.join(IMAGES_DIR, f"map_cell_6.png"),
+    os.path.join(IMAGES_DIR, "map_cell_1.png"),
+    os.path.join(IMAGES_DIR, "map_cell_2.png"),
+    os.path.join(IMAGES_DIR, "map_cell_3.png"),
+    os.path.join(IMAGES_DIR, "map_cell_4.png"),
+    os.path.join(IMAGES_DIR, "map_cell_5.png"),
+    os.path.join(IMAGES_DIR, "map_cell_6.png"),
 ]
-
+I_ZASTAVKA = os.path.join(IMAGES_DIR, "zastavka.png")
 # звуки
 SOUNDS_DIR = os.path.join(PROJECT_DIR, "sounds")
 S_BACKGROUND = os.path.join(SOUNDS_DIR, "background.wav")

@@ -1,17 +1,9 @@
 """ game zombie """
 import pygame
-# todo
-#  menu select players count
-
-# todo BUGS
-#  backpack image white space
 
 import functions as f
 import settings as s
 from game import Game
-import time
-
-
 
 FPS = 60
 pygame.init()
@@ -21,12 +13,11 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
-game = Game(map_="map", heroes=1, monsters=0, items=40)
+game = Game(map_="map", heroes=1, monsters=0, items=20)
 
-INTRO = True  # если INTRO = False, начинается игра
+INTRO = False  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
-counters = game.update_counters()
 
 while INTRO:
     game.characters.update()
@@ -39,20 +30,18 @@ while INTRO:
     pygame.display.update()
     clock.tick(FPS)
 
-
 while RUN:
     # update
     game.update_sprites()
     if not game.is_motion():
         # обновляет счётчики, если у героя закончился действия, то ход переходит к следующему герою
         counters = game.update_counters()
-
         # добавляет монстров каждую волну
         if counters.wave:
+            pass
             game._init_monsters_wave()
         game.hero_actions()
         game.monster_actions()
-
 
     for event in pygame.event.get():
         if f.exit_game(event):
@@ -62,19 +51,11 @@ while RUN:
     if game.all_heroes_dead():
         GAME_OVER = True
 
-    if game.monster_waves_counter >= 30 and not game.monsters:
-        game.win()
-        RUN = False
-
     # отрисовка экрана
     game.draw()
     if GAME_OVER:
         game.game_over()
-
     pygame.display.update()
-    # counters = game.update_counters()
-    if counters.turn and game.get_active_character().type == 'hero':
-        time.sleep(1)
     clock.tick(FPS)
 
 pygame.quit()

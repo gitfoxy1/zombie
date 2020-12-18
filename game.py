@@ -1,8 +1,8 @@
 """ игра """
-import os
 import random
 from datetime import datetime
 from typing import Optional, NamedTuple, Tuple, Union
+import os
 
 import pygame
 from pygame import Surface
@@ -18,6 +18,9 @@ from hero import Hero
 from items import items_generator
 from map import Map
 from monster import Monster
+import time
+from text import Text
+
 
 CharacterHM = Union[Hero, Monster]
 
@@ -36,13 +39,13 @@ class Game:
      turn - Ход. За один ход, персонаж делает заданное количество действий.
      action - Действиею Переход на соседнюю клетку, атака.
      """
-    kb_mode: str = "map"  # keyboard mode, map/attack/backpack
+    kb_mode: str = "controls"  # keyboard mode, map/attack/backpack
     kb_locked: bool = False  # нажата любая кнопка
     # счётчики
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
+    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
     is_world_motion = False  # происходит сдвиг игрового мира
     is_game_over = False
     world_shift = (0, 0)
@@ -66,6 +69,7 @@ class Game:
         self.dashboard = Dashboard(self)  # приборная панель
         self.backpack: Backpack = Backpack(self)  # рюкзак
         self.controls: Controls = Controls(self)  # help
+        self.monsters_killed = 0
 
     @staticmethod
     def _init_screen() -> Surface:
@@ -142,6 +146,7 @@ class Game:
         """ заставка перед игрой, карта появляется из темноты
          return True пока полностью не появится """
         # прозрачность
+
         time_delta = datetime.now() - self.start_time
         seconds = time_delta.seconds + time_delta.microseconds / 1000000
         alpha_max = (256 + 100)
@@ -159,11 +164,21 @@ class Game:
         # карта появляется из темноты
         screen_rect = self.screen.get_rect()
         surface = pygame.Surface(screen_rect.bottomright)
-        surface.set_alpha(alpha)
-        surface.fill(s.BLACK)
+        surface.set_alpha(alpha * 5)
+        surface.fill(s.BROUN)
         self.screen.blit(surface, screen_rect.topleft)
+        widht = min(self.screen.get_rect().size)
+        size = (widht, widht)
+        surface = pygame.image.load(s.I_ZASTAVKA).convert()
+        surface = pygame.transform.scale(surface, size)
+        rect = surface.get_rect()
+        rect.center = self.screen.get_rect().center
+        surface.set_alpha(alpha)
+        self.screen.blit(surface, rect.topleft)
+        # карта появилась
         if alpha <= 0:
             return False
+        # карта ещё не появилась
         return True
 
     def _start_turn(self):
@@ -539,7 +554,7 @@ class Game:
         raise ValueError("нет активного персонажа")
 
     def is_motion(self) -> bool:
-        """ True  - если хоть обин персонаж в движении
+        """ True  - если хоть один персонаж в движении
             False - если все персонажи закончили движение и стоят в своих клетках
         """
         if self.is_world_motion:
@@ -580,13 +595,13 @@ class Game:
             # если счётчик кругов кратен 5, то обновим счётчик волн-монстров
             if not self.rounds_counter % self.rounds_between_monster_wave:
                 self.monster_waves_counter += 1
-
                 # закончилась волн-монстров
                 return Counters(turn=True, round=True, wave=True)
             # закончился круг/round
             return Counters(turn=True, round=True, wave=False)
         # закончился ход/turn
         return Counters(turn=True, round=False, wave=False)
+
 
     def hero_actions(self) -> None:
         """ В зависимости от нажатой кнопки меняет управление клавиатуры
@@ -810,6 +825,13 @@ class Game:
         if not self.is_game_over:
             Channel(2).play(Sound(s.S_GAME_OVER))
             self.is_game_over = True
+
+    def win(self) -> None:
+
+        text = Text(self.screen)
+        text.size = 100
+        text.draw_list(['You win', f'you killed {self.monsters_killed} monsters'], 200, 400)
+        time.sleep(5)
 
     def update_sprites(self) -> None:
         """ обновим передвигающиеся спрайты на экране """

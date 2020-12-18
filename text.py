@@ -65,6 +65,6 @@ class Text:
             self.screen.blit(render, xy)
             box_w = max(box_w, text_rect.w)
             box_h = y_i + text_rect.h
-            print()
+
         box_rect = pygame.Rect((x, y), (box_w, box_h - y))
         return box_rect

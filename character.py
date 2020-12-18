@@ -145,6 +145,8 @@ class Character(SpriteOnMap):
 
     def death(self) -> None:
         """ Персонаж умирает, удаляем из игры """
+        if self.type == 'monster':
+            self.game.monsters_killed += 1
         # удаляет героя с карты, вещи героя сбрасывает на карту
         cell = self.my_cell()
         cell.characters.remove(self)
