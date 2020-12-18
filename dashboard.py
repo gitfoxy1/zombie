@@ -38,7 +38,8 @@ class Dashboard:
         pic = pygame.transform.scale(character.image, (self.image_w, self.image_w))
         screen.blit(pic, (self.image_x, self.image_y))
         if character.item_in_hands:
-            pic_ = pygame.transform.scale(character.item_in_hands.image2, (self.image_w, self.image_w))
+            pic_ = pygame.transform.scale(character.item_in_hands.image2,
+                                          (self.image_w, self.image_w))
             screen.blit(pic_, (self.image_x, self.image_y))
 
         # текст

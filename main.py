@@ -1,29 +1,35 @@
 """ game zombie """
-import pygame
-# todo
-#  menu select players count
+import time
 
-# todo BUGS
-#  backpack image white space
+import pygame
 
 import functions as f
 import settings as s
 from game import Game
-import time
 
-
+# todo
+#  menu select players count
+#  udar kulakom, mimo nuzhen zvuk promaha
+# todo BUGS
+#  backpack image white space
+#  zastavka vertaljot krasnoje pjatno
 
 FPS = 60
 pygame.init()
+pygame.display.set_caption("zombies")
 pygame.mixer.pre_init(44100, -16, 1, 512)
 pygame.mixer.music.load(s.S_BACKGROUND)
 pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
-game = Game(map_="map", heroes=1, monsters=0, items=40)
+MAP = "map"
+HEROES = 1
+MONSTERS = 0
+ITEMS = 40
+game = Game(map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
 
-INTRO = True  # если INTRO = False, начинается игра
+INTRO = False  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 counters = game.update_counters()
@@ -39,7 +45,6 @@ while INTRO:
     pygame.display.update()
     clock.tick(FPS)
 
-
 while RUN:
     # update
     game.update_sprites()
@@ -53,10 +58,14 @@ while RUN:
         game.hero_actions()
         game.monster_actions()
 
-
     for event in pygame.event.get():
         if f.exit_game(event):
             RUN = False
+        # replay
+        if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+            RUN = True
+            GAME_OVER = False
+            game = Game(map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
 
     # GAME_OVER
     if game.all_heroes_dead():
@@ -72,8 +81,7 @@ while RUN:
         game.game_over()
 
     pygame.display.update()
-    # counters = game.update_counters()
-    if counters.turn and game.get_active_character().type == 'hero':
+    if counters.turn and game.get_active_character().type == "hero":
         time.sleep(1)
     clock.tick(FPS)
 

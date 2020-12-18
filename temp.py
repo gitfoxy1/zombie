@@ -4,7 +4,6 @@ import pygame
 import functions as f
 import settings as s
 from game import Game
-
 from start_menu import StartMenu
 
 # TODO knife attack to blank item need sound ou
@@ -22,7 +21,6 @@ while not PLAYERS:
     menu = StartMenu()
     menu.display.update()
     clock.tick(FPS)
-
 
 game = Game(map_="map", heroes=PLAYERS, monsters=0, items=20)
 

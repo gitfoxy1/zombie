@@ -1,8 +1,9 @@
 """ игра """
+import os
 import random
+import time
 from datetime import datetime
 from typing import Optional, NamedTuple, Tuple, Union
-import os
 
 import pygame
 from pygame import Surface
@@ -10,7 +11,6 @@ from pygame.mixer import Sound, Channel
 from pygame.sprite import Group
 
 import settings as s
-
 from backpack import Backpack
 from controls import Controls
 from dashboard import Dashboard
@@ -18,9 +18,7 @@ from hero import Hero
 from items import items_generator
 from map import Map
 from monster import Monster
-import time
 from text import Text
-
 
 CharacterHM = Union[Hero, Monster]
 
@@ -98,11 +96,11 @@ class Game:
             count = 1
         heroes = Group()
         attrs = [
-            dict(name="hero1", image="hero1.png", xy=(12, 8), game=self),
-            dict(name="hero2", image="hero2.png", xy=(1, 2), game=self),
-            dict(name="hero3", image="hero3.png", xy=(1, 3), game=self),
-            dict(name="hero4", image="hero4.png", xy=(1, 4), game=self),
-        ][:count]
+                    dict(name="hero1", image="hero1.png", xy=(12, 8), game=self),
+                    dict(name="hero2", image="hero2.png", xy=(1, 2), game=self),
+                    dict(name="hero3", image="hero3.png", xy=(1, 3), game=self),
+                    dict(name="hero4", image="hero4.png", xy=(1, 4), game=self),
+                ][:count]
         for attr in attrs:
             hero = Hero(**attr)  # создадим героя
             heroes.add(hero)  # добавим героя в спрайты героев
@@ -115,11 +113,11 @@ class Game:
         """ Создаёт группу из монстров, добавляет на карту, в список спрайтов """
         monsters = Group()
         attrs = [
-            dict(xy=(13, 7), game=self),
-            dict(xy=(13, 7), game=self),
-            dict(xy=(13, 7), game=self),
-            dict(xy=(2, 4), game=self),
-        ][:count]
+                    dict(xy=(13, 7), game=self),
+                    dict(xy=(13, 7), game=self),
+                    dict(xy=(13, 7), game=self),
+                    dict(xy=(2, 4), game=self),
+                ][:count]
         for attr in attrs:
             monster = Monster.little(**attr)  # создадим монстра
             monsters.add(monster)  # добавим монстра в спрайты монстрв
@@ -452,8 +450,10 @@ class Game:
             monster104 = Monster.shooting(xy=(1, 9), game=self)
             monster105 = Monster.eye(xy=(13, 1), game=self)
             monster106 = Monster.little(xy=(8, 6), game=self)
-            self.monsters.add(monster101, monster102, monster103, monster104, monster105, monster106)
-            self.characters.add(monster101, monster102, monster103, monster104, monster105, monster106)
+            self.monsters.add(monster101, monster102, monster103, monster104, monster105,
+                              monster106)
+            self.characters.add(monster101, monster102, monster103, monster104, monster105,
+                                monster106)
             self.map.add_characters(
                 [monster101, monster102, monster103, monster104, monster105, monster106])
 
@@ -465,8 +465,10 @@ class Game:
             monster109 = Monster.fast(xy=(14, 9), game=self)
             monster108 = Monster.big(xy=(13, 2), game=self)
             monster107 = Monster.little(xy=(2, 2), game=self)
-            self.monsters.add(monster107, monster108, monster109, monster110, monster111, monster112)
-            self.characters.add(monster107, monster108, monster109, monster110, monster111, monster112)
+            self.monsters.add(monster107, monster108, monster109, monster110, monster111,
+                              monster112)
+            self.characters.add(monster107, monster108, monster109, monster110, monster111,
+                                monster112)
             self.map.add_characters(
                 [monster107, monster108, monster109, monster110, monster111, monster112])
 
@@ -478,8 +480,10 @@ class Game:
             monster116 = Monster.shooting(xy=(1, 9), game=self)
             monster117 = Monster.eye(xy=(10, 2), game=self)
             monster118 = Monster.little(xy=(12, 5), game=self)
-            self.monsters.add(monster113, monster114, monster115, monster116, monster117, monster118)
-            self.characters.add(monster113, monster114, monster115, monster116, monster117, monster118)
+            self.monsters.add(monster113, monster114, monster115, monster116, monster117,
+                              monster118)
+            self.characters.add(monster113, monster114, monster115, monster116, monster117,
+                                monster118)
             self.map.add_characters(
                 [monster113, monster114, monster115, monster116, monster117, monster118])
 
@@ -491,8 +495,10 @@ class Game:
             monster121 = Monster.shooting(xy=(1, 9), game=self)
             monster120 = Monster.fast(xy=(10, 2), game=self)
             monster119 = Monster.big(xy=(12, 5), game=self)
-            self.monsters.add(monster119, monster120, monster121, monster122, monster123, monster124)
-            self.characters.add(monster119, monster120, monster121, monster122, monster123, monster124)
+            self.monsters.add(monster119, monster120, monster121, monster122, monster123,
+                              monster124)
+            self.characters.add(monster119, monster120, monster121, monster122, monster123,
+                                monster124)
             self.map.add_characters(
                 [monster119, monster120, monster121, monster122, monster123, monster124])
 
@@ -504,8 +510,10 @@ class Game:
             monster127 = Monster.smart(xy=(0, 0), game=self)
             monster126 = Monster.eye(xy=(0, 0), game=self)
             monster125 = Monster.big(xy=(0, 0), game=self)
-            self.monsters.add(monster125, monster126, monster127, monster128, monster129, monster130)
-            self.characters.add(monster125, monster126, monster127, monster128, monster129, monster130)
+            self.monsters.add(monster125, monster126, monster127, monster128, monster129,
+                              monster130)
+            self.characters.add(monster125, monster126, monster127, monster128, monster129,
+                                monster130)
             self.map.add_characters(
                 [monster125, monster126, monster127, monster128, monster129, monster130])
 
@@ -602,7 +610,6 @@ class Game:
         # закончился ход/turn
         return Counters(turn=True, round=False, wave=False)
 
-
     def hero_actions(self) -> None:
         """ В зависимости от нажатой кнопки меняет управление клавиатуры
         по умолчанию - управление на карте
@@ -630,13 +637,12 @@ class Game:
             self.kb_locked = True
 
         if self.kb_mode == "map":
+            if keys[pygame.K_F1]:
+                self.kb_mode = "controls"
+                return
             # меняет режим клавиатуры с карты на рюкзак
             if keys[pygame.K_i]:
                 self.kb_mode = "backpack"
-                self.backpack.active_items_id = 0
-                return
-            if keys[pygame.K_F1]:
-                self.kb_mode = "controls"
                 self.backpack.active_items_id = 0
                 return
             # меняет режим клавиатуры с карты на атаку
@@ -807,7 +813,7 @@ class Game:
         font = pygame.font.SysFont("consolas", 100)
         text = font.render("Game Over", True, s.RED)
         text_rect = text.get_rect()
-        text_rect.center = self.map.rect.center
+        text_rect.center = self.screen.get_rect().center
 
         size = (text_rect.w + 50, text_rect.h + 50)
         background = pygame.Surface(size)
@@ -830,7 +836,7 @@ class Game:
 
         text = Text(self.screen)
         text.size = 100
-        text.draw_list(['You win', f'you killed {self.monsters_killed} monsters'], 200, 400)
+        text.draw_list(["You win", f"you killed {self.monsters_killed} monsters"], 200, 400)
         time.sleep(5)
 
     def update_sprites(self) -> None:

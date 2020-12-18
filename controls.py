@@ -1,9 +1,9 @@
 """ Help, назначение клавиш """
 import pygame
+from pygame import Rect
 
 import settings as s
 from text import Text
-from pygame import Rect
 
 Game = "Game"
 
@@ -38,7 +38,7 @@ class Controls(Text):
 
         pattern = "{:<4}{:<25}{}"
         text = [
-            "MAP",
+            # "MAP",
             pattern.format(" ", "up:", "arrow up"),
             pattern.format(" ", "down:", "arrow down"),
             pattern.format(" ", "right:", "arrow right"),
@@ -51,8 +51,9 @@ class Controls(Text):
             pattern.format(" ", "exit from game:", "ALT + F4"),
             pattern.format(" ", "enter to backpack:", "I"),
             pattern.format(" ", "select item in backpack:", "ENTER"),
+            pattern.format(" ", "replay:", "R"),
             pattern.format(" ", "control:", "F1"),
-            '',
+            "",
             "goodluck!!!! :D"
         ]
         self.draw_list(text, items_hdr_rect.x, items_hdr_rect.y + items_hdr_rect.h + 10)

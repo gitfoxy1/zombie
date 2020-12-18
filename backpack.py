@@ -1,15 +1,13 @@
 """ Рюкзак """
 
-from typing import List, Optional
+from typing import Optional
 
 import pygame
-from pygame import Rect, Surface
+from pygame import Rect
 
 import settings as s
-from text import Text
-
 from hero import Hero
-from items import Cartridge
+from text import Text
 
 Game = "Game"
 

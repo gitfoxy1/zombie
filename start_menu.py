@@ -1,10 +1,10 @@
 """ Меню, выбор героев для мультиплеера """
 import os
+
 import pygame
+from pygame import Surface
 
 import settings as s
-from text import Text
-from pygame import Rect, Surface
 
 Game = "Game"
 
@@ -37,6 +37,3 @@ class StartMenu():
         # фон прямоуголник
         pygame.draw.rect(self.screen, s.BLACK, self.rect)
         pygame.draw.rect(self.screen, s.RED_DARK, self.rect, 5)
-
-
-

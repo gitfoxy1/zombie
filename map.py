@@ -195,4 +195,3 @@ class Map(Sprite):
                     else:  # нечётные столбцы
                         pass  # центр клетки
         return self.cells, cells_x, cells_y
-

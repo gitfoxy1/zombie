@@ -33,7 +33,7 @@ class Guns(Items):
     """ Класс-родитель для оружия """
 
     def __init__(self, image: str, image2: str, kind: str, game: Game):
-        super().__init__(image=image,  image2=image2, kind_0="gun", kind=kind, game=game)
+        super().__init__(image=image, image2=image2, kind_0="gun", kind=kind, game=game)
         self.damage = 0  # урон
         self.cartridge_kind = ""  # совместимые патроны
         self.fire_speed = 1  # скорострельность
@@ -69,7 +69,8 @@ class Kalashnikov(Guns):
     """автомат Kalashnikov"""
 
     def __init__(self, game: Game):
-        super().__init__(image="kalashnikov.png", image2="kalashnikov_in_hands.png", kind="Kalashnikov", game=game)
+        super().__init__(image="kalashnikov.png", image2="kalashnikov_in_hands.png",
+                         kind="Kalashnikov", game=game)
         self.damage = 1
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 5
@@ -93,7 +94,8 @@ class Mozambyk(Guns):
     """дробовик Mozambyk"""
 
     def __init__(self, game: Game):
-        super().__init__(image="mozambyk.png", image2="mozambyk_in_hands.png", kind="Mozambyk", game=game)
+        super().__init__(image="mozambyk.png", image2="mozambyk_in_hands.png", kind="Mozambyk",
+                         game=game)
         self.damage = 3
         self.cartridge_kind = "Fraction"
         self.fire_speed = 1
@@ -112,6 +114,7 @@ class Awp(Guns):
         self.range = 5
         self.hit_probability = 0.8
 
+
 # =====  CARTRIDGE  ==========================================================
 
 
@@ -127,7 +130,8 @@ class Cartridge(Items):
     @classmethod
     def little(cls, game: Game):
         """ лёгкие патроны  """
-        cartridge = cls(image="little.png", image2="little_in_hands.png", kind="Little Cartridge", game=game)
+        cartridge = cls(image="little.png", image2="little_in_hands.png", kind="Little Cartridge",
+                        game=game)
         cartridge.count_max = 40
         cartridge.count = 10
         cartridge.image_in_hands = "little.png"
@@ -138,7 +142,8 @@ class HeavyCartridge(Cartridge):
     """ тяжёлые патроны """
 
     def __init__(self, game: Game):
-        super().__init__(image="heavy.png", image2="heavy_in_hands.png", kind="Heavy Cartridge", game=game)
+        super().__init__(image="heavy.png", image2="heavy_in_hands.png", kind="Heavy Cartridge",
+                         game=game)
         self.count = 10
         self.count_max = self.count * 4
 
@@ -147,7 +152,8 @@ class Fraction(Cartridge):
     """ патроны """
 
     def __init__(self, game: Game):
-        super().__init__(image="fraction.png", image2="fraction_in_hands.png", kind="Fraction", game=game)
+        super().__init__(image="fraction.png", image2="fraction_in_hands.png", kind="Fraction",
+                         game=game)
         self.count = 5
         self.count_max = self.count * 4
 
@@ -199,21 +205,24 @@ class Armor(Items):
     @classmethod
     def lvl1(cls, game: Game):
         """ броня уровень 1 """
-        armor = cls(image="armor_1.png", image2="armor_1_in_hands.png", kind="armor_level_1", game=game)
+        armor = cls(image="armor_1.png", image2="armor_1_in_hands.png", kind="armor_level_1",
+                    game=game)
         armor.strength = 2
         return armor
 
     @classmethod
     def lvl2(cls, game: Game):
         """ броня уровень 1 """
-        armor = cls(image="armor_2.png", image2="armor_2_in_hands.png", kind="armor_level_2", game=game)
+        armor = cls(image="armor_2.png", image2="armor_2_in_hands.png", kind="armor_level_2",
+                    game=game)
         armor.strength = 3
         return armor
 
     @classmethod
     def lvl3(cls, game: Game):
         """ броня уровень 1 """
-        armor = cls(image="armor_3.png", image2="armor_3_in_hands.png", kind="armor_level_3", game=game)
+        armor = cls(image="armor_3.png", image2="armor_3_in_hands.png", kind="armor_level_3",
+                    game=game)
         armor.strength = 4
         return armor
 

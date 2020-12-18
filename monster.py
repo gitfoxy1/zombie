@@ -1,10 +1,10 @@
 """ Персонажы """
 
 import random
-import pygame
 from time import sleep
 from typing import List, Set, Tuple, Union
 
+import pygame
 from pygame.mixer import Channel, Sound
 
 import settings as s

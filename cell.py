@@ -1,6 +1,7 @@
 """ клетка карты """
 import random
 from typing import List, Optional, Set, Tuple, Union
+
 from pygame import Rect
 
 import settings as s

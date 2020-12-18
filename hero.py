@@ -197,11 +197,15 @@ class Hero(Character):
 
         # рукапашный бой, атакуем свою клетку
         if not weapon or weapon.kind_0 not in ["gun", "steelweapon"]:
-            self.sound_damage.play()
+
             cell_attacked = self.my_cell()
             ch_attacked = cell_attacked.get_character_without(self)
             if ch_attacked:
+                self.sound_damage.play()
                 ch_attacked.do_damage(1)
+            else:
+                # todo sound
+                pass
             return
 
         # огнестрел
