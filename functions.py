@@ -1,10 +1,10 @@
 """ различные функции помошники """
 
 import os
-import time
+from datetime import datetime
+
 import pygame
 from pygame import Surface
-from datetime import datetime
 
 import settings as s
 from menu import Menu
