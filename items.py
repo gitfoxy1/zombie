@@ -108,7 +108,7 @@ class Awp(Guns):
 
     def __init__(self, game: Game):
         super().__init__(image="awp.png", image2="awp_in_hands.png", kind="A.W.P", game=game)
-        self.damage = 3
+        self.damage = 4
         self.cartridge_kind = "Heavy Cartridge"
         self.fire_speed = 1
         self.range = 5

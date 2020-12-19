@@ -12,9 +12,6 @@ from text import Text
 from menu import Menu
 from pygame import Surface
 
-# todo
-#  udar kulakom, mimo nuzhen zvuk promaha
-
 FPS = 60
 pygame.init()
 pygame.display.set_caption("zombies")
@@ -34,7 +31,7 @@ MONSTERS = 0
 ITEMS = 20
 game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS + ((HEROES - 1) * 10))
 
-INTRO = True  # если INTRO = False, начинается игра
+INTRO = False  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 counters = game.update_counters()

@@ -44,7 +44,6 @@ def intro_1(screen: Surface, delay: int) -> None:
 
         screen.blit(background, screen_rect.topleft)
         screen.blit(surface, rect.topleft)
-        print(alpha)
         if duration_seconds >= delay:
             return
         for event in pygame.event.get():
