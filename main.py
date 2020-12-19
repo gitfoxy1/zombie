@@ -89,6 +89,7 @@ while RUN:
 
     pygame.display.update()
     if counters.turn and game.get_active_character().type == "hero":
+        game.update_sprites()
         time.sleep(1)
     clock.tick(FPS)
 
