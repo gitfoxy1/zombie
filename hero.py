@@ -204,7 +204,7 @@ class Hero(Character):
                 self.sound_damage.play()
                 ch_attacked.do_damage(1)
             else:
-                # todo sound
+                Sound(s.S_PUNCH_MISSED).play()
                 pass
             return
 
@@ -212,21 +212,21 @@ class Hero(Character):
         if weapon.kind_0 == "gun":
             bullets = self._bullets_from_backpack(weapon)
             if not bullets:
-                # todo sound
+                Sound(s.S_OSECHKA).play()
                 return
             # выстрелы
             for bullet in range(bullets):
                 weapon.sound_use.play()
                 # вероятность промаха
                 if random.uniform(0, 1) > weapon.hit_probability:
-                    # todo sound
+                    Sound(s.S_GUN_MISSED).play()
                     continue
                 # атакуемые клетки
                 cells_attacked = map_.get_direction_cells(my_cell, direction, weapon.range)
                 # пуля попадает в первого попавшевося персонажа или в стенку
                 for cell_i in cells_attacked:
                     if direction in cell_i.walls:
-                        # cell_i.rikoshet.play()  # todo sound
+                        Sound(s.S_RIKOSHET).play()
                         break
                     ch_attacked = cell_i.get_character()
                     if ch_attacked:

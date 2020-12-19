@@ -65,6 +65,10 @@ S_PICK_UP = os.path.join(SOUNDS_DIR, "pick_up.wav")
 S_DROP_DOWN = os.path.join(SOUNDS_DIR, "drop_down.wav")
 # guns
 S_GUN_KALASHNIKOV = os.path.join(SOUNDS_DIR, "gun_kalashnikov1.wav")
+S_GUN_MISSED = os.path.join(SOUNDS_DIR, "gun_missed.wav")
+S_PUNCH_MISSED = os.path.join(SOUNDS_DIR, "punch_missed.wav")
+S_OSECHKA = os.path.join(SOUNDS_DIR, "osechka.wav")
+S_RIKOSHET = os.path.join(SOUNDS_DIR, "rikoshet.wav")
 S_USE = {
     "U.Z.I.": os.path.join(SOUNDS_DIR, "gun_uzi.wav"),
     "Kalashnikov": os.path.join(SOUNDS_DIR, "gun_kalashnikov.wav"),

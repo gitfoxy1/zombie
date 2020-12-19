@@ -14,8 +14,6 @@ from pygame import Surface
 
 # todo
 #  udar kulakom, mimo nuzhen zvuk promaha
-# todo BUGS
-#  zastavka vertaljot krasnoje pjatno
 
 FPS = 60
 pygame.init()
@@ -33,8 +31,8 @@ f.intro_1(screen=screen, delay=10)
 HEROES = f.menu_heroes(screen=screen)
 MAP = "map"
 MONSTERS = 0
-ITEMS = 40
-game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
+ITEMS = 20
+game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS + ((HEROES - 1) * 10))
 
 INTRO = True  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры

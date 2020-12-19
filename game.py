@@ -43,7 +43,7 @@ class Game:
     turns_counter: int = 0  # счётчик ходов
     rounds_counter: int = 0  # счетчик кругов
     monster_waves_counter: int = 0  # счетчик волн монстров
-    rounds_between_monster_wave: int = 1  # количество кругов между волнами монстров
+    rounds_between_monster_wave: int = 5  # количество кругов между волнами монстров
     is_world_motion = False  # происходит сдвиг игрового мира
     is_game_over = False
     world_shift = (0, 0)
@@ -87,9 +87,9 @@ class Game:
         heroes = Group()
         attrs = [
                     dict(name="hero1", image="hero1.png", xy=(12, 8), game=self),
-                    dict(name="hero2", image="hero2.png", xy=(1, 2), game=self),
-                    dict(name="hero3", image="hero3.png", xy=(1, 3), game=self),
-                    dict(name="hero4", image="hero4.png", xy=(1, 4), game=self),
+                    dict(name="hero2", image="hero2.png", xy=(11, 8), game=self),
+                    dict(name="hero3", image="hero3.png", xy=(11, 9), game=self),
+                    dict(name="hero4", image="hero4.png", xy=(12, 9), game=self),
                 ][:count]
         for attr in attrs:
             hero = Hero(**attr)  # создадим героя
