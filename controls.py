@@ -15,14 +15,12 @@ class Controls(Text):
     def __init__(self, game: Game):
         super().__init__(game.screen)
         self.game = game
-        shift = 90
+        shift = 40
         window_r = game.screen.get_rect()
         self.rect = Rect((shift, shift), (window_r.w - shift * 2, window_r.h - shift * 2))
-        self.color = s.RED_DARK
-        self.text_h = 30
         self.text_x = self.rect.x + 20
         self.text_y = self.rect.y + 50
-        self.style = pygame.font.SysFont(self.font, self.text_h)
+        self.style = pygame.font.SysFont(self.font, self.size)
         self.active_items_id = 0
 
     def draw(self):

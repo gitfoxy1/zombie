@@ -48,12 +48,12 @@ class Game:
     is_game_over = False
     world_shift = (0, 0)
 
-    def __init__(self, map_: str, heroes: int, monsters: int, items: int):
+    def __init__(self, screen: Surface, map_: str, heroes: int, monsters: int, items: int):
         """  Создаёт игру
         :param heroes: колличество героев в игре. Если players_count=0, то создаст читера.
         """
         self.start_time = datetime.now()
-        self.screen = self._init_screen()
+        self.screen = screen
         # map
         self.map: Map = self._init_map(map_)  # карта
         self.maps: Group = Group(self.map)
@@ -68,16 +68,6 @@ class Game:
         self.backpack: Backpack = Backpack(self)  # рюкзак
         self.controls: Controls = Controls(self)  # help
         self.monsters_killed = 0
-
-    @staticmethod
-    def _init_screen() -> Surface:
-        """ Создаёт экран игры """
-        if s.SCREEN_SIZE[0] and s.SCREEN_SIZE[1]:  # окно
-            screen = pygame.display.set_mode((s.SCREEN_SIZE[0], s.SCREEN_SIZE[1]))
-        else:
-            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"  # полноэкранный режим
-            screen = pygame.display.set_mode()
-        return screen
 
     def _init_map(self, name: str = None) -> Map:
         """ Создаёт карту """
@@ -140,7 +130,7 @@ class Game:
             item.update_rect()  # Sprite.rect
         return items
 
-    def intro(self) -> bool:
+    def intro_2(self) -> bool:
         """ заставка перед игрой, карта появляется из темноты
          return True пока полностью не появится """
         # прозрачность

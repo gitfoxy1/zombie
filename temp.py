@@ -31,7 +31,7 @@ GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 while INTRO:
     game.characters.update()
     game.items.update()
-    INTRO = game.intro()
+    INTRO = game.intro_2()
     for event in pygame.event.get():
         if f.exit_game(event):
             INTRO = False

@@ -15,7 +15,6 @@ Game = "Game"
 class Backpack(Text):
     """ Рюкзак с вещами """
     # noinspection PyUnresolvedReferences
-    game: Optional[Game] = None  # ссылка на игру
     rect: Rect  # прямоугольник окна на экране (пиксели)
     active_items_id: int  # выбранная вещ в рюкзаке
     hero: Optional[Hero] = None  # ссылка на активного героя
@@ -26,11 +25,9 @@ class Backpack(Text):
         shift = 90
         window_r = game.map.rect
         self.rect = Rect((shift, shift), (window_r.w - shift * 2, window_r.h - shift * 2))
-        self.color = s.RED_DARK
-        self.text_h = 30
         self.text_x = self.rect.x + 20
         self.text_y = self.rect.y + 50
-        self.style = pygame.font.SysFont(self.font, self.text_h)
+        self.style = pygame.font.SysFont(self.font, self.size)
         self.active_items_id = 0
 
     def draw(self) -> None:

@@ -7,7 +7,7 @@ import random
 DEBUG = False
 
 DASHBOARD_W = 300
-SCREEN_SIZE = (600 + DASHBOARD_W, 600)  # окно
+SCREEN_SIZE = (700 + DASHBOARD_W, 700)  # окно
 # SCREEN_SIZE = (0, 0)  # полноэкранный режим
 CELL_W = 100  # размер клетки
 if SCREEN_SIZE[1] > SCREEN_SIZE[0]:

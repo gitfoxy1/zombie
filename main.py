@@ -2,16 +2,19 @@
 import time
 
 import pygame
+from pygame.rect import Rect
 
 import functions as f
 import settings as s
 from game import Game
+from game_menu import *
+from text import Text
+from menu import Menu
+from pygame import Surface
 
 # todo
-#  menu select players count
 #  udar kulakom, mimo nuzhen zvuk promaha
 # todo BUGS
-#  backpack image white space
 #  zastavka vertaljot krasnoje pjatno
 
 FPS = 60
@@ -23,21 +26,27 @@ pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(loops=-1)
 
 clock = pygame.time.Clock()
+screen = f.init_screen()
+MENU = True
+menu = Menu(screen)
+f.intro_1(screen=screen, delay=10)
+HEROES = f.menu_heroes(screen=screen)
 MAP = "map"
-HEROES = 1
 MONSTERS = 0
 ITEMS = 40
-game = Game(map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
+game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
 
-INTRO = False  # если INTRO = False, начинается игра
+INTRO = True  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 counters = game.update_counters()
 
+
+
 while INTRO:
     game.characters.update()
     game.items.update()
-    INTRO = game.intro()
+    INTRO = game.intro_2()
     for event in pygame.event.get():
         if f.exit_game(event):
             INTRO = False
@@ -65,7 +74,7 @@ while RUN:
         if event.type == pygame.KEYDOWN and event.key == pygame.K_r:
             RUN = True
             GAME_OVER = False
-            game = Game(map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
+            game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS, items=ITEMS)
 
     # GAME_OVER
     if game.all_heroes_dead():
