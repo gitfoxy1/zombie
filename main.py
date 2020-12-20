@@ -2,7 +2,6 @@
 import time
 
 import pygame
-from game_menu import *
 
 import functions as f
 import settings as s
@@ -29,7 +28,7 @@ ITEMS = 20
 game = Game(screen=screen, map_=MAP, heroes=HEROES, monsters=MONSTERS,
             items=ITEMS + ((HEROES - 1) * 10))
 
-INTRO = False  # если INTRO = False, начинается игра
+INTRO = True  # если INTRO = False, начинается игра
 RUN = True  # если RUN = False, выходим из игры
 GAME_OVER = False  # если GAME_OVER = True, заставка GAME_OVER
 counters = game.update_counters()
